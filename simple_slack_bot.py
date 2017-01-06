@@ -23,8 +23,8 @@ class SimpleSlackBot:
         else:
             print("ret {}".format(ret))
             print("Connection failed. Are you connected to the internet?"
-                  " Potentially invalid Slack token or bot ID? Check
-                  " environment variables.")
+                  " Potentially invalid Slack token or bot ID? Check"
+                  " environment variables.ch")
 
 
     def listen(self):
