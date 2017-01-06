@@ -2,6 +2,8 @@
 
 Simple Slack Bot attempts to factor out all the commonality between all Slack Bots, so that you can focus on writing your business logic.
 
+See Slack's api here "https://api.slack.com/", as the dictionary that Simple Slack Bot provides is directly from Slack's API.
+
 
 ## Installing
 To install, simply set the two environment variables
