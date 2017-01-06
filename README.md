@@ -38,16 +38,14 @@ At this point your `replace_me_with_your_callback_function` will be executed eve
 
 ### Call Back Example - Hello World Bot
 
-To show how easy it is to now write a custom bot, lets walk through writing a Hello World Bot using Simple Slack Bot. Hello World Bot will simply reply to every message sent by a user, in every channel Hello World Bot is in, with "Hello World!"
-
-Assuming you followed the installation and integrating correctly, all you have to do is define a function. We'll do this by creating a `hello_world` function.
+Assuming you followed the installation and integrating correctly, all you have to do is define a function. We'll do this by creating a `notify` function.
 
 ```
 def notify(self, dictionary):
     return "Hello World!"
 ```
 
-and then pass the method `notify` to Simple Slack Bot by calling register (as demonstrated in Integration)
+and then pass the method `notify` to Simple Slack Bot by calling register (as demonstrated in Integration). Any string your function returns will be printed out by Simple Slack Bot.
 
 
 
