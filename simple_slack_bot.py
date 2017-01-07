@@ -37,7 +37,6 @@ class SimpleSlackBot():
         self._hello_callbacks = []
         self._mentions_callbacks = []
         self._channels_callbacks = []
-
         logger.info("initialized")
 
 
@@ -71,7 +70,6 @@ class SimpleSlackBot():
         while True:
             try:
                 json_list = self._slack_client.rtm_read()
-
 
                 if json_list and len(json_list) > 0:
                     for dictionary in json_list:
@@ -174,3 +172,16 @@ class SimpleSlackBot():
 
         self._slack_client.api_call("chat.postMessage", channel=channel, text=content, as_user=True)
         logger.debug("wrote {}".format(content))
+
+
+    def channel_id_to_string(self, channel_id):
+        """
+        Converts a channel id to its respected string
+        """
+
+        json_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
+        for channel in json_list["channels"]:
+            if channel["id"] == channel_id:
+                logger.debug("converted {} to {}".format(channel_id, channel["name"]))
+                return channel["name"]
+        logger.warning("could not convert channel_id to a string")
