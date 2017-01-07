@@ -174,9 +174,65 @@ class SimpleSlackBot():
         logger.debug("wrote {}".format(content))
 
 
+    def get_channel_ids(self):
+        """
+        Gets all channel ids
+        """
+
+        channel_ids = []
+
+        json_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
+        for channel in json_list["channels"]:
+            channel_ids.append(channel["id"])
+
+        if len(channel_ids) == 0:
+            logger.warning("got no channel ids")
+        else:
+            logger.debug("got channel ids {}".format(channel_ids))
+
+        return channel_ids
+
+
+    def get_users_in_channel(self, channel_id):
+        """
+        Gets all users in a given channel
+        """
+
+        user_ids = []
+
+        json_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
+        for channel in json_list["channels"]:
+            if channel["id"] == channel_id:
+                for user_id in channel["members"]:
+                    user_ids.append(user_id)
+
+        if len(user_ids) == 0:
+            logger.warning("got no user ids")
+        else:
+            logger.debug("got user ids {}".format(user_ids))
+
+        return user_ids
+
+
+    def name_to_channel_id(self, name):
+        """
+        Converts a name to its respected channel id
+        """
+
+        pass
+
+
+    def name_to_user_id(self, name):
+        """
+        Converts aname to its respected user id
+        """
+
+        pass
+
+
     def channel_id_to_string(self, channel_id):
         """
-        Converts a channel id to its respected string
+        Converts a channel id to its respected name
         """
 
         json_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
@@ -184,12 +240,12 @@ class SimpleSlackBot():
             if channel["id"] == channel_id:
                 logger.debug("converted {} to {}".format(channel_id, channel["name"]))
                 return channel["name"]
-        logger.warning("could not convert channel id to a string")
+        logger.warning("could not convert channel id to a name")
 
 
-    def user_id_to_string(self, user_id):
+    def user_id_to_name(self, user_id):
         """
-        Converts a user id to its respected string
+        Converts a user id to its respected name
         """
 
         json_list = self._slack_client.api_call("users.list", token=self._SLACK_TOKEN)
@@ -197,4 +253,4 @@ class SimpleSlackBot():
             if channel["id"] == user_id:
                 logger.debug("converted {} to {}".format(user_id, channel["name"]))
                 return channel["name"]
-        logger.warning("could not convert user id to a string")
+        logger.warning("could not convert user id to a name")
