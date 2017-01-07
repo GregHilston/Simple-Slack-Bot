@@ -1,6 +1,5 @@
 import os, sys, time, logging
 from slackclient import SlackClient
-from registerable import Registerable
 
 # setting up our logger to write to a log file
 logger = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
 
-class SimpleSlackBot(Registerable):
+class SimpleSlackBot():
     """
     Simplifies interacting with SlackClient. Allows users to register to
     specific events, get notified, run business code and return a reply for
@@ -36,6 +35,7 @@ class SimpleSlackBot(Registerable):
         self._SLACK_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
         self._slack_client = SlackClient(self._SLACK_TOKEN)
         self._hello_callbacks = []
+        self._mentions_callbacks = []
         self._channels_callbacks = []
 
         logger.info("initialized")
@@ -63,6 +63,7 @@ class SimpleSlackBot(Registerable):
         """
 
         READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
+        AT_BOT = "<@" + self._BOT_ID + ">" # Used for mentions
         running = True
 
         logger.info("began listening!")
@@ -77,11 +78,15 @@ class SimpleSlackBot(Registerable):
                         if dictionary and "bot_id" not in dictionary: # We don't reply to bots
                             event_type = dictionary["type"]
                             logger.debug("received an event of type {}".format(event_type))
+                            logger.debug("dictionary {}".format(dictionary))
 
                             if event_type == "hello":
                                 self.notify_hello(dictionary)
 
-                            elif event_type == "message":
+                            elif event_type == "message" and AT_BOT in dictionary["text"]:
+                                self.notify_mentions(dictionary)
+
+                            elif event_type == "message" and AT_BOT not in dictionary["text"]:
                                 self.notify_channels(dictionary)
 
                 time.sleep(READ_WEBSOCKET_DELAY)
@@ -99,17 +104,42 @@ class SimpleSlackBot(Registerable):
             self._hello_callbacks.append(callback)
             logger.info("registered {} to hello event".format(str(callback)))
         else:
-            logger.warning("did not register {} to hello event, as already registerd".format(str(callback)))
+            logger.warning("did not register {} to hello event, as already registered".format(str(callback)))
 
 
     def notify_hello(self, dictionary):
         """
-        Notifies observers of the hello event. Often used for bot initialization
+        Notifies observers of hello events. Often used for bot initialization
         """
 
         for callback in self._hello_callbacks:
-            reply = callback(dictionary)
+            callback(dictionary)
             logger.debug("notified {} of hello event".format(callback))
+
+
+    def register_mentions(self, callback):
+        """
+        Registers callback to mentions of this bot, by BOT_ID
+        """
+
+        if callback not in self._mentions_callbacks:
+            self._mentions_callbacks.append(callback)
+            logger.info("registered {} to mentions".format(str(callback)))
+        else:
+            logger.warning("did not register {} to mentions, as already registered".format(str(callback)))
+
+
+    def notify_mentions(self, dictionary):
+        """
+        Notifies observers of the mentions event of this bot, by BOT_ID
+        """
+
+        for callback in self._mentions_callbacks:
+            reply = callback(dictionary)
+            logger.debug("notified {} of mentions event".format(callback))
+
+            if reply:
+                self.write(dictionary["channel"], reply)
 
 
     def register_channels(self, callback):
@@ -121,7 +151,7 @@ class SimpleSlackBot(Registerable):
             self._channels_callbacks.append(callback)
             logger.info("registered {} to channels".format(str(callback)))
         else:
-            logger.warning("did not register {} to channels, as already registerd".format(str(callback)))
+            logger.warning("did not register {} to channels, as already registered".format(str(callback)))
 
 
     def notify_channels(self, dictionary):
