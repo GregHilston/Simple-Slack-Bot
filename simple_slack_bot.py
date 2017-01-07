@@ -181,8 +181,8 @@ class SimpleSlackBot():
 
         channel_ids = []
 
-        json_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
-        for channel in json_list["channels"]:
+        channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
+        for channel in channels_list["channels"]:
             channel_ids.append(channel["id"])
 
         if len(channel_ids) == 0:
@@ -193,6 +193,24 @@ class SimpleSlackBot():
         return channel_ids
 
 
+    def get_user_ids(self):
+        """
+        Gets all user ids
+        """
+
+        user_ids = []
+
+        users_list = self._slack_client.api_call("users.list", token=self._SLACK_TOKEN)
+        for user in users_list["members"]:
+            user_ids.append(user["id"])
+
+        if len(user_ids) == 0:
+            logger.warning("got no user ids")
+        else:
+            logger.debug("got user ids {}".format(user_ids))
+
+        return user_ids
+
     def get_users_in_channel(self, channel_id):
         """
         Gets all users in a given channel
@@ -200,14 +218,14 @@ class SimpleSlackBot():
 
         user_ids = []
 
-        json_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
-        for channel in json_list["channels"]:
+        channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
+        for channel in channels_list["channels"]:
             if channel["id"] == channel_id:
                 for user_id in channel["members"]:
                     user_ids.append(user_id)
 
         if len(user_ids) == 0:
-            logger.warning("got no user ids")
+            logger.warning("got no user ids for channel {}".format(channel_id))
         else:
             logger.debug("got user ids {}".format(user_ids))
 
@@ -219,28 +237,44 @@ class SimpleSlackBot():
         Converts a name to its respected channel id
         """
 
-        pass
+        channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
+
+        for channel in channels_list["channels"]:
+            if channel["name"] == name:
+                logger.debug("converted {} to {}".format(channel["name"], channel["id"]))
+                return channel["id"]
+
+        logger.warning("could not convert channel name {} to an id".format(name))
 
 
     def name_to_user_id(self, name):
         """
-        Converts aname to its respected user id
+        Converts a name to its respected user id
         """
 
-        pass
+        users_list = self._slack_client.api_call("users.list", token=self._SLACK_TOKEN)
+
+        for user in users_list["members"]:
+            if user["name"] == name:
+                logger.debug("converted {} to {}".format(name, user["id"]))
+                return user["id"]
+
+        logger.warning("could not convert name {} to a user id".format(name))
 
 
-    def channel_id_to_string(self, channel_id):
+    def channel_id_to_name(self, channel_id):
         """
         Converts a channel id to its respected name
         """
 
-        json_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
-        for channel in json_list["channels"]:
+        channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
+
+        for channel in channels_list["channels"]:
             if channel["id"] == channel_id:
                 logger.debug("converted {} to {}".format(channel_id, channel["name"]))
                 return channel["name"]
-        logger.warning("could not convert channel id to a name")
+
+        logger.warning("could not convert channel id {} to a name".format(channel_id))
 
 
     def user_id_to_name(self, user_id):
@@ -248,9 +282,11 @@ class SimpleSlackBot():
         Converts a user id to its respected name
         """
 
-        json_list = self._slack_client.api_call("users.list", token=self._SLACK_TOKEN)
-        for channel in json_list["members"]:
-            if channel["id"] == user_id:
-                logger.debug("converted {} to {}".format(user_id, channel["name"]))
-                return channel["name"]
-        logger.warning("could not convert user id to a name")
+        users_list = self._slack_client.api_call("users.list", token=self._SLACK_TOKEN)
+
+        for user in users_list["members"]:
+            if user["id"] == user_id:
+                logger.debug("converted {} to {}".format(user_id, user["name"]))
+                return user["name"]
+
+        logger.warning("could not convert user id {} to a name".format(user_id))
