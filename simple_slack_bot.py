@@ -33,8 +33,6 @@ class SimpleSlackBot:
 
         logger.info("initialized")
 
-        logger.info("getting channel list")
-        logger.info(self._slack_client.api_call("users.list"))
 
     def start(self):
         """
@@ -94,6 +92,7 @@ class SimpleSlackBot:
         else:
             logger.warning("did not register {}, as already registerd".format(str(callback)))
 
+
     def update(self, dictionary):
         """
         Notifies observers of the dictionary
@@ -104,13 +103,13 @@ class SimpleSlackBot:
             logger.debug("notified {}".format(callback))
 
             if reply:
-                self.write(dictionary, reply)
+                self.write(dictionary["channel"], reply)
 
 
-    def write(self, dictionary, content):
+    def write(self, channel, content):
         """
         Writes the content to the channel
         """
 
-        self._slack_client.api_call("chat.postMessage", channel=dictionary["channel"], text=content, as_user=True)
+        self._slack_client.api_call("chat.postMessage", channel=channel, text=content, as_user=True)
         logger.debug("wrote {}".format(content))
