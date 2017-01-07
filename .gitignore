@@ -1,0 +1,5 @@
+*.log
+
+# I don't intend on commiting my registered components
+app.py
+*component.py 
