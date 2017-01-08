@@ -42,6 +42,16 @@ class SimpleSlackBot():
         logger.info("initialized")
 
 
+    def get_slack_client(self):
+        """
+        Returns SimpleSlackBot's SlackClient.
+        
+        This is useful if you are writing more advanced bot and want complete
+        access to all SlackClient has to offer.
+        """
+        return self._slack_client
+
+
     def start(self):
         """
         Connect the slack bot to the chatroom and begin listening to channel
