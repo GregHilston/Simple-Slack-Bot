@@ -334,9 +334,9 @@ class SimpleSlackBot():
         return user_ids
 
 
-    def name_to_channel_id(self, name):
+    def channel_name_to_channel_id(self, name):
         """
-        Converts a name to its respected channel id
+        Converts a channel name to its respected channel id
         """
 
         channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
@@ -349,9 +349,9 @@ class SimpleSlackBot():
         logger.warning("could not convert channel name {} to an id".format(name))
 
 
-    def name_to_user_id(self, name):
+    def user_name_to_user_id(self, name):
         """
-        Converts a name to its respected user id
+        Converts a user name to its respected user id
         """
 
         users_list = self._slack_client.api_call("users.list", token=self._SLACK_TOKEN)
@@ -364,9 +364,9 @@ class SimpleSlackBot():
         logger.warning("could not convert name {} to a user id".format(name))
 
 
-    def channel_id_to_name(self, channel_id):
+    def channel_id_to_channel_name(self, channel_id):
         """
-        Converts a channel id to its respected name
+        Converts a channel id to its respected channel name
         """
 
         channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
@@ -379,9 +379,9 @@ class SimpleSlackBot():
         logger.warning("could not convert channel id {} to a name".format(channel_id))
 
 
-    def user_id_to_name(self, user_id):
+    def user_id_to_user_name(self, user_id):
         """
-        Converts a user id to its respected name
+        Converts a user id to its respected user name
         """
 
         users_list = self._slack_client.api_call("users.list", token=self._SLACK_TOKEN)

@@ -58,7 +58,24 @@ if __name__ == "__main__":
 At this point your callback functions will be executed every time Simple Slack Bot receives the appropriate event.
 
 
-### Call Back Example - Hello World Bot
+## Helper Functions & Callbacks Making Callbacks
+Often times when writing a Slack Bot, you'll find yourself writing a few key functions that I found generic enough to include in Simple-Slack-Bot. The function names are pretty self explanatory but they are as follows:
+
+
+* `write(channel, content)` - Writes a message to the channel as the bot
+* `get_public_channel_ids()` - Gets all public channel ids
+* `get_private_channel_ids()` - Gets all private channel ids
+* `get_user_ids()` - Gets all user ids
+* `get_users_in_channel(channel_id)` - Gets all users in a given channel
+* `name_to_channel_id(name)` - Converts a channel name to its respected channel id
+* `user_name_to_user_id(name)` - Converts a user name to its respected user id
+* `channel_id_to_channel_name(channel_id)` - Converts a channel id to its respected channel name
+* `user_id_to_user_name(user_id)` - Converts a user id to its respected user name
+
+To gain access to these functions, simply design your class to accept an instance of SimpleSlackBot and call the functions on that reference.
+
+
+## Event Firing A Callback Example - Hello World Bot
 
 Assuming you followed the installation and integrating correctly, all you have to do is define a function. We'll do this by creating a `notify_hello` function.
 
