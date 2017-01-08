@@ -36,7 +36,9 @@ class SimpleSlackBot():
         self._slack_client = SlackClient(self._SLACK_TOKEN)
         self._hello_callbacks = []
         self._mentions_callbacks = []
-        self._channels_callbacks = []
+        self._public_channels_callbacks = []
+        self._private_channels_callbacks = []
+        self._direct_messages_callbacks = []
         logger.info("initialized")
 
 
@@ -56,13 +58,43 @@ class SimpleSlackBot():
                          " environment variables.")
 
 
+    def route_dictionary_to_notify(self, dictionary):
+        """
+        Routes the ductionary to the correct notify
+        """
+
+        AT_BOT = "<@" + self._BOT_ID + ">" # Used for mentions
+        event_type = dictionary["type"]
+        logger.debug("received an event of type {}".format(event_type))
+        logger.debug("dictionary {}".format(dictionary))
+
+        if event_type == "hello":
+            self.notify_hello(dictionary)
+
+        elif event_type == "message":
+
+            if AT_BOT in dictionary["text"]:
+                self.notify_mentions(dictionary)
+
+            elif dictionary["channel"] in self.get_public_channel_ids():
+                self.notify_public_channels(dictionary)
+
+            elif dictionary["channel"] in self.get_private_channel_ids():
+                self.notify_private_channels(dictionary)
+
+            elif dictionary["user"] in self.get_user_ids():
+                self.notify_direct_messages(dictionary)
+
+            else:
+                logger.error("Unsure how to route {}".format(dictionary))
+
+
     def listen(self):
         """
         Listens forever, updating on content
         """
 
         READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
-        AT_BOT = "<@" + self._BOT_ID + ">" # Used for mentions
         running = True
 
         logger.info("began listening!")
@@ -74,18 +106,7 @@ class SimpleSlackBot():
                 if json_list and len(json_list) > 0:
                     for dictionary in json_list:
                         if dictionary and "bot_id" not in dictionary: # We don't reply to bots
-                            event_type = dictionary["type"]
-                            logger.debug("received an event of type {}".format(event_type))
-                            logger.debug("dictionary {}".format(dictionary))
-
-                            if event_type == "hello":
-                                self.notify_hello(dictionary)
-
-                            elif event_type == "message" and AT_BOT in dictionary["text"]:
-                                self.notify_mentions(dictionary)
-
-                            elif event_type == "message" and AT_BOT not in dictionary["text"]:
-                                self.notify_channels(dictionary)
+                            self.route_dictionary_to_notify(dictionary)
 
                 time.sleep(READ_WEBSOCKET_DELAY)
             except KeyboardInterrupt:
@@ -140,29 +161,78 @@ class SimpleSlackBot():
                 self.write(dictionary["channel"], reply)
 
 
-    def register_channels(self, callback):
+    def register_public_channels(self, callback):
         """
-        Registers callback to all channels
+        Registers callback to all public channels
         """
 
-        if callback not in self._channels_callbacks:
-            self._channels_callbacks.append(callback)
-            logger.info("registered {} to channels".format(str(callback)))
+        if callback not in self._public_channels_callbacks:
+            self._public_channels_callbacks.append(callback)
+            logger.info("registered {} to public channels".format(str(callback)))
         else:
-            logger.warning("did not register {} to channels, as already registered".format(str(callback)))
+            logger.warning("did not register {} to public channels, as already registered".format(str(callback)))
 
 
-    def notify_channels(self, dictionary):
+    def notify_public_channels(self, dictionary):
         """
-        Notifies observers of the channels event
+        Notifies observers of the all public channels event
         """
 
-        for callback in self._channels_callbacks:
+        for callback in self._public_channels_callbacks:
             reply = callback(dictionary)
-            logger.debug("notified {} of channels event".format(callback))
+            logger.debug("notified {} of all public channels event".format(callback))
 
             if reply:
                 self.write(dictionary["channel"], reply)
+
+
+    def register_private_channels(self, callback):
+        """
+        Registers callback to all private channels
+        """
+
+        if callback not in self._private_channels_callbacks:
+            self._private_channels_callbacks.append(callback)
+            logger.info("registered {} to private channels".format(str(callback)))
+        else:
+            logger.warning("did not register {} to private channels event, as already registered".format(str(callback)))
+
+
+    def notify_private_channels(self, dictionary):
+        """
+        Notifies observers of the all private channels event
+        """
+
+        for callback in self._private_channels_callbacks:
+            reply = callback(dictionary)
+            logger.debug("notified {} of all private channels event".format(callback))
+
+            if reply:
+                self.write(dictionary["channel"], reply)
+
+    def register_direct_messages(self, callback):
+        """
+        Registers callback to all direct messages
+        """
+
+        if callback not in self._direct_messages_callbacks:
+            self._direct_messages_callbacks.append(callback)
+            logger.info("registered {} to direct messages event".format(str(callback)))
+        else:
+            logger.warning("did not register {} to direct messages event, as already registered".format(str(callback)))
+
+
+    def notify_direct_messages(self, dictionary):
+        """
+        Notifies observers of the all direct messages event
+        """
+
+        for callback in self._direct_messages_callbacks:
+            reply = callback(dictionary)
+            logger.debug("notified {} of all direct messages event".format(callback))
+
+            if reply:
+                self.write(dictionary["user"], reply)
 
 
     def write(self, channel, content):
@@ -174,23 +244,45 @@ class SimpleSlackBot():
         logger.debug("wrote {}".format(content))
 
 
-    def get_channel_ids(self):
+    def get_public_channel_ids(self):
         """
-        Gets all channel ids
+        Gets all public channel ids
         """
 
-        channel_ids = []
+        public_channel_ids = []
 
-        channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
-        for channel in channels_list["channels"]:
-            channel_ids.append(channel["id"])
+        public_channels = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
+        for channel in public_channels["channels"]:
+            public_channel_ids.append(channel["id"])
 
-        if len(channel_ids) == 0:
-            logger.warning("got no channel ids")
+        if len(public_channel_ids) == 0:
+            logger.warning("got no public channel ids")
         else:
-            logger.debug("got channel ids {}".format(channel_ids))
+            logger.debug("got public channel ids {}".format(public_channel_ids))
 
-        return channel_ids
+        return public_channel_ids
+
+
+    def get_private_channel_ids(self):
+        """
+        Gets all private channel ids
+        """
+
+        private_channel_ids = []
+
+        private_channels = self._slack_client.api_call("groups.list", token=self._SLACK_TOKEN)
+
+        logger.info("private_channels {}".format(private_channels))
+        for private_channel in private_channels["groups"]:
+            private_channels.append(channel["id"])
+
+        if len(private_channel_ids) == 0:
+            logger.warning("got no private channel ids")
+        else:
+            logger.debug("got private channel ids {}".format(private_channel_ids))
+
+        return private_channel_ids
+
 
 
     def get_user_ids(self):
@@ -220,7 +312,7 @@ class SimpleSlackBot():
 
         channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_TOKEN)
         for channel in channels_list["channels"]:
-            if channel["id"] == channel_id:
+              if channel["id"] == channel_id:
                 for user_id in channel["members"]:
                     user_ids.append(user_id)
 
