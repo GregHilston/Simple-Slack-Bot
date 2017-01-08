@@ -45,7 +45,7 @@ class SimpleSlackBot():
     def get_slack_client(self):
         """
         Returns SimpleSlackBot's SlackClient.
-        
+
         This is useful if you are writing more advanced bot and want complete
         access to all SlackClient has to offer.
         """
@@ -87,10 +87,10 @@ class SimpleSlackBot():
                 self.notify_mentions(dictionary)
 
             elif dictionary["channel"] in self.get_public_channel_ids():
-                self.notify_public_channels(dictionary)
+                self.notify_public_channels_messages(dictionary)
 
             elif dictionary["channel"] in self.get_private_channel_ids():
-                self.notify_private_channels(dictionary)
+                self.notify_private_channels_messages(dictionary)
 
             elif dictionary["user"] in self.get_user_ids():
                 self.notify_direct_messages(dictionary)
@@ -171,9 +171,9 @@ class SimpleSlackBot():
                 self.write(dictionary["channel"], reply)
 
 
-    def register_public_channels(self, callback):
+    def register_public_channels_message(self, callback):
         """
-        Registers callback to all public channels
+        Registers callback to all public channel messages
         """
 
         if callback not in self._public_channels_callbacks:
@@ -183,9 +183,9 @@ class SimpleSlackBot():
             logger.warning("did not register {} to public channels, as already registered".format(str(callback)))
 
 
-    def notify_public_channels(self, dictionary):
+    def notify_public_channels_messages(self, dictionary):
         """
-        Notifies observers of the all public channels event
+        Notifies observers of the all public channel message events
         """
 
         for callback in self._public_channels_callbacks:
@@ -196,9 +196,9 @@ class SimpleSlackBot():
                 self.write(dictionary["channel"], reply)
 
 
-    def register_private_channels(self, callback):
+    def register_private_channels_messages(self, callback):
         """
-        Registers callback to all private channels
+        Registers callback to all private channel message events
         """
 
         if callback not in self._private_channels_callbacks:
@@ -208,9 +208,9 @@ class SimpleSlackBot():
             logger.warning("did not register {} to private channels event, as already registered".format(str(callback)))
 
 
-    def notify_private_channels(self, dictionary):
+    def notify_private_channels_messages(self, dictionary):
         """
-        Notifies observers of the all private channels event
+        Notifies observers of the all private channel message events
         """
 
         for callback in self._private_channels_callbacks:
