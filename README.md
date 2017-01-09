@@ -41,6 +41,7 @@ To integrate with Simple Slack Bot, simply create an instance of it and register
 
 
 `app.py`
+
 ```
 from simple_slack_bot import SimpleSlackBot
 
