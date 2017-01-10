@@ -1,6 +1,6 @@
 # Simple Slack Bot
 
-Simple Slack Bot makes writing you next basic Slack bot incredibly quickly. By factoring out common functionality all Slack Bots require, you can focus on writing your business logic.
+Simple Slack Bot makes writing your next Slack bot incredibly easy. By factoring out common functionality all Slack Bots require, you can focus on writing your business logic.
 
 
 ## Installing
@@ -91,6 +91,17 @@ After defining this function, all we have to do is inform Simple Slack Bot by cr
  `register_hello(foo.notify)`
 
 Any string your function returns will be written to the relevant Slack channel or direct message  by Simple Slack Bot.
+
+
+## Expose to Slack Client
+
+If you have found that Simple-Slack-Bot does not provide everything you are looking for, simply call
+
+
+`get_slack_client()`
+
+
+to get an instance of SlackClient, which is the Slack Development Kit for Python. See their documentation here https://github.com/slackapi/python-slackclient
 
 
 ## Executing
