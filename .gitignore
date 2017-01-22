@@ -1,3 +1,5 @@
+.pypirc
+
 *.log
 
 # I don't intend on committing my registered components
