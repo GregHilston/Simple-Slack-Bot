@@ -40,6 +40,7 @@ class SimpleSlackBot():
         self._private_channels_callbacks = []
         self._direct_messages_callbacks = []
         logger.info("initialized")
+        logger.info("name of module is {}".format(__name__))
 
 
     def get_slack_client(self):
