@@ -27,6 +27,7 @@ class SimpleSlackBot():
         self._private_channels_callbacks = []
         self._direct_messages_callbacks = []
         self._user_names = []
+        self._user_id_mentions = []
         self._user_name_mentions = []
         self._logger.info("initialized")
 
@@ -60,7 +61,7 @@ class SimpleSlackBot():
         return logger
 
 
-    def update_user_names(self):
+    def update_user_names_and_ids_and_mentions(self):
         """
         Updates this local cache of user names and mention strings from the server
         """
@@ -68,13 +69,19 @@ class SimpleSlackBot():
         AT_USER_PREFIX = "<@"
         AT_USER_SUFFIX = ">"
 
+        self._user_ids = self.get_user_ids()
+        self._user_id_mentions = []
         self._user_names = self.get_user_names()
         self._user_name_mentions = []
 
-        self._user_name_mentions.append(AT_USER_PREFIX + self._BOT_ID + AT_USER_SUFFIX)
-        for user_name in self._user_names:
+        self._user_id_mentions.append(AT_USER_PREFIX + str(self.user_name_to_user_id(str(self._BOT_ID))) + AT_USER_SUFFIX)
+        self._user_name_mentions.append(AT_USER_PREFIX + str(self._BOT_ID) + AT_USER_SUFFIX)
+
+        for user_id, user_name in zip(self._user_ids, self._user_names):
+            self._user_id_mentions.append(AT_USER_PREFIX + user_id + AT_USER_SUFFIX)
             self._user_name_mentions.append(AT_USER_PREFIX + user_name + AT_USER_SUFFIX)
 
+        self._logger.debug("self._user_id_mentions {} of type {}".format(self._user_id_mentions, type(self._user_id_mentions)))
         self._logger.debug("self._user_name_mentions {} of type {}".format(self._user_name_mentions, type(self._user_name_mentions)))
 
 
@@ -113,14 +120,16 @@ class SimpleSlackBot():
         event_type = dictionary["type"]
         self._logger.debug("received an event of type {}".format(event_type))
         self._logger.debug("dictionary {}".format(dictionary))
-        self.update_user_names()
+        self.update_user_names_and_ids_and_mentions()
 
         if event_type == "hello":
             self.notify_hello(dictionary)
 
         elif event_type == "message":
 
-            if any(user_name_mention in dictionary["text"] for user_name_mention in self._user_name_mentions):
+            self._logger.debug("printing user_name_mentions {} printing dictionary[\"text\"] {}".format(self._user_name_mentions, dictionary["text"]))
+
+            if any(user_id_mention in dictionary["text"] for user_id_mention in self._user_id_mentions):
                 self.notify_mentions(dictionary)
 
             elif dictionary["channel"] in self.get_public_channel_ids():
