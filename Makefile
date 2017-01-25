@@ -8,4 +8,4 @@ start:
 kill:
 	kill $$(cat $(PID))
 test:
-	$(PYTHON) test_simple_slack_bot.py
+	$(PYTHON) simple_slack_bot/test_simple_slack_bot.py
