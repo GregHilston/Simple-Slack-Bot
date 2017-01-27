@@ -12,4 +12,7 @@ setup(
     download_url = "https://github.com/GregHilston/Simple-Slack-Bot/tarball/0.1",
     keywords = ["slack", "bot", "chat", "simple"], # arbitrary keywords
     classifiers = [],
+    install_requires=[
+        "slackclient",
+    ],
 )
