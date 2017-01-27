@@ -14,15 +14,11 @@ class SimpleSlackBot():
 
         self._BOT_ID = os.environ.get("BOT_ID")
         if self._BOT_ID is None:
-            self._logger.warning("environment variable BOT_ID is None")
-        else:
-            self._logger.info("BOT_ID is {}".format(self._BOT_ID))
+            sys.exit("ERROR: environment variable BOT_ID is not set")
 
         self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
         if self._SLACK_BOT_TOKEN is None:
-            self._logger.warning("environment variable SLACK_BOT_TOKEN is None")
-        else:
-            self._logger.info("SLACK_BOT_TOKEN is {}".format(self._SLACK_BOT_TOKEN))
+            sys.exit("ERROR: environment variable SLACK_BOT_TOKEN is not set")
 
         self._slack_client = SlackClient(self._SLACK_BOT_TOKEN)
         self._hello_callbacks = []
