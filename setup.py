@@ -4,7 +4,7 @@ from distutils.core import setup
 setup(
     name = "simple_slack_bot",
     packages = ["simple_slack_bot"], # this must be the same as the name above
-    version = "0.2.3",
+    version = "0.2.4",
     description = "Simple Slack Bot makes writing your next Slack bot incredibly easy. By factoring out common functionality all Slack Bots require, you can focus on writing your business logic.",
     author = "Greg Hilston",
     author_email = "Gregory.Hilston@gmail.com",
