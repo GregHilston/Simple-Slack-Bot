@@ -130,7 +130,7 @@ class SimpleSlackBot():
 
         elif event_type == "message":
 
-            self._logger.debug("printing user_name_mentions {} printing dictionary[\"text\"] {}".format(self._user_name_mentions, dictionary["text"]))
+            self._logger.debug("printing dictionary[\"text\"] {}".format(self._user_name_mentions, dictionary["text"]))
 
             if any(user_id_mention in dictionary["text"] for user_id_mention in self._user_id_mentions):
                 self.notify_mentions(dictionary)
@@ -191,9 +191,11 @@ class SimpleSlackBot():
         """
 
         for callback in self._hello_callbacks:
-            callback(dictionary)
+            reply = callback(dictionary)
             self._logger.debug("notified {} of hello event".format(callback))
 
+        if reply:
+            self.write(dictionary["channel"], reply)
 
     def register_mentions(self, callback):
         """
