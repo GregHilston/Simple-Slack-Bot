@@ -47,7 +47,7 @@ class SimpleSlackBot():
 
         # create stream handler
         stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.INFO)
+        stream_handler.setLevel(logging.DEBUG)
 
         # create formatter and add it to the handlers
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
