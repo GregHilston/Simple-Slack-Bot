@@ -15,8 +15,8 @@ class SlackRequest(object):
         if data:
             self.client = client
             self.type = data["type"]
-            self.channel = data["channel"]
-            self.user_id = data["user"]
+            self.channel = data.get("channel")
+            self.user_id = data.get("user")
             self.message = data.get("text")
 
     def write(self, content, channel=None, **kwargs):
@@ -149,37 +149,36 @@ class SimpleSlackBot():
                          " environment variables \"BOT_ID\" and \"SLACK_BOT_TOKEN\"")
 
 
-    def route_dictionary_to_notify(self, request):
+    def route_request_to_notify(self, request):
         """
         Routes the request to the correct notify
         """
 
-        dictionary = request.data
-        event_type = dictionary["type"]
+        event_type = request.type
         self._logger.debug("received an event of type {}".format(event_type))
-        self._logger.debug("dictionary {}".format(dictionary))
+        self._logger.debug("data {}".format(request.data))
 
         if event_type == "hello":
             self.notify_hello(request)
 
         elif event_type == "message":
 
-            self._logger.debug("printing dictionary[\"text\"] {}".format(self._user_name_mentions, dictionary["text"]))
+            self._logger.debug("printing request.message {}".format(self._user_name_mentions, request.message))
 
-            if any(user_id_mention in dictionary["text"] for user_id_mention in self._user_id_mentions):
+            if any(user_id_mention in request.message for user_id_mention in self._user_id_mentions):
                 self.notify_mentions(request)
 
-            elif dictionary["channel"] in self.get_public_channel_ids():
+            elif request.channel in self.get_public_channel_ids():
                 self.notify_public_channels_messages(request)
 
-            elif dictionary["channel"] in self.get_private_channel_ids():
+            elif request.channel in self.get_private_channel_ids():
                 self.notify_private_channels_messages(request)
 
-            elif dictionary["user"] in self.get_user_ids():
+            elif request.user_id in self.get_user_ids():
                 self.notify_direct_messages(request)
 
             else:
-                self._logger.error("Unsure how to route {}".format(dictionary))
+                self._logger.error("Unsure how to route {}".format(request.data))
 
 
     def listen(self):
@@ -199,7 +198,7 @@ class SimpleSlackBot():
                     for dictionary in json_list:
                         if dictionary and "bot_id" not in dictionary: # We don't reply to bots
                             request = SlackRequest(self.get_slack_client(), dictionary)
-                            self.route_dictionary_to_notify(request)
+                            self.route_request_to_notify(request)
 
                 time.sleep(READ_WEBSOCKET_DELAY)
             except KeyboardInterrupt:
