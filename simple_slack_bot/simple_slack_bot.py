@@ -41,6 +41,23 @@ class SlackRequest(object):
         self.client.api_call("chat.postMessage", channel=channel, text=content, **defaults)
         # self._logger.debug("wrote {}".format(content))
 
+    def upload(self, output_filename, content, channel=None, **kwargs):
+        """
+        Upload the content or input_filename's content to the channel
+        @param output_filename: filename that should appear to the enduser
+        @param content: content to be uploaded can be string or an opened file
+        @param kwargs: any extra parameters you wish to pass to the upload api
+        """
+        params = {
+            "channels": channel or self.channel, "filename": output_filename}
+        if hasattr(content, "read"):
+            params["file"] = content
+        else:
+            params["content"] = content
+        params.update(kwargs)
+        response = self.client.api_call("files.upload", **params)
+        # self._logger.debug("uploaded {} with response {}".format(content, response))
+
 
 class SimpleSlackBot():
     """
