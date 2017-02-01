@@ -12,12 +12,19 @@ class SlackRequest(object):
         :type data: dict, if not provided some functions may not work properly
         """
         self.data = data
-        if data:
-            self.client = client
-            self.type = data["type"]
-            self.channel = data.get("channel")
-            self.user_id = data.get("user")
-            self.message = data.get("text")
+        self.client = client
+
+    @property
+    def type(self):
+        return self.data["type"]
+
+    @property
+    def channel(self):
+        return self.data.get("channel")
+
+    @property
+    def message(self):
+        return self.data.get("text")
 
     def write(self, content, channel=None, **kwargs):
         """
@@ -174,7 +181,7 @@ class SimpleSlackBot():
             elif request.channel in self.get_private_channel_ids():
                 self.notify_private_channels_messages(request)
 
-            elif request.user_id in self.get_user_ids():
+            elif request.data["user"] in self.get_user_ids():
                 self.notify_direct_messages(request)
 
             else:
