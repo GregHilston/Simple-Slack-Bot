@@ -2,6 +2,39 @@ import os, sys, time, logging
 from slackclient import SlackClient
 
 
+class SlackRequest(object):
+
+    def __init__(self, client, data=None):
+        """
+        :param client: SlackClient class
+        :type client: SlackClient
+        :param data: data returned by the server after an API call
+        :type data: dict, if not provided some functions may not work properly
+        """
+        self.data = data
+        if data:
+            self.client = client
+            self.type = data["type"]
+            self.channel = data["channel"]
+            self.user_id = data["user"]
+            self.message = data.get("text")
+
+    def write(self, content, channel=None, **kwargs):
+        """
+        Writes the content to the channel
+
+        :param content: The text you wish to send
+        :param channel: By default send to same channel request came from
+        :param kwargs: any extra arguments you want to pass to chat.postMessage slack API
+        """
+        if channel is None and self.data:
+            channel = self.channel
+        defaults = {"as_user": True}
+        defaults.update(kwargs)
+        self.client.api_call("chat.postMessage", channel=channel, text=content, **defaults)
+        # self._logger.debug("wrote {}".format(content))
+
+
 class SimpleSlackBot():
     """
     Simplifies interacting with SlackClient. Allows users to register to
@@ -116,33 +149,34 @@ class SimpleSlackBot():
                          " environment variables \"BOT_ID\" and \"SLACK_BOT_TOKEN\"")
 
 
-    def route_dictionary_to_notify(self, dictionary):
+    def route_dictionary_to_notify(self, request):
         """
-        Routes the ductionary to the correct notify
+        Routes the request to the correct notify
         """
 
+        dictionary = request.data
         event_type = dictionary["type"]
         self._logger.debug("received an event of type {}".format(event_type))
         self._logger.debug("dictionary {}".format(dictionary))
 
         if event_type == "hello":
-            self.notify_hello(dictionary)
+            self.notify_hello(request)
 
         elif event_type == "message":
 
             self._logger.debug("printing dictionary[\"text\"] {}".format(self._user_name_mentions, dictionary["text"]))
 
             if any(user_id_mention in dictionary["text"] for user_id_mention in self._user_id_mentions):
-                self.notify_mentions(dictionary)
+                self.notify_mentions(request)
 
             elif dictionary["channel"] in self.get_public_channel_ids():
-                self.notify_public_channels_messages(dictionary)
+                self.notify_public_channels_messages(request)
 
             elif dictionary["channel"] in self.get_private_channel_ids():
-                self.notify_private_channels_messages(dictionary)
+                self.notify_private_channels_messages(request)
 
             elif dictionary["user"] in self.get_user_ids():
-                self.notify_direct_messages(dictionary)
+                self.notify_direct_messages(request)
 
             else:
                 self._logger.error("Unsure how to route {}".format(dictionary))
@@ -154,7 +188,6 @@ class SimpleSlackBot():
         """
 
         READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
-        running = True
 
         self._logger.info("began listening!")
 
@@ -165,7 +198,8 @@ class SimpleSlackBot():
                 if json_list and len(json_list) > 0:
                     for dictionary in json_list:
                         if dictionary and "bot_id" not in dictionary: # We don't reply to bots
-                            self.route_dictionary_to_notify(dictionary)
+                            request = SlackRequest(self.get_slack_client(), dictionary)
+                            self.route_dictionary_to_notify(request)
 
                 time.sleep(READ_WEBSOCKET_DELAY)
             except KeyboardInterrupt:
@@ -185,17 +219,15 @@ class SimpleSlackBot():
             self._logger.warning("did not register {} to hello event, as already registered".format(str(callback)))
 
 
-    def notify_hello(self, dictionary):
+    def notify_hello(self, request):
         """
         Notifies observers of hello events. Often used for bot initialization
         """
 
         for callback in self._hello_callbacks:
-            reply = callback(dictionary)
+            callback(request)
             self._logger.debug("notified {} of hello event".format(callback))
 
-        if reply:
-            self.write(dictionary["channel"], reply)
 
     def register_mentions(self, callback):
         """
@@ -209,17 +241,14 @@ class SimpleSlackBot():
             self._logger.warning("did not register {} to mentions, as already registered".format(str(callback)))
 
 
-    def notify_mentions(self, dictionary):
+    def notify_mentions(self, request):
         """
         Notifies observers of the mentions event of this bot, by BOT_ID
         """
 
         for callback in self._mentions_callbacks:
-            reply = callback(dictionary)
+            callback(request)
             self._logger.debug("notified {} of mentions event".format(callback))
-
-            if reply:
-                self.write(dictionary["channel"], reply)
 
 
     def register_public_channels_messages(self, callback):
@@ -234,17 +263,14 @@ class SimpleSlackBot():
             self._logger.warning("did not register {} to public channels, as already registered".format(str(callback)))
 
 
-    def notify_public_channels_messages(self, dictionary):
+    def notify_public_channels_messages(self, request):
         """
         Notifies observers of the all public channel message events
         """
 
         for callback in self._public_channels_callbacks:
-            reply = callback(dictionary)
+            callback(request)
             self._logger.debug("notified {} of all public channels event".format(callback))
-
-            if reply:
-                self.write(dictionary["channel"], reply)
 
 
     def register_private_channels_messages(self, callback):
@@ -259,17 +285,15 @@ class SimpleSlackBot():
             self._logger.warning("did not register {} to private channels event, as already registered".format(str(callback)))
 
 
-    def notify_private_channels_messages(self, dictionary):
+    def notify_private_channels_messages(self, request):
         """
         Notifies observers of the all private channel message events
         """
 
         for callback in self._private_channels_callbacks:
-            reply = callback(dictionary)
+            callback(request)
             self._logger.debug("notified {} of all private channels event".format(callback))
 
-            if reply:
-                self.write(dictionary["channel"], reply)
 
     def register_direct_messages(self, callback):
         """
@@ -283,26 +307,14 @@ class SimpleSlackBot():
             self._logger.warning("did not register {} to direct messages event, as already registered".format(str(callback)))
 
 
-    def notify_direct_messages(self, dictionary):
+    def notify_direct_messages(self, request):
         """
         Notifies observers of the all direct messages event
         """
 
         for callback in self._direct_messages_callbacks:
-            reply = callback(dictionary)
+            callback(request)
             self._logger.debug("notified {} of all direct messages event".format(callback))
-
-            if reply:
-                self.write(dictionary["user"], reply)
-
-
-    def write(self, channel, content):
-        """
-        Writes the content to the channel
-        """
-
-        self._slack_client.api_call("chat.postMessage", channel=channel, text=content, as_user=True)
-        self._logger.debug("wrote {}".format(content))
 
 
     def get_public_channel_ids(self):
