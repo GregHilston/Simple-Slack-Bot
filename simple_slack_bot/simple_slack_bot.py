@@ -1,79 +1,7 @@
 import os, sys, time, logging
-from slackclient import SlackClient
-
-
-class SlackRequest(object):
-    """
-    Extracts commonly used information from a SlackClient dictionary for easy
-    access. Also allows users to write messages, upload content and gain access
-    to the underlying SlackClient
-    """
-
-    def __init__(self, client, data):
-        """
-        :param client: SlackClient class
-        :type client: SlackClient
-        :param data: data returned by the server after an API call
-        :type data: dict
-        """
-
-        self.data = data
-        self.client = client
-
-
-    @property
-    def type(self):
-        return self.data["type"]
-
-
-    @property
-    def channel(self):
-        return self.data.get("channel")
-
-
-    @property
-    def message(self):
-        return self.data.get("text")
-
-
-    def write(self, content, channel=None, **kwargs):
-        """
-        Writes the content to the channel
-
-        :param content: The text you wish to send
-        :param channel: By default send to same channel request came from
-        :param kwargs: any extra arguments you want to pass to chat.postMessage
-                       slack API
-        """
-
-        if channel is None and self.data:
-            channel = self.channel
-        defaults = {"as_user": True}
-        defaults.update(kwargs)
-        self.client.api_call("chat.postMessage", channel=channel, text=content,
-            **defaults)
-        # self._logger.debug("wrote {}".format(content))
-
-
-    def upload(self, output_filename, content, channel=None, **kwargs):
-        """
-        Uploads the content or input_filename's content to the channel
-
-        @param output_filename: filename that should appear to the enduser
-        @param content: content to be uploaded can be string or an opened file
-        @param kwargs: any extra parameters you wish to pass to the upload api
-        """
-
-        params = {
-            "channels": channel or self.channel, "filename": output_filename}
-        if hasattr(content, "read"):
-            params["file"] = content
-        else:
-            params["content"] = content
-        params.update(kwargs)
-        response = self.client.api_call("files.upload", **params)
-        # self._logger.debug("uploaded {} with response {}".format(content,
-            # response))
+from slacker import Slacker
+from slack_request import SlackRequest
+from slacksocket import SlackSocket
 
 
 class SimpleSlackBot():
@@ -86,15 +14,14 @@ class SimpleSlackBot():
     def __init__(self):
         self._logger = self.initialize_logger()
 
-        self._BOT_ID = os.environ.get("BOT_ID")
-        if self._BOT_ID is None:
-            sys.exit("ERROR: environment variable BOT_ID is not set")
-
         self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
         if self._SLACK_BOT_TOKEN is None:
             sys.exit("ERROR: environment variable SLACK_BOT_TOKEN is not set")
 
-        self._slack_client = SlackClient(self._SLACK_BOT_TOKEN)
+        self._slacker = Slacker(self._SLACK_BOT_TOKEN)
+        # translate will lookup and replace user and channel IDs with their human-readable names. default true. 
+        self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN, translate=False)
+        self._BOT_ID = self._slacker.auth.test().body["user_id"]
         self._hello_callbacks = []
         self._mentions_callbacks = []
         self._public_channels_callbacks = []
@@ -104,6 +31,8 @@ class SimpleSlackBot():
         self._user_id_mentions = []
         self._user_name_mentions = []
         self.cache_user_names_and_ids()
+
+        self._logger.info(f"set bot id to {self._BOT_ID}")
         self._logger.info("initialized")
 
 
@@ -146,6 +75,7 @@ class SimpleSlackBot():
         self._user_names = self.get_user_names()
         self.cache_mention_strings()
 
+
     def cache_mention_strings(self):
         """
         Caches the mention strings based on the user name and id cache
@@ -170,32 +100,20 @@ class SimpleSlackBot():
                 AT_USER_SUFFIX))
 
 
-    def get_slack_client(self):
-        """
-        Returns SimpleSlackBot's SlackClient.
-
-        This is useful if you are writing more advanced bot and want complete
-        access to all SlackClient has to offer.
-        """
-
-        return self._slack_client
-
-
     def start(self):
         """
         Connect the slack bot to the chatroom and begin listening to channel
         """
 
-        ret = self._slack_client.rtm_connect()
+        ok = self._slacker.rtm.start().body["ok"]
 
-        if ret:
+        if ok:
             self._logger.info("started!")
             self.listen()
         else:
             self._logger.error("Connection failed. Are you connected to the "
-                        "internet? Potentially invalid Slack token or bot ID? "
-                        " Check environment variables \"BOT_ID\" and "
-                        "\"SLACK_BOT_TOKEN\"")
+                        "internet? Potentially invalid Slack token? Check "
+                        " environment variable and \"SLACK_BOT_TOKEN\"")
 
 
     def route_request_to_notify(self, request):
@@ -203,16 +121,14 @@ class SimpleSlackBot():
         Routes the request to the correct notify
         """
 
-        event_type = request.type
-        self._logger.debug("received an event of type {}".format(event_type))
-        self._logger.debug("data {}".format(request.data))
+        self._logger.debug(f"received an event of type {request.type}")
+        self._logger.debug(f"slack event {request._slack_event.event}")
 
-        if event_type == "hello":
+        if request.type == "hello":
             self.notify_hello(request)
 
-        elif event_type == "message":
-            self._logger.debug("printing request.message {}".format(
-                self._user_name_mentions, request.message))
+        elif request.type == "message":
+            self._logger.debug(f"printing request.message {request.message}")
 
             if any(user_id_mention in request.message for user_id_mention in
                 self._user_id_mentions):
@@ -224,11 +140,13 @@ class SimpleSlackBot():
             elif request.channel in self.get_private_channel_ids():
                 self.notify_private_channels_messages(request)
 
-            elif request.data["user"] in self.get_user_ids():
+            elif request._slack_event.event["user"] in self.get_user_ids():
                 self.notify_direct_messages(request)
 
             else:
-                self._logger.error("Unsure how to route {}".format(request.data))
+                self._logger.error(f"Unsure how to route {request._slack_event.json}")
+        else:
+            self._logger.error(f"Unsure how to route {request._slack_event.json}")
 
 
     def listen(self):
@@ -242,15 +160,13 @@ class SimpleSlackBot():
 
         while True:
             try:
-                json_list = self._slack_client.rtm_read()
-
-                if json_list and len(json_list) > 0:
-                    for dictionary in json_list:
-                        if dictionary and "bot_id" not in dictionary: # We don't reply to bots
-                            request = SlackRequest(self.get_slack_client(), dictionary)
+                for slack_event in self._slackSocket.events():
+                    if slack_event:
+                        if slack_event.event and "bot_id" not in slack_event.event: # We don't reply to bots
+                            request = SlackRequest(self._slacker, slack_event)
                             self.route_request_to_notify(request)
 
-                time.sleep(READ_WEBSOCKET_DELAY)
+                    time.sleep(READ_WEBSOCKET_DELAY)
             except KeyboardInterrupt:
                 self._logger.info("User ended listening. Gracefully shutting down")
                 sys.exit(0)
@@ -263,9 +179,9 @@ class SimpleSlackBot():
 
         if callback not in self._hello_callbacks:
             self._hello_callbacks.append(callback)
-            self._logger.info("registered {} to hello event".format(str(callback)))
+            self._logger.info(f"registered {str(callback)} to hello event")
         else:
-            self._logger.warning("did not register {} to hello event, as already registered".format(str(callback)))
+            self._logger.warning(f"did not register {str(callback)} to hello event, as already registered")
 
 
     def notify_hello(self, request):
@@ -275,7 +191,7 @@ class SimpleSlackBot():
 
         for callback in self._hello_callbacks:
             callback(request)
-            self._logger.debug("notified {} of hello event".format(callback))
+            self._logger.debug(f"notified {str(callback)} of hello event")
 
 
     def register_mentions(self, callback):
@@ -285,9 +201,9 @@ class SimpleSlackBot():
 
         if callback not in self._mentions_callbacks:
             self._mentions_callbacks.append(callback)
-            self._logger.info("registered {} to mentions".format(str(callback)))
+            self._logger.info("registered {str(callback)} to mentions")
         else:
-            self._logger.warning("did not register {} to mentions, as already registered".format(str(callback)))
+            self._logger.warning(f"did not register {str(callback)} to mentions, as already registered")
 
 
     def notify_mentions(self, request):
@@ -297,7 +213,7 @@ class SimpleSlackBot():
 
         for callback in self._mentions_callbacks:
             callback(request)
-            self._logger.debug("notified {} of mentions event".format(callback))
+            self._logger.debug(f"notified {str(callback)} of mentions event")
 
 
     def register_public_channels_messages(self, callback):
@@ -307,9 +223,9 @@ class SimpleSlackBot():
 
         if callback not in self._public_channels_callbacks:
             self._public_channels_callbacks.append(callback)
-            self._logger.info("registered {} to public channels".format(str(callback)))
+            self._logger.info(f"registered {str(callback)} to public channels")
         else:
-            self._logger.warning("did not register {} to public channels, as already registered".format(str(callback)))
+            self._logger.warning(f"did not register {str(callback)} to public channels, as already registered")
 
 
     def notify_public_channels_messages(self, request):
@@ -319,7 +235,7 @@ class SimpleSlackBot():
 
         for callback in self._public_channels_callbacks:
             callback(request)
-            self._logger.debug("notified {} of all public channels event".format(callback))
+            self._logger.debug(f"notified {str(callback)} of all public channels event")
 
 
     def register_private_channels_messages(self, callback):
@@ -329,9 +245,9 @@ class SimpleSlackBot():
 
         if callback not in self._private_channels_callbacks:
             self._private_channels_callbacks.append(callback)
-            self._logger.info("registered {} to private channels".format(str(callback)))
+            self._logger.info(f"registered {str(callback)} to private channels")
         else:
-            self._logger.warning("did not register {} to private channels event, as already registered".format(str(callback)))
+            self._logger.warning(f"did not register {str(callback)} to private channels event, as already registered")
 
 
     def notify_private_channels_messages(self, request):
@@ -341,7 +257,7 @@ class SimpleSlackBot():
 
         for callback in self._private_channels_callbacks:
             callback(request)
-            self._logger.debug("notified {} of all private channels event".format(callback))
+            self._logger.debug(f"notified {str(callback)} of all private channels event")
 
 
     def register_direct_messages(self, callback):
@@ -351,9 +267,9 @@ class SimpleSlackBot():
 
         if callback not in self._direct_messages_callbacks:
             self._direct_messages_callbacks.append(callback)
-            self._logger.info("registered {} to direct messages event".format(str(callback)))
+            self._logger.info(f"registered {str(callback)} to direct messages event")
         else:
-            self._logger.warning("did not register {} to direct messages event, as already registered".format(str(callback)))
+            self._logger.warning(f"did not register {str(callback)} to direct messages event, as already registered")
 
 
     def notify_direct_messages(self, request):
@@ -363,7 +279,7 @@ class SimpleSlackBot():
 
         for callback in self._direct_messages_callbacks:
             callback(request)
-            self._logger.debug("notified {} of all direct messages event".format(callback))
+            self._logger.debug(f"notified {str(callback)} of all direct messages event")
 
 
     def get_public_channel_ids(self):
@@ -373,14 +289,14 @@ class SimpleSlackBot():
 
         public_channel_ids = []
 
-        public_channels = self._slack_client.api_call("channels.list", token=self._SLACK_BOT_TOKEN)
-        for channel in public_channels["channels"]:
+        public_channels = self._slacker.channels.list().body["channels"]
+        for channel in public_channels:
             public_channel_ids.append(channel["id"])
 
         if len(public_channel_ids) == 0:
             self._logger.warning("got no public channel ids")
         else:
-            self._logger.debug("got public channel ids {}".format(public_channel_ids))
+            self._logger.debug(f"got public channel ids {public_channel_ids}")
 
         return public_channel_ids
 
@@ -392,16 +308,16 @@ class SimpleSlackBot():
 
         private_channel_ids = []
 
-        private_channels = self._slack_client.api_call("groups.list", token=self._SLACK_BOT_TOKEN)
+        private_channels = self._slacker.groups.list().body["groups"]
 
-        self._logger.info("private_channels {}".format(private_channels))
-        for private_channel in private_channels["groups"]:
+        self._logger.info(f"private_channels {private_channels}")
+        for private_channel in private_channels:
             private_channels.append(channel["id"])
 
         if len(private_channel_ids) == 0:
             self._logger.warning("got no private channel ids")
         else:
-            self._logger.debug("got private channel ids {}".format(private_channel_ids))
+            self._logger.debug(f"got private channel ids {private_channel_ids}")
 
         return private_channel_ids
 
@@ -413,14 +329,14 @@ class SimpleSlackBot():
 
         user_ids = []
 
-        users_list = self._slack_client.api_call("users.list", token=self._SLACK_BOT_TOKEN)
-        for user in users_list["members"]:
+        users = self._slacker.users.list().body["members"]
+        for user in users:
             user_ids.append(user["id"])
 
         if len(user_ids) == 0:
             self._logger.warning("got no user ids")
         else:
-            self._logger.debug("got user ids {}".format(user_ids))
+            self._logger.debug(f"got user ids {user_ids}")
 
         return user_ids
 
@@ -432,14 +348,14 @@ class SimpleSlackBot():
 
         user_names = []
 
-        users_list = self._slack_client.api_call("users.list", token=self._SLACK_BOT_TOKEN)
-        for user in users_list["members"]:
+        users = self._slacker.users.list().body["members"]
+        for user in users:
             user_names.append(user["name"])
 
         if len(user_names) == 0:
             self._logger.warning("got no user names")
         else:
-            self._logger.debug("got user names {}".format(user_names))
+            self._logger.debug(f"got user names {user_names}")
 
         return user_names
 
@@ -451,16 +367,16 @@ class SimpleSlackBot():
 
         user_ids = []
 
-        channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_BOT_TOKEN)
+        channels_list = self._slacker.channels.list().body["channels"]
         for channel in channels_list["channels"]:
               if channel["id"] == channel_id:
                 for user_id in channel["members"]:
                     user_ids.append(user_id)
 
         if len(user_ids) == 0:
-            self._logger.warning("got no user ids for channel {}".format(channel_id))
+            self._logger.warning(f"got no user ids for channel {channel_id}")
         else:
-            self._logger.debug("got user ids {}".format(user_ids))
+            self._logger.debug(f"got user ids {user_ids}")
 
         return user_ids
 
@@ -470,14 +386,14 @@ class SimpleSlackBot():
         Converts a channel name to its respected channel id
         """
 
-        channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_BOT_TOKEN)
+        channels_list = self._slacker.channels.list().body["channels"]
 
         for channel in channels_list["channels"]:
             if channel["name"] == name:
-                self._logger.debug("converted {} to {}".format(channel["name"], channel["id"]))
+                self._logger.debug(f"converted {channel['name']} to {channel['id']}")
                 return channel["id"]
 
-        self._logger.warning("could not convert channel name {} to an id".format(name))
+        self._logger.warning(f"could not convert channel name {name} to an id")
 
 
     def user_name_to_user_id(self, name):
@@ -485,14 +401,14 @@ class SimpleSlackBot():
         Converts a user name to its respected user id
         """
 
-        users_list = self._slack_client.api_call("users.list", token=self._SLACK_BOT_TOKEN)
+        users = self._slacker.users.list().body["members"]
 
-        for user in users_list["members"]:
+        for user in users:
             if user["name"] == name:
-                self._logger.debug("converted {} to {}".format(name, user["id"]))
+                self._logger.debug(f"converted {name} to {user['id']}")
                 return user["id"]
 
-        self._logger.warning("could not convert user name {} to a user id".format(name))
+        self._logger.warning(f"could not convert user name {name} to a user id")
 
 
     def channel_id_to_channel_name(self, channel_id):
@@ -500,14 +416,14 @@ class SimpleSlackBot():
         Converts a channel id to its respected channel name
         """
 
-        channels_list = self._slack_client.api_call("channels.list", token=self._SLACK_BOT_TOKEN)
+        channels_list = self._slacker.channels.list().body["channels"]
 
         for channel in channels_list["channels"]:
             if channel["id"] == channel_id:
                 self._logger.debug("converted {} to {}".format(channel_id, channel["name"]))
                 return channel["name"]
 
-        self._logger.warning("could not convert channel id {} to a name".format(channel_id))
+        self._logger.warning(f"could not convert channel id {channel_id} to a name")
 
 
     def user_id_to_user_name(self, user_id):
@@ -519,7 +435,7 @@ class SimpleSlackBot():
 
         for user in users_list["members"]:
             if user["id"] == user_id:
-                self._logger.debug("converted {} to {}".format(user_id, user["name"]))
+                self._logger.debug(f"converted {user_id} to {user['name']}")
                 return user["name"]
 
-        self._logger.warning("could not convert user id {} to a name".format(user_id))
+        self._logger.warning(f"could not convert user id {user_id} to a name")

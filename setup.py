@@ -13,6 +13,7 @@ setup(
     keywords = ["slack", "bot", "chat", "simple"], # arbitrary keywords
     classifiers = [],
     install_requires=[
-        "slackclient",
+        "slacker",
+        "slacksocket",
     ],
 )
