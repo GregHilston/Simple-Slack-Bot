@@ -3,28 +3,38 @@ from slackclient import SlackClient
 
 
 class SlackRequest(object):
+    """
+    Extracts commonly used information from a SlackClient dictionary for easy
+    access. Also allows users to write messages, upload content and gain access
+    to the underlying SlackClient
+    """
 
-    def __init__(self, client, data=None):
+    def __init__(self, client, data):
         """
         :param client: SlackClient class
         :type client: SlackClient
         :param data: data returned by the server after an API call
-        :type data: dict, if not provided some functions may not work properly
+        :type data: dict
         """
+
         self.data = data
         self.client = client
+
 
     @property
     def type(self):
         return self.data["type"]
 
+
     @property
     def channel(self):
         return self.data.get("channel")
 
+
     @property
     def message(self):
         return self.data.get("text")
+
 
     def write(self, content, channel=None, **kwargs):
         """
@@ -32,22 +42,28 @@ class SlackRequest(object):
 
         :param content: The text you wish to send
         :param channel: By default send to same channel request came from
-        :param kwargs: any extra arguments you want to pass to chat.postMessage slack API
+        :param kwargs: any extra arguments you want to pass to chat.postMessage
+                       slack API
         """
+
         if channel is None and self.data:
             channel = self.channel
         defaults = {"as_user": True}
         defaults.update(kwargs)
-        self.client.api_call("chat.postMessage", channel=channel, text=content, **defaults)
+        self.client.api_call("chat.postMessage", channel=channel, text=content,
+            **defaults)
         # self._logger.debug("wrote {}".format(content))
+
 
     def upload(self, output_filename, content, channel=None, **kwargs):
         """
-        Upload the content or input_filename's content to the channel
+        Uploads the content or input_filename's content to the channel
+
         @param output_filename: filename that should appear to the enduser
         @param content: content to be uploaded can be string or an opened file
         @param kwargs: any extra parameters you wish to pass to the upload api
         """
+
         params = {
             "channels": channel or self.channel, "filename": output_filename}
         if hasattr(content, "read"):
@@ -56,7 +72,8 @@ class SlackRequest(object):
             params["content"] = content
         params.update(kwargs)
         response = self.client.api_call("files.upload", **params)
-        # self._logger.debug("uploaded {} with response {}".format(content, response))
+        # self._logger.debug("uploaded {} with response {}".format(content,
+            # response))
 
 
 class SimpleSlackBot():
@@ -86,8 +103,9 @@ class SimpleSlackBot():
         self._user_names = []
         self._user_id_mentions = []
         self._user_name_mentions = []
-        self._logger.info("initialized")
         self.cache_user_names_and_ids()
+        self._logger.info("initialized")
+
 
     def initialize_logger(self):
         """
@@ -107,7 +125,8 @@ class SimpleSlackBot():
         stream_handler.setLevel(logging.DEBUG)
 
         # create formatter and add it to the handlers
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - "
+                                      "%(message)s")
         file_handler.setFormatter(formatter)
         stream_handler.setFormatter(formatter)
 
@@ -138,12 +157,17 @@ class SimpleSlackBot():
         self._user_name_mentions = []
 
         # add this bot
-        self._user_id_mentions.append(AT_USER_PREFIX + str(self.user_name_to_user_id(str(self._BOT_ID))) + AT_USER_SUFFIX)
-        self._user_name_mentions.append(AT_USER_PREFIX + str(self._BOT_ID) + AT_USER_SUFFIX)
+        self._user_id_mentions.append(AT_USER_PREFIX + (
+            str(self.user_name_to_user_id(str(self._BOT_ID))) +
+            AT_USER_SUFFIX))
+        self._user_name_mentions.append(AT_USER_PREFIX + str(self._BOT_ID) + (
+            AT_USER_SUFFIX))
 
         for user_id, user_name in zip(self._user_ids, self._user_names):
-            self._user_id_mentions.append(AT_USER_PREFIX + user_id + AT_USER_SUFFIX)
-            self._user_name_mentions.append(AT_USER_PREFIX + user_name + AT_USER_SUFFIX)
+            self._user_id_mentions.append(AT_USER_PREFIX + user_id + (
+                AT_USER_SUFFIX))
+            self._user_name_mentions.append(AT_USER_PREFIX + user_name + (
+                AT_USER_SUFFIX))
 
 
     def get_slack_client(self):
@@ -168,9 +192,10 @@ class SimpleSlackBot():
             self._logger.info("started!")
             self.listen()
         else:
-            self._logger.error("Connection failed. Are you connected to the internet?"
-                         " Potentially invalid Slack token or bot ID? Check"
-                         " environment variables \"BOT_ID\" and \"SLACK_BOT_TOKEN\"")
+            self._logger.error("Connection failed. Are you connected to the "
+                        "internet? Potentially invalid Slack token or bot ID? "
+                        " Check environment variables \"BOT_ID\" and "
+                        "\"SLACK_BOT_TOKEN\"")
 
 
     def route_request_to_notify(self, request):
@@ -186,10 +211,11 @@ class SimpleSlackBot():
             self.notify_hello(request)
 
         elif event_type == "message":
+            self._logger.debug("printing request.message {}".format(
+                self._user_name_mentions, request.message))
 
-            self._logger.debug("printing request.message {}".format(self._user_name_mentions, request.message))
-
-            if any(user_id_mention in request.message for user_id_mention in self._user_id_mentions):
+            if any(user_id_mention in request.message for user_id_mention in
+                self._user_id_mentions):
                 self.notify_mentions(request)
 
             elif request.channel in self.get_public_channel_ids():
