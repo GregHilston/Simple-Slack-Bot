@@ -11,9 +11,10 @@ class SimpleSlackBot():
     writing back to Slack
     """
 
-    def __init__(self):
+    def __init__(self, handler_callback):
         self._logger = self.initialize_logger()
 
+        self._handler_callback = handler_callback
         self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
         if self._SLACK_BOT_TOKEN is None:
             sys.exit("ERROR: environment variable SLACK_BOT_TOKEN is not set")
@@ -22,11 +23,6 @@ class SimpleSlackBot():
         # translate will lookup and replace user and channel IDs with their human-readable names. default true. 
         self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN, translate=False)
         self._BOT_ID = self._slacker.auth.test().body["user_id"]
-        self._hello_callbacks = []
-        self._mentions_callbacks = []
-        self._public_channels_callbacks = []
-        self._private_channels_callbacks = []
-        self._direct_messages_callbacks = []
         self._user_names = []
         self._user_id_mentions = []
         self._user_name_mentions = []
@@ -124,29 +120,7 @@ class SimpleSlackBot():
         self._logger.debug(f"received an event of type {request.type}")
         self._logger.debug(f"slack event {request._slack_event.event}")
 
-        if request.type == "hello":
-            self.notify_hello(request)
-
-        elif request.type == "message":
-            self._logger.debug(f"printing request.message {request.message}")
-
-            if any(user_id_mention in request.message for user_id_mention in
-                self._user_id_mentions):
-                self.notify_mentions(request)
-
-            elif request.channel in self.get_public_channel_ids():
-                self.notify_public_channels_messages(request)
-
-            elif request.channel in self.get_private_channel_ids():
-                self.notify_private_channels_messages(request)
-
-            elif request._slack_event.event["user"] in self.get_user_ids():
-                self.notify_direct_messages(request)
-
-            else:
-                self._logger.error(f"Unsure how to route {request._slack_event.json}")
-        else:
-            self._logger.error(f"Unsure how to route {request._slack_event.json}")
+        self._handler_callback(request)
 
 
     def listen(self):
@@ -170,116 +144,6 @@ class SimpleSlackBot():
             except KeyboardInterrupt:
                 self._logger.info("User ended listening. Gracefully shutting down")
                 sys.exit(0)
-
-
-    def register_hello(self, callback):
-        """
-        Registers callback to hello event
-        """
-
-        if callback not in self._hello_callbacks:
-            self._hello_callbacks.append(callback)
-            self._logger.info(f"registered {str(callback)} to hello event")
-        else:
-            self._logger.warning(f"did not register {str(callback)} to hello event, as already registered")
-
-
-    def notify_hello(self, request):
-        """
-        Notifies observers of hello events. Often used for bot initialization
-        """
-
-        for callback in self._hello_callbacks:
-            callback(request)
-            self._logger.debug(f"notified {str(callback)} of hello event")
-
-
-    def register_mentions(self, callback):
-        """
-        Registers callback to mentions of this bot, by BOT_ID
-        """
-
-        if callback not in self._mentions_callbacks:
-            self._mentions_callbacks.append(callback)
-            self._logger.info("registered {str(callback)} to mentions")
-        else:
-            self._logger.warning(f"did not register {str(callback)} to mentions, as already registered")
-
-
-    def notify_mentions(self, request):
-        """
-        Notifies observers of the mentions event of this bot, by BOT_ID
-        """
-
-        for callback in self._mentions_callbacks:
-            callback(request)
-            self._logger.debug(f"notified {str(callback)} of mentions event")
-
-
-    def register_public_channels_messages(self, callback):
-        """
-        Registers callback to all public channels messages
-        """
-
-        if callback not in self._public_channels_callbacks:
-            self._public_channels_callbacks.append(callback)
-            self._logger.info(f"registered {str(callback)} to public channels")
-        else:
-            self._logger.warning(f"did not register {str(callback)} to public channels, as already registered")
-
-
-    def notify_public_channels_messages(self, request):
-        """
-        Notifies observers of the all public channel message events
-        """
-
-        for callback in self._public_channels_callbacks:
-            callback(request)
-            self._logger.debug(f"notified {str(callback)} of all public channels event")
-
-
-    def register_private_channels_messages(self, callback):
-        """
-        Registers callback to all private channel message events
-        """
-
-        if callback not in self._private_channels_callbacks:
-            self._private_channels_callbacks.append(callback)
-            self._logger.info(f"registered {str(callback)} to private channels")
-        else:
-            self._logger.warning(f"did not register {str(callback)} to private channels event, as already registered")
-
-
-    def notify_private_channels_messages(self, request):
-        """
-        Notifies observers of the all private channel message events
-        """
-
-        for callback in self._private_channels_callbacks:
-            callback(request)
-            self._logger.debug(f"notified {str(callback)} of all private channels event")
-
-
-    def register_direct_messages(self, callback):
-        """
-        Registers callback to all direct messages
-        """
-
-        if callback not in self._direct_messages_callbacks:
-            self._direct_messages_callbacks.append(callback)
-            self._logger.info(f"registered {str(callback)} to direct messages event")
-        else:
-            self._logger.warning(f"did not register {str(callback)} to direct messages event, as already registered")
-
-
-    def notify_direct_messages(self, request):
-        """
-        Notifies observers of the all direct messages event
-        """
-
-        for callback in self._direct_messages_callbacks:
-            callback(request)
-            self._logger.debug(f"notified {str(callback)} of all direct messages event")
 
 
     def get_public_channel_ids(self):
