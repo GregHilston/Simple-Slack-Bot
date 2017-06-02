@@ -24,6 +24,7 @@ class SimpleSlackBot():
         self._slacker = Slacker(self._SLACK_BOT_TOKEN)
         self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN, translate=False)
         self._BOT_ID = self._slacker.auth.test().body["user_id"]
+        self._registrations = {} # our dictionary of event_types to a list of callbacks
 
         self._logger.info(f"set bot id to {self._BOT_ID}")
         self._logger.info("initialized")
@@ -65,6 +66,11 @@ class SimpleSlackBot():
         
         def function_wrapper(callback):
             self._logger.info(f"registering callback {callback.__name__} to event type {event_type}")
+
+            if event_type not in self._registrations:
+                self._registrations[event_type] = [] # create an empty list
+            self._registrations[event_type].append(callback)
+
         return function_wrapper
 
 
@@ -75,6 +81,10 @@ class SimpleSlackBot():
 
         self._logger.debug(f"received an event of type {request.type}")
         self._logger.debug(f"slack event {request._slack_event.event}")
+
+        if request.type in self._registrations:
+            for callback in self._registrations[request.type]:
+                callback(request)
 
 
     def listen(self):  
