@@ -58,13 +58,13 @@ class SimpleSlackBot():
         return logger
 
 
-    def register(self, callback):
+    def register(self, event_type):
         """
-        Registers a callback function to an event_type
+        Registers a callback function to a a event type
         """
         
-        def function_wrapper(event_name):
-            self._logger.info(f"Registering callback {callback.__name__} to event type name {event_name.__name__}")
+        def function_wrapper(callback):
+            self._logger.info(f"registering callback {callback.__name__} to event type {event_type}")
         return function_wrapper
 
 
