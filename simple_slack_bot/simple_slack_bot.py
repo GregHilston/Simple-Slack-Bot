@@ -12,6 +12,10 @@ class SimpleSlackBot():
     """
 
     def __init__(self):
+        """
+        Initiazes our Slack bot, setting up our logger and slack bot token
+        """
+        
         self._logger = self.initialize_logger()
 
         self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
@@ -21,7 +25,6 @@ class SimpleSlackBot():
         self._slacker = Slacker(self._SLACK_BOT_TOKEN)
         self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN, translate=False)
         self._BOT_ID = self._slacker.auth.test().body["user_id"]
-        self._event_dictionary = []
 
         self._logger.info(f"set bot id to {self._BOT_ID}")
         self._logger.info("initialized")
@@ -56,20 +59,22 @@ class SimpleSlackBot():
         return logger
 
 
-    def start(self):
+    def register(self, event_type):
         """
-        Connect the slack bot to the chatroom and begin listening to channel
+        Registers a callback function to an event_type
         """
+        
+        self._logger.debug(f"register event_type {event_type}")
+        
+        def decorator(func):
+            self._logger.debug("decorator")
 
-        ok = self._slacker.rtm.start().body["ok"]
+            def wrapper(event_type):
+                self._logger.debug("wrapper")
 
-        if ok:
-            self._logger.info("started!")
-            self.listen()
-        else:
-            self._logger.error("Connection failed. Are you connected to the "
-                        "internet? Potentially invalid Slack token? Check "
-                        " environment variable and \"SLACK_BOT_TOKEN\"")
+                return f"Registered to event_type {event_type}"
+            return wrapper
+        return decorator
 
 
     def route_request_to_notify(self, request):
@@ -81,7 +86,7 @@ class SimpleSlackBot():
         self._logger.debug(f"slack event {request._slack_event.event}")
 
 
-    def listen(self):
+    def listen(self):  
         """
         Listens forever, updating on content
         """
@@ -104,15 +109,17 @@ class SimpleSlackBot():
                 sys.exit(0)
 
 
-    def register(self, tag):
-        self._logger.debug(f"register tag {tag}")
-        
-        def decorator(func):
-            self._logger.debug("decorator")
+    def start(self):
+        """
+        Connect the slack bot to the chatroom and begin listening to channel
+        """
 
-            def wrapper(event):
-                self._logger.debug("wrapper")
+        ok = self._slacker.rtm.start().body["ok"]
 
-                return f"Registered to event {event}"
-            return wrapper
-        return decorator
+        if ok:
+            self._logger.info("started!")
+            self.listen()
+        else:
+            self._logger.error("Connection failed. Are you connected to the "
+                        "internet? Potentially invalid Slack token? Check "
+                        " environment variable and \"SLACK_BOT_TOKEN\"")
