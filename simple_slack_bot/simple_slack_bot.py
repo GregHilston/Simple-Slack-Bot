@@ -7,8 +7,7 @@ from slacksocket import SlackSocket
 class SimpleSlackBot():
     """
     Simplifies interacting with SlackClient. Allows users to register to
-    specific events, get notified, run business code and return a reply for
-    writing back to Slack
+    specific events, get notified and run their business code
     """
 
     def __init__(self):
@@ -59,22 +58,14 @@ class SimpleSlackBot():
         return logger
 
 
-    def register(self, event_type):
+    def register(self, callback):
         """
         Registers a callback function to an event_type
         """
         
-        self._logger.debug(f"register event_type {event_type}")
-        
-        def decorator(func):
-            self._logger.debug("decorator")
-
-            def wrapper(event_type):
-                self._logger.debug("wrapper")
-
-                return f"Registered to event_type {event_type}"
-            return wrapper
-        return decorator
+        def function_wrapper(event_name):
+            self._logger.info(f"Registering callback {callback.__name__} to event type name {event_name.__name__}")
+        return function_wrapper
 
 
     def route_request_to_notify(self, request):
