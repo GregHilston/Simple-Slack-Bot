@@ -9,11 +9,9 @@ class SlackRequest(object):
         self._slacker = slacker
         self._slack_event = slack_event
 
-
     @property
     def type(self):
         return self._slack_event.event["type"]
-
 
     @property
     def channel(self):
@@ -24,11 +22,9 @@ class SlackRequest(object):
 
         return channel
 
-
     @property
     def message(self):
         return self._slack_event.event["text"]
-
 
     def write(self, content, channel=None):
         """
@@ -42,7 +38,7 @@ class SlackRequest(object):
 
         if channel is None and self._slack_event:
             channel = self.channel
-        
+
         print(f"writing {content} to {channel}")
 
         self._slacker.chat.post_message(channel, content)

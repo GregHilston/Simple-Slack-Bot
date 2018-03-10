@@ -4,7 +4,7 @@ from .slack_request import SlackRequest
 from slacksocket import SlackSocket
 
 
-class SimpleSlackBot():
+class SimpleSlackBot:
     """
     Simplifies interacting with SlackClient. Allows users to register to
     specific events, get notified and run their business code
@@ -14,7 +14,7 @@ class SimpleSlackBot():
         """
         Initiazes our Slack bot, setting up our logger and slack bot token
         """
-        
+
         self._logger = self.initialize_logger()
 
         self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
@@ -24,11 +24,10 @@ class SimpleSlackBot():
         self._slacker = Slacker(self._SLACK_BOT_TOKEN)
         self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN, translate=False)
         self._BOT_ID = self._slacker.auth.test().body["user_id"]
-        self._registrations = {} # our dictionary of event_types to a list of callbacks
+        self._registrations = {}  # our dictionary of event_types to a list of callbacks
 
         self._logger.info(f"set bot id to {self._BOT_ID}")
         self._logger.info("initialized")
-
 
     def initialize_logger(self):
         """
@@ -37,10 +36,10 @@ class SimpleSlackBot():
 
         # setting up our logger to write to a log file
         logger = logging.getLogger(__name__)
-        logger.setLevel(logging.DEBUG) # Process all levels of logging messages
+        logger.setLevel(logging.DEBUG)  # Process all levels of logging messages
 
         # create file handler
-        file_handler = logging.FileHandler(__name__  + ".log", mode='w')
+        file_handler = logging.FileHandler(__name__ + ".log", mode='w')
         file_handler.setLevel(logging.DEBUG)
 
         # create stream handler
@@ -58,21 +57,19 @@ class SimpleSlackBot():
 
         return logger
 
-
     def register(self, event_type):
         """
         Registers a callback function to a a event type
         """
-        
+
         def function_wrapper(callback):
             self._logger.info(f"registering callback {callback.__name__} to event type {event_type}")
 
             if event_type not in self._registrations:
-                self._registrations[event_type] = [] # create an empty list
+                self._registrations[event_type] = []  # create an empty list
             self._registrations[event_type].append(callback)
 
         return function_wrapper
-
 
     def route_request_to_notify(self, request):
         """
@@ -86,13 +83,12 @@ class SimpleSlackBot():
             for callback in self._registrations[request.type]:
                 callback(request)
 
-
-    def listen(self):  
+    def listen(self):
         """
         Listens forever, updating on content
         """
 
-        READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
+        READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from firehose
 
         self._logger.info("began listening!")
 
@@ -100,7 +96,7 @@ class SimpleSlackBot():
             try:
                 for slack_event in self._slackSocket.events():
                     if slack_event:
-                        if slack_event.event and "bot_id" not in slack_event.event: # We don't reply to bots
+                        if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
                             request = SlackRequest(self._slacker, slack_event)
                             self.route_request_to_notify(request)
 
@@ -108,7 +104,6 @@ class SimpleSlackBot():
             except KeyboardInterrupt:
                 self._logger.info("User ended listening. Gracefully shutting down")
                 sys.exit(0)
-
 
     def start(self):
         """
@@ -122,5 +117,5 @@ class SimpleSlackBot():
             self.listen()
         else:
             self._logger.error("Connection failed. Are you connected to the "
-                        "internet? Potentially invalid Slack token? Check "
-                        " environment variable and \"SLACK_BOT_TOKEN\"")
+                               "internet? Potentially invalid Slack token? Check "
+                               " environment variable and \"SLACK_BOT_TOKEN\"")
