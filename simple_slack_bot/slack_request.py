@@ -1,3 +1,6 @@
+import logging
+
+
 class SlackRequest(object):
     """
     Extracts commonly used information from a SlackClient dictionary for easy
@@ -39,8 +42,8 @@ class SlackRequest(object):
         if channel is None and self._slack_event:
             channel = self.channel
 
-        print(f"writing {content} to {channel}")
-
-        self._slacker.chat.post_message(channel, content)
-
-        print(f"wrote {content} to {channel}")
+        try:
+            self._slacker.chat.post_message(channel, content)
+        except Exception as e:
+            logger = logging.getLogger(__name__)
+            logger.error(e)

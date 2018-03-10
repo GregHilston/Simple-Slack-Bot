@@ -12,7 +12,7 @@ class SimpleSlackBot:
 
     def __init__(self):
         """
-        Initiazes our Slack bot, setting up our logger and slack bot token
+        Initializes our Slack bot, setting up our logger and slack bot token
         """
 
         self._logger = self.initialize_logger()
