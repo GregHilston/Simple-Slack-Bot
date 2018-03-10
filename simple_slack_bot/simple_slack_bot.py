@@ -1,6 +1,6 @@
 import os, sys, time, logging
 from slacker import Slacker
-from .slack_request import SlackRequest
+from slack_request import SlackRequest
 from slacksocket import SlackSocket
 
 
