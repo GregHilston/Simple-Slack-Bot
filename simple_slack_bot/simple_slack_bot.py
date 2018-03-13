@@ -31,7 +31,9 @@ class SimpleSlackBot:
 
     def initialize_logger(self):
         """
-        Initializes and returns a logger
+        Initializes and returns a logger.
+
+        (Could use a configuration file instead of having this method)
         """
 
         # setting up our logger to write to a log file
@@ -92,18 +94,19 @@ class SimpleSlackBot:
 
         self._logger.info("began listening!")
 
-        while True:
-            try:
-                for slack_event in self._slackSocket.events():
-                    if slack_event:
-                        if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
-                            request = SlackRequest(self._slacker, slack_event)
-                            self.route_request_to_notify(request)
+        for slack_event in self._slackSocket.events():
+            print("here3")
+            if slack_event:
+                print("here4")
+                if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
+                    print("here5")
+                    request = SlackRequest(self._slacker, slack_event)
+                    self.route_request_to_notify(request)
 
-                    time.sleep(READ_WEBSOCKET_DELAY)
-            except KeyboardInterrupt:
-                self._logger.info("User ended listening. Gracefully shutting down")
-                sys.exit(0)
+            time.sleep(READ_WEBSOCKET_DELAY)
+
+        self._logger.info("Keyboard interrupt received. Gracefully shutting down")
+        sys.exit(0)
 
     def start(self):
         """
@@ -116,6 +119,5 @@ class SimpleSlackBot:
             self._logger.info("started!")
             self.listen()
         else:
-            self._logger.error("Connection failed. Are you connected to the "
-                               "internet? Potentially invalid Slack token? Check "
-                               " environment variable and \"SLACK_BOT_TOKEN\"")
+            self._logger.error("Connection failed. Are you connected to the internet? Potentially invalid Slack token? "
+                               "Check environment variable and \"SLACK_BOT_TOKEN\"")
