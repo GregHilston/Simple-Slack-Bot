@@ -1,0 +1,73 @@
+version: 1
+disable_existing_loggers: False
+formatters:
+    standard:
+        format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+filters:
+    debug_level_filter:
+        (): filters.LevelFilter
+        high: 10
+        low: 10
+
+    info_level_filter:
+        (): filters.LevelFilter
+        high: 20
+        low: 20
+
+    error_level_filter:
+        (): filters.LevelFilter
+        high: 40
+        low: 40
+
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: DEBUG
+        formatter: standard
+        stream: ext://sys.stdout
+        filters:
+            - debug_level_filter
+
+    console_debug_file:
+        class: logging.handlers.RotatingFileHandler
+        level: DEBUG
+        formatter: standard
+        filename: logs/debug.log
+        maxBytes: 104857600 # 100MB
+        backupCount: 200
+        encoding: utf8
+        filters:
+            - debug_level_filter
+
+    info_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: standard
+        filename: logs/info.log
+        maxBytes: 104857600 # 100MB
+        backupCount: 200
+        encoding: utf8
+        filters:
+            - info_level_filter
+
+    error_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: ERROR
+        formatter: standard
+        filename: logs/errors.log
+        maxBytes: 104857600 # 100MB
+        backupCount: 200
+        encoding: utf8
+        filters:
+            - error_level_filter
+
+loggers:
+    ds_reporter:
+        level: ERROR
+        handlers: [console]
+        propagate: no
+
+root:
+    level: INFO
+    handlers: [console, console_debug_file, info_file_handler, error_file_handler]

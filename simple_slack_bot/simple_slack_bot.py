@@ -1,8 +1,8 @@
-import os, sys, time, logging
+import os, sys, time, logging.config, yaml
 from slacker import Slacker
 from slack_request import SlackRequest
 from slacksocket import SlackSocket
-
+import settings as log_settings
 
 class SimpleSlackBot:
     """
@@ -15,7 +15,9 @@ class SimpleSlackBot:
         Initializes our Slack bot, setting up our logger and slack bot token
         """
 
-        self._logger = self.initialize_logger()
+        logging.config.dictConfig(yaml.safe_load(open("./logging.yaml", 'rt')))
+        self._logger = logging.getLogger()
+        self._logger.setLevel(logging.DEBUG)
 
         self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
         if self._SLACK_BOT_TOKEN is None:
@@ -28,36 +30,6 @@ class SimpleSlackBot:
 
         self._logger.info(f"set bot id to {self._BOT_ID}")
         self._logger.info("initialized")
-
-    def initialize_logger(self):
-        """
-        Initializes and returns a logger.
-
-        (Could use a configuration file instead of having this method)
-        """
-
-        # setting up our logger to write to a log file
-        logger = logging.getLogger(__name__)
-        logger.setLevel(logging.DEBUG)  # Process all levels of logging messages
-
-        # create file handler
-        file_handler = logging.FileHandler(__name__ + ".log", mode='w')
-        file_handler.setLevel(logging.DEBUG)
-
-        # create stream handler
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.DEBUG)
-
-        # create formatter and add it to the handlers
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        file_handler.setFormatter(formatter)
-        stream_handler.setFormatter(formatter)
-
-        # add the handlers to the logger
-        logger.addHandler(file_handler)
-        logger.addHandler(stream_handler)
-
-        return logger
 
     def register(self, event_type):
         """
