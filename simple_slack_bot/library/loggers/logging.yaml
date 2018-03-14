@@ -15,6 +15,11 @@ filters:
         high: 20
         low: 20
 
+    warning_level_filter:
+      (): simple_slack_bot.library.loggers.filters.LevelFilter
+      high: 30
+      low: 30
+
     error_level_filter:
         (): simple_slack_bot.library.loggers.filters.LevelFilter
         high: 40
@@ -51,6 +56,17 @@ handlers:
         filters:
             - info_level_filter
 
+    warning_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: WARNING
+        formatter: standard
+        filename: logs/errors.log
+        maxBytes: 104857600 # 100MB
+        backupCount: 200
+        encoding: utf8
+        filters:
+            - error_level_filter
+
     error_file_handler:
         class: logging.handlers.RotatingFileHandler
         level: ERROR
@@ -70,4 +86,4 @@ loggers:
 
 root:
     level: INFO
-    handlers: [console, console_debug_file, info_file_handler, error_file_handler]
+    handlers: [console, console_debug_file, info_file_handler, warning_file_handler, error_file_handler]

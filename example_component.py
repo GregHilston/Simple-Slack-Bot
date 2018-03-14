@@ -9,6 +9,12 @@ def hello_callback(request):
     request.write("Hello!")
 
 
+@simple_slack_bot.register("user_typing")
+def user_typing_callback(request):
+    simple_slack_bot._logger.info(f"ExampleComponent.user_typing_callback got request {request}")
+    request.write(f"I see you typing {request._slack_event.event['user']}")
+
+
 @simple_slack_bot.register("message")
 def pong_callback(request):
     simple_slack_bot._logger.info(f"ExampleComponent.pong_callback got request {request}")

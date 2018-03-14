@@ -20,10 +20,8 @@ class SimpleSlackBot:
         Initializes our Slack bot, setting up our logger and slack bot token
         """
 
-        print(f"current working directory: {os.getcwd()}")
-
         logging.config.dictConfig(yaml.safe_load(open("library/loggers/logging.yaml", 'rt')))
-        self._logger = logging.getLogger()
+        self._logger = logging.getLogger(__name__)
         self._logger.setLevel(logging.DEBUG)
 
         self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")

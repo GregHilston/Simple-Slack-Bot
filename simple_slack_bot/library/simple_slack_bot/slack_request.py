@@ -46,4 +46,4 @@ class SlackRequest(object):
             self._slacker.chat.post_message(channel, content)
         except Exception as e:
             logger = logging.getLogger(__name__)
-            logger.error(e)
+            logger.warning(e)
