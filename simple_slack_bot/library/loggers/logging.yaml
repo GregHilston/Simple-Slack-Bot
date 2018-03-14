@@ -6,17 +6,17 @@ formatters:
 
 filters:
     debug_level_filter:
-        (): filters.LevelFilter
+        (): simple_slack_bot.library.loggers.filters.LevelFilter
         high: 10
         low: 10
 
     info_level_filter:
-        (): filters.LevelFilter
+        (): simple_slack_bot.library.loggers.filters.LevelFilter
         high: 20
         low: 20
 
     error_level_filter:
-        (): filters.LevelFilter
+        (): simple_slack_bot.library.loggers.filters.LevelFilter
         high: 40
         low: 40
 

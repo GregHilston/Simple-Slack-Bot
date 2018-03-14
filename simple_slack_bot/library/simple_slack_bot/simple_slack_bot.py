@@ -1,8 +1,13 @@
-import os, sys, time, logging.config, yaml
+import os
+import sys
+import time
+import yaml
+import logging.config
 from slacker import Slacker
-from slack_request import SlackRequest
+from .slack_request import SlackRequest
 from slacksocket import SlackSocket
-from . import settings as log_settings
+import simple_slack_bot.library.loggers.settings
+from ..loggers import filters
 
 class SimpleSlackBot:
     """
@@ -15,7 +20,9 @@ class SimpleSlackBot:
         Initializes our Slack bot, setting up our logger and slack bot token
         """
 
-        logging.config.dictConfig(yaml.safe_load(open("./logging.yaml", 'rt')))
+        print(f"current working directory: {os.getcwd()}")
+
+        logging.config.dictConfig(yaml.safe_load(open("library/loggers/logging.yaml", 'rt')))
         self._logger = logging.getLogger()
         self._logger.setLevel(logging.DEBUG)
 
@@ -67,11 +74,8 @@ class SimpleSlackBot:
         self._logger.info("began listening!")
 
         for slack_event in self._slackSocket.events():
-            print("here3")
             if slack_event:
-                print("here4")
                 if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
-                    print("here5")
                     request = SlackRequest(self._slacker, slack_event)
                     self.route_request_to_notify(request)
 

@@ -1,2 +1,2 @@
-from .simple_slack_bot import SimpleSlackBot
-from .slack_request import SlackRequest
+from simple_slack_bot.library.simple_slack_bot.simple_slack_bot import SimpleSlackBot
+from simple_slack_bot.library.simple_slack_bot.slack_request import SlackRequest
