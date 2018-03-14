@@ -2,7 +2,7 @@ import os, sys, time, logging.config, yaml
 from slacker import Slacker
 from slack_request import SlackRequest
 from slacksocket import SlackSocket
-import settings as log_settings
+from . import settings as log_settings
 
 class SimpleSlackBot:
     """
