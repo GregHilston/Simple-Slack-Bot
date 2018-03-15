@@ -92,6 +92,22 @@ class SimpleSlackBot:
             self._logger.error("Connection failed. Are you connected to the internet? Potentially invalid Slack token? "
                                "Check environment variable and \"SLACK_BOT_TOKEN\"")
 
+    def get_slacker(self):
+        """Returns SimpleSlackBot's SlackClient.
+
+        This is useful if you are writing a more advanced bot and want complete access to all SlackClient has to offer.
+        """
+
+        return self._slacker
+
+    def get_slack_socket(self):
+        """Returns SimpleSlackBot's SlackSocket.
+
+        This is useful if you are writing a more advanced bot and want complete access to all SlackSocket has to offer.
+        """
+
+        return self._slackSocket
+
     def helper_get_public_channel_ids(self):
         """Helper function that gets all public channel ids
         """
