@@ -33,7 +33,7 @@ class SimpleSlackBot:
         self._BOT_ID = self._slacker.auth.test().body["user_id"]
         self._registrations = {}  # our dictionary of event_types to a list of callbacks
 
-        self._logger.info(f"set bot id to {self._BOT_ID}")
+        self._logger.info(f"set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}")
         self._logger.info("initialized")
 
     def register(self, event_type):
