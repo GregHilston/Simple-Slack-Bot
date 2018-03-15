@@ -32,7 +32,6 @@ handlers:
         formatter: standard
         stream: ext://sys.stdout
         filters:
-            - debug_level_filter
 
     console_debug_file:
         class: logging.handlers.RotatingFileHandler
@@ -60,7 +59,7 @@ handlers:
         class: logging.handlers.RotatingFileHandler
         level: WARNING
         formatter: standard
-        filename: logs/errors.log
+        filename: logs/warnings.log
         maxBytes: 104857600 # 100MB
         backupCount: 200
         encoding: utf8
