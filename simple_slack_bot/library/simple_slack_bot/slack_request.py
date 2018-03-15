@@ -3,9 +3,8 @@ import logging
 
 class SlackRequest(object):
     """
-    Extracts commonly used information from a SlackClient dictionary for easy
-    access. Also allows users to write messages, upload content and gain access
-    to the underlying SlackClient
+    Extracts commonly used information from a SlackClient dictionary for easy access. Also allows users to write
+    messages, upload content and gain access to the underlying SlackClient
     """
 
     def __init__(self, slacker, slack_event):
@@ -47,3 +46,6 @@ class SlackRequest(object):
         except Exception as e:
             logger = logging.getLogger(__name__)
             logger.warning(e)
+
+    def __str__(self):
+        return str(self._slack_event.json)
