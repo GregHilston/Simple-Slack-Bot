@@ -9,6 +9,7 @@ from slacksocket import SlackSocket
 import simple_slack_bot.library.loggers.settings
 from ..loggers import filters
 
+
 class SimpleSlackBot:
     """
     Simplifies interacting with SlackClient. Allows users to register to
@@ -95,3 +96,152 @@ class SimpleSlackBot:
         else:
             self._logger.error("Connection failed. Are you connected to the internet? Potentially invalid Slack token? "
                                "Check environment variable and \"SLACK_BOT_TOKEN\"")
+
+    def get_public_channel_ids(self):
+        """
+        Gets all public channel ids
+        """
+
+        public_channel_ids = []
+
+        public_channels = self._slacker.channels.list().body["channels"]
+        for channel in public_channels:
+            public_channel_ids.append(channel["id"])
+
+        if len(public_channel_ids) == 0:
+            self._logger.warning("got no public channel ids")
+        else:
+            self._logger.debug(f"got public channel ids {public_channel_ids}")
+
+        return public_channel_ids
+
+    def get_private_channel_ids(self):
+        """
+        Gets all private channel ids
+        """
+
+        private_channel_ids = []
+
+        private_channels = self._slacker.groups.list().body["groups"]
+
+        for private_channel in private_channels:
+            private_channels.append(private_channel["id"])
+
+        if len(private_channel_ids) == 0:
+            self._logger.warning("got no private channel ids")
+        else:
+            self._logger.debug(f"got private channel ids {private_channel_ids}")
+
+        return private_channel_ids
+
+    def get_user_ids(self):
+        """
+        Gets all user ids
+        """
+
+        user_ids = []
+
+        users = self._slacker.users.list().body["members"]
+        for user in users:
+            user_ids.append(user["id"])
+
+        if len(user_ids) == 0:
+            self._logger.warning("got no user ids")
+        else:
+            self._logger.debug(f"got user ids {user_ids}")
+
+        return user_ids
+
+    def get_user_names(self):
+        """
+        Gets all user names
+        """
+
+        user_names = []
+
+        users = self._slacker.users.list().body["members"]
+        for user in users:
+            user_names.append(user["name"])
+
+        if len(user_names) == 0:
+            self._logger.warning("got no user names")
+        else:
+            self._logger.debug(f"got user names {user_names}")
+
+        return user_names
+
+    def get_users_in_channel(self, channel_id):
+        """
+        Gets all users in a given channel
+        """
+
+        user_ids = []
+
+        channels_list = self._slacker.channels.list().body["channels"]
+        for channel in channels_list["channels"]:
+            if channel["id"] == channel_id:
+                for user_id in channel["members"]:
+                    user_ids.append(user_id)
+
+        if len(user_ids) == 0:
+            self._logger.warning(f"got no user ids for channel {channel_id}")
+        else:
+            self._logger.debug(f"got user ids {user_ids}")
+
+        return user_ids
+
+    def channel_name_to_channel_id(self, name):
+        """
+        Converts a channel name to its respected channel id
+        """
+
+        channels_list = self._slacker.channels.list().body["channels"]
+
+        for channel in channels_list["channels"]:
+            if channel["name"] == name:
+                self._logger.debug(f"converted {channel['name']} to {channel['id']}")
+                return channel["id"]
+
+        self._logger.warning(f"could not convert channel name {name} to an id")
+
+    def user_name_to_user_id(self, name):
+        """
+        Converts a user name to its respected user id
+        """
+
+        users = self._slacker.users.list().body["members"]
+
+        for user in users:
+            if user["name"] == name:
+                self._logger.debug(f"converted {name} to {user['id']}")
+                return user["id"]
+
+        self._logger.warning(f"could not convert user name {name} to a user id")
+
+    def channel_id_to_channel_name(self, channel_id):
+        """
+        Converts a channel id to its respected channel name
+        """
+
+        channels_list = self._slacker.channels.list().body["channels"]
+
+        for channel in channels_list["channels"]:
+            if channel["id"] == channel_id:
+                self._logger.debug("converted {} to {}".format(channel_id, channel["name"]))
+                return channel["name"]
+
+        self._logger.warning(f"could not convert channel id {channel_id} to a name")
+
+    def user_id_to_user_name(self, user_id):
+        """
+        Converts a user id to its respected user name
+        """
+
+        users_list = self._slacker.users.list()
+
+        for user in users_list.body["members"]:
+            if user["id"] == user_id:
+                self._logger.debug(f"converted {user_id} to {user['name']}")
+                return user["name"]
+
+        self._logger.warning(f"could not convert user id {user_id} to a name")
