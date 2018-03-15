@@ -19,7 +19,7 @@ To configure, set the two environment variables
 
 `SLACK_BOT_TOKEN` with your Slack Bot's API token
 
-## Example Setup
+## Example
 
 To integrate with Simple Slack Bot, simply create an instance of it and register for notifications using a callback function. This can be accomplished using the following code:
 
@@ -70,19 +70,15 @@ Often times when writing a Slack Bot, you'll find yourself writing a few key fun
 To gain access to these functions, simply call the appropriate function on your SimpleSlackBot instance.
 
 
-## Expose to Slack Client
+## Writing More Advanced Slack Bots
 
-If you have found that Simple-Slack-Bot does not provide everything you are looking for, simply call
-
-
-`get_slack_client()`
+If you have found that Simple-Slack-Bot does not provide everything you are looking for, you can gain access to the underlying [Slacker object](https://github.com/os/slacker) or [SlackSocket object](https://github.com/vektorlab/slacksocket) by calling
 
 
-to get an instance of SlackClient, which is the Slack Development Kit for Python. See their documentation here https://github.com/slackapi/python-slackclient
+`get_slacker()`
 
+or
 
-## Executing
+`get_slack_socket()`
 
-To run `app.py`, simply execute make
-
-`$ make`
+respectively.
