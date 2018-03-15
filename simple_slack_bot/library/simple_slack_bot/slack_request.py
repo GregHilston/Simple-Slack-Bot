@@ -38,13 +38,16 @@ class SlackRequest(object):
                        slack API
         """
 
-        if channel is None and self._slack_event:
+        logger = logging.getLogger(__name__)
+
+        if channel is None and self.channel != "":
             channel = self.channel
+        else:
+            logger.warning("no channel provided by developer or respective slack event")
 
         try:
             self._slacker.chat.post_message(channel, content)
         except Exception as e:
-            logger = logging.getLogger(__name__)
             logger.warning(e)
 
     def __str__(self):
