@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name="simple_slack_bot",
     packages=["simple_slack_bot"],  # this must be the same as the name above
-    version="0.4.0",
+    version="0.4.1",
     description="Simple Slack Bot makes writing your next Slack bot incredibly easy",
     long_description="Simple Slack Bot makes writing your next Slack bot incredibly easy. By factoring out common functionality all Slack Bots require, you can focus on writing your business logic by simply registering for Slack Events defined by the Slack API",
     author="Greg Hilston",
@@ -15,5 +15,6 @@ setup(
     install_requires=[
         "slacker",
         "slacksocket",
+        "pyyaml",
     ],
 )
