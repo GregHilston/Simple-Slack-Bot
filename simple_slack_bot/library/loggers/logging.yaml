@@ -65,7 +65,7 @@ handlers:
         backupCount: 200
         encoding: utf8
         filters:
-            - error_level_filter
+            - warning_level_filter
 
     error_file_handler:
         class: logging.handlers.RotatingFileHandler

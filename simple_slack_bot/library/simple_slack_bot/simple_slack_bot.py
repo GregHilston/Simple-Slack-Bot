@@ -34,8 +34,8 @@ class SimpleSlackBot:
         self._BOT_ID = self._slacker.auth.test().body["user_id"]
         self._registrations = {}  # our dictionary of event_types to a list of callbacks
 
-        self._logger.info(f"set bot id to {self._BOT_ID}")
-        self._logger.info("initialized")
+        self._logger.debug(f"set bot id to {self._BOT_ID}")
+        self._logger.debug("initialized")
 
     def register(self, event_type):
         """
@@ -43,7 +43,7 @@ class SimpleSlackBot:
         """
 
         def function_wrapper(callback):
-            self._logger.info(f"registering callback {callback.__name__} to event type {event_type}")
+            self._logger.debug(f"registering callback {callback.__name__} to event type {event_type}")
 
             if event_type not in self._registrations:
                 self._registrations[event_type] = []  # create an empty list
@@ -70,7 +70,7 @@ class SimpleSlackBot:
 
         READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from firehose
 
-        self._logger.info("began listening!")
+        self._logger.debug("began listening!")
 
         for slack_event in self._slackSocket.events():
             if slack_event:
@@ -80,7 +80,7 @@ class SimpleSlackBot:
 
             time.sleep(READ_WEBSOCKET_DELAY)
 
-        self._logger.info("Keyboard interrupt received. Gracefully shutting down")
+        self._logger.debug("Keyboard interrupt received. Gracefully shutting down")
         sys.exit(0)
 
     def start(self):
@@ -91,7 +91,7 @@ class SimpleSlackBot:
         ok = self._slacker.rtm.start().body["ok"]
 
         if ok:
-            self._logger.info("started!")
+            self._logger.debug("started!")
             self.listen()
         else:
             self._logger.error("Connection failed. Are you connected to the internet? Potentially invalid Slack token? "
