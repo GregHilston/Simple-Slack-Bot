@@ -2,21 +2,36 @@ import logging
 
 
 class SlackRequest(object):
-    """
-    Extracts commonly used information from a SlackClient dictionary for easy access. Also allows users to write
+    """Extracts commonly used information from a SlackClient dictionary for easy access. Also allows users to write
     messages, upload content and gain access to the underlying SlackClient
     """
 
     def __init__(self, slacker, slack_event):
+        """Initializes a SlackRequest
+
+        :param slacker: the Slacker object for this specific SlackRequest
+        :param slack_event: the SlackEvent for this specific SlackRequest
+        """
         self._slacker = slacker
         self._slack_event = slack_event
 
     @property
     def type(self):
+        """Gets the type of event from the underlying SlackEvent
+
+        :return: the type of event
+        """
+
         return self._slack_event.event["type"]
 
     @property
     def channel(self):
+        """Gets the channel from the underlying SlackEvent
+        Note: This can be an empty String. For example, this will be an empty String for the 'Hello' event.
+
+        :return: the channel this SlackEvent originated from
+        """
+
         channel = ""
 
         if "channel" in self._slack_event.event:
@@ -26,6 +41,11 @@ class SlackRequest(object):
 
     @property
     def message(self):
+        """Gets the underlying message from the SlackEvent
+
+        :return: the message this SlackEvent came with
+        """
+
         return self._slack_event.event["text"]
 
     def write(self, content, channel=None):
@@ -33,9 +53,8 @@ class SlackRequest(object):
         Writes the content to the channel
 
         :param content: The text you wish to send
-        :param channel: By default send to same channel request came from
-        :param kwargs: any extra arguments you want to pass to chat.postMessage
-                       slack API
+        :param channel: By default send to same channel request came from, if any
+        :param kwargs: any extra arguments you want to pass to chat.postMessage Slack API
         """
 
         logger = logging.getLogger(__name__)
@@ -51,4 +70,9 @@ class SlackRequest(object):
             logger.warning(e)
 
     def __str__(self):
+        """Generates the String representation of a SlackRequest
+
+        :return: the String representation of a SlackRequest
+        """
+
         return str(self._slack_event.json)

@@ -11,14 +11,13 @@ from ..loggers import filters
 
 
 class SimpleSlackBot:
-    """
-    Simplifies interacting with SlackClient. Allows users to register to
-    specific events, get notified and run their business code
+    """Simplifies interacting with the Slack API. Allows users to register functions to specific events, get those
+    functions called when those specific events are triggered and run their business code
     """
 
     def __init__(self):
-        """
-        Initializes our Slack bot, setting up our logger and slack bot token
+        """Initializes our Slack bot, setting up our logger and slack bot token. Will exit if the required environment
+        variable is not set.
         """
 
         logging.config.dictConfig(yaml.safe_load(open("library/loggers/logging.yaml", 'rt')))
@@ -38,8 +37,8 @@ class SimpleSlackBot:
         self._logger.info("initialized")
 
     def register(self, event_type):
-        """
-        Registers a callback function to a a event type
+        """Registers a callback function to a a event type. All supported even types are defined here
+        https://api.slack.com/events-api
         """
 
         def function_wrapper(callback):
@@ -51,9 +50,8 @@ class SimpleSlackBot:
 
         return function_wrapper
 
-    def route_request_to_notify(self, request):
-        """
-        Routes the request to the correct notify
+    def route_request_to_callbacks(self, request):
+        """Routes the request to the correct notify
         """
 
         self._logger.info(f"received an event of type {request.type} and slack event {request._slack_event.event}")
@@ -63,8 +61,7 @@ class SimpleSlackBot:
                 callback(request)
 
     def listen(self):
-        """
-        Listens forever, updating on content
+        """Listens forever for Slack events, triggering appropriately callbacks when respective events are received
         """
 
         READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from firehose
@@ -75,7 +72,7 @@ class SimpleSlackBot:
             if slack_event:
                 if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
                     request = SlackRequest(self._slacker, slack_event)
-                    self.route_request_to_notify(request)
+                    self.route_request_to_callbacks(request)
 
             time.sleep(READ_WEBSOCKET_DELAY)
 
@@ -83,8 +80,7 @@ class SimpleSlackBot:
         sys.exit(0)
 
     def start(self):
-        """
-        Connect the slack bot to the chatroom and begin listening to channel
+        """Connect the Slack bot to the chatroom and begin listening
         """
 
         ok = self._slacker.rtm.start().body["ok"]
@@ -96,9 +92,8 @@ class SimpleSlackBot:
             self._logger.error("Connection failed. Are you connected to the internet? Potentially invalid Slack token? "
                                "Check environment variable and \"SLACK_BOT_TOKEN\"")
 
-    def get_public_channel_ids(self):
-        """
-        Gets all public channel ids
+    def helper_get_public_channel_ids(self):
+        """Helper function that gets all public channel ids
         """
 
         public_channel_ids = []
@@ -114,9 +109,8 @@ class SimpleSlackBot:
 
         return public_channel_ids
 
-    def get_private_channel_ids(self):
-        """
-        Gets all private channel ids
+    def helper_get_private_channel_ids(self):
+        """Helper function that gets all private channel ids
         """
 
         private_channel_ids = []
@@ -133,9 +127,8 @@ class SimpleSlackBot:
 
         return private_channel_ids
 
-    def get_user_ids(self):
-        """
-        Gets all user ids
+    def helper_get_user_ids(self):
+        """Helper function that gets all user ids
         """
 
         user_ids = []
@@ -151,9 +144,8 @@ class SimpleSlackBot:
 
         return user_ids
 
-    def get_user_names(self):
-        """
-        Gets all user names
+    def helper_get_user_names(self):
+        """Helper function that gets all user names
         """
 
         user_names = []
@@ -169,9 +161,8 @@ class SimpleSlackBot:
 
         return user_names
 
-    def get_users_in_channel(self, channel_id):
-        """
-        Gets all users in a given channel
+    def helper_get_users_in_channel(self, channel_id):
+        """Helper function that gets all users in a given channel id
         """
 
         user_ids = []
@@ -189,9 +180,8 @@ class SimpleSlackBot:
 
         return user_ids
 
-    def channel_name_to_channel_id(self, name):
-        """
-        Converts a channel name to its respected channel id
+    def helper_channel_name_to_channel_id(self, name):
+        """Helpfer function that converts a channel name to its respected channel id
         """
 
         channels_list = self._slacker.channels.list().body["channels"]
@@ -203,9 +193,8 @@ class SimpleSlackBot:
 
         self._logger.warning(f"could not convert channel name {name} to an id")
 
-    def user_name_to_user_id(self, name):
-        """
-        Converts a user name to its respected user id
+    def helper_user_name_to_user_id(self, name):
+        """Helper function that converts a user name to its respected user id
         """
 
         users = self._slacker.users.list().body["members"]
@@ -217,9 +206,8 @@ class SimpleSlackBot:
 
         self._logger.warning(f"could not convert user name {name} to a user id")
 
-    def channel_id_to_channel_name(self, channel_id):
-        """
-        Converts a channel id to its respected channel name
+    def helper_channel_id_to_channel_name(self, channel_id):
+        """Helper function that converts a channel id to its respected channel name
         """
 
         channels_list = self._slacker.channels.list().body["channels"]
@@ -231,9 +219,8 @@ class SimpleSlackBot:
 
         self._logger.warning(f"could not convert channel id {channel_id} to a name")
 
-    def user_id_to_user_name(self, user_id):
-        """
-        Converts a user id to its respected user name
+    def helper_user_id_to_user_name(self, user_id):
+        """Helper function that converts a user id to its respected user name
         """
 
         users_list = self._slacker.users.list()

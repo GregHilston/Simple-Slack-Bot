@@ -4,7 +4,6 @@ import logging
 
 
 class LevelFilter(logging.Filter):
-
     """Limit the logging level between high and low for a logger.
 
     Attributes:

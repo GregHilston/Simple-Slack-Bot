@@ -13,7 +13,7 @@ def hello_callback(request):
 def user_typing_callback(request):
     simple_slack_bot._logger.info(f"ExampleComponent.user_typing_callback got request {request}")
 
-    user_id = simple_slack_bot.user_id_to_user_name(request._slack_event.event['user'])
+    user_id = simple_slack_bot.helper_user_id_to_user_name(request._slack_event.event['user'])
     request.write(f"I see you typing {user_id}")
 
 
