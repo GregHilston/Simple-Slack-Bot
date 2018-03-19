@@ -28,8 +28,7 @@ This can be seen with the following code below. Our Simple Slack Bot will reply 
 
 `ping_pong.py`
 
-```
-python
+```python
 
 from simple_slack_bot import SimpleSlackBot
 
