@@ -1,4 +1,5 @@
 import logging
+from logging import NullHandler
 
 
 class SlackRequest(object):
@@ -58,6 +59,7 @@ class SlackRequest(object):
         """
 
         logger = logging.getLogger(__name__)
+        logger.addHandler(NullHandler())
 
         if channel is None and self.channel != "":
             channel = self.channel

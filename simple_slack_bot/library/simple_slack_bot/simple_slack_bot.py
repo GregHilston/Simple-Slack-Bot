@@ -1,14 +1,11 @@
 import os
 import sys
 import time
-import yaml
-import logging.config
+import logging
 from logging import NullHandler
 from slacker import Slacker
 from .slack_request import SlackRequest
 from slacksocket import SlackSocket
-import simple_slack_bot.library.loggers.settings
-from ..loggers import filters
 
 
 class SimpleSlackBot:
@@ -21,14 +18,8 @@ class SimpleSlackBot:
         variable is not set.
         """
 
-        try:
-            logging.config.dictConfig(yaml.safe_load(open("library/loggers/logging.yaml", 'rt')))
-            self._logger = logging.getLogger(__name__)
-            self._logger.setLevel(logging.DEBUG)
-        except FileNotFoundError:
-            self._logger = logging.getLogger(__name__)
-            self._logger.addHandler(NullHandler())
-            pass
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(NullHandler())
 
         self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
         if self._SLACK_BOT_TOKEN is None:
