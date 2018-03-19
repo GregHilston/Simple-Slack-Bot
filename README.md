@@ -15,13 +15,15 @@ To install, simply clone the source, which will allow you to import SimpleSlackB
 
 ## Configuration
 
-To configure, set the two environment variables
+To configure, set a signle environment variable
 
 `SLACK_BOT_TOKEN` with your Slack Bot's API token
 
 ## Example
 
-To integrate with Simple Slack Bot, simply create an instance of it and register for notifications using a callback function. This can be accomplished using the following code:
+To integrate with Simple Slack Bot, simply create an instance of it and register for notifications using a Python decorator.
+
+This can be seen with the following code below. Our Simple Slack Bot will reply to every message of "Ping", with "Pong", to every channel its apart of.:
 
 
 `ping_pong.py`
@@ -81,4 +83,4 @@ or
 
 `get_slack_socket()`
 
-respectively.
+respectively on your instance of SimpleSlackBot
