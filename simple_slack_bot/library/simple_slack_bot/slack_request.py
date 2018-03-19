@@ -1,6 +1,9 @@
 import logging
 from logging import NullHandler
 
+logger = logging.getLogger(__name__)
+logger.addHandler(NullHandler())
+
 
 class SlackRequest(object):
     """Extracts commonly used information from a SlackClient dictionary for easy access. Also allows users to write
@@ -57,9 +60,6 @@ class SlackRequest(object):
         :param channel: By default send to same channel request came from, if any
         :param kwargs: any extra arguments you want to pass to chat.postMessage Slack API
         """
-
-        logger = logging.getLogger(__name__)
-        logger.addHandler(NullHandler())
 
         if channel is None and self.channel != "":
             channel = self.channel
