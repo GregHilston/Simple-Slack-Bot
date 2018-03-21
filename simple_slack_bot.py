@@ -4,8 +4,8 @@ import time
 import logging
 from logging import NullHandler
 from slacker import Slacker
-from .slack_request import SlackRequest
 from slacksocket import SlackSocket
+from .slack_request import SlackRequest
 
 logger = logging.getLogger(__name__)
 logger.addHandler(NullHandler())
