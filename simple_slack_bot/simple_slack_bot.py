@@ -3,12 +3,14 @@ import sys
 import time
 import logging
 from logging import NullHandler
+from logging import StreamHandler
 from slacker import Slacker
 from slacksocket import SlackSocket
 from .slack_request import SlackRequest
 
 logger = logging.getLogger(__name__)
-logger.addHandler(NullHandler())
+null_handler = NullHandler()
+logger.addHandler(null_handler)
 
 
 class SimpleSlackBot:
@@ -16,7 +18,7 @@ class SimpleSlackBot:
     functions called when those specific events are triggered and run their business code
     """
 
-    def __init__(self):
+    def __init__(self, debug=False):
         """Initializes our Slack bot and slack bot token. Will exit if the required environment
         variable is not set.
         """
@@ -29,6 +31,10 @@ class SimpleSlackBot:
         self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN, translate=False)
         self._BOT_ID = self._slacker.auth.test().body["user_id"]
         self._registrations = {}  # our dictionary of event_types to a list of callbacks
+
+        if debug:
+            logger.removeHandler(null_handler)
+            logger.addHandler(StreamHandler())
 
         logger.info(f"set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}")
         logger.info("initialized")
