@@ -30,13 +30,14 @@ This can be seen with the following code below. Our Simple Slack Bot will reply 
 
 ```python
 
-from simple_slack_bot import SimpleSlackBot
+from simple_slack_bot.simple_slack_bot import SimpleSlackBot
 
-simple_slack_bot = SimpleSlackBot()
+simple_slack_bot = SimpleSlackBot(debug=True)
+
 
 @simple_slack_bot.register("message")
 def pong_callback(request):
-    if request.message.lower() == "ping":
+    if request.message and request.message.lower() == "ping":
         request.write("Pong")
 
 
@@ -46,11 +47,23 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 ```
 
 At this point, your callback functions will be executed every time Simple Slack Bot receives the appropriate event.
 
 A repo of this example Ping Pong Bot can be found [here](https://github.com/GregHilston/Ping-Pong-Bot). Feel free to use it as a refernec or fork it as a stating point!
+
+
+### Debug Mode
+
+Note: Simple Slack Bot can be initialized with debug mode turned on, which will display all debug messages out to stdout and stderr.
+
+To enable this simply pass `debug=True` when initializing Simple Slack Bot. As seen below:
+
+```python
+simple_slack_bot = SimpleSlackBot(debug=True)
+```
 
 
 ## Supported Events
