@@ -23,17 +23,18 @@ class SlackRequest(object):
     def type(self):
         """Gets the type of event from the underlying SlackEvent
 
-        :return: the type of event
+        :return: the type of event, if there is one
         """
 
-        return self._slack_event.event["type"]
+        if "type" in self._slack_event.event:
+            return self._slack_event.event["type"]
 
     @property
     def channel(self):
         """Gets the channel from the underlying SlackEvent
         Note: This can be an empty String. For example, this will be an empty String for the 'Hello' event.
 
-        :return: the channel this SlackEvent originated from
+        :return: the channel this SlackEvent originated from, if there is one
         """
 
         channel = ""
@@ -46,11 +47,13 @@ class SlackRequest(object):
     @property
     def message(self):
         """Gets the underlying message from the SlackEvent
+        Note: This can be an empty String. For example, this will be an empty String for the 'message_changed' event.
 
-        :return: the message this SlackEvent came with
+        :return: the message this SlackEvent came with, if there is one
         """
 
-        return self._slack_event.event["text"]
+        if "text" in self._slack_event.event:
+            return self._slack_event.event["text"]
 
     def write(self, content, channel=None):
         """
@@ -58,7 +61,6 @@ class SlackRequest(object):
 
         :param content: The text you wish to send
         :param channel: By default send to same channel request came from, if any
-        :param kwargs: any extra arguments you want to pass to chat.postMessage Slack API
         """
 
         if channel is None and self.channel != "":

@@ -16,7 +16,7 @@ def user_typing_callback(request):
 
 @simple_slack_bot.register("message")
 def pong_callback(request):
-    if request.message.lower() == "ping":
+    if request.message and request.message.lower() == "ping":
         request.write("Pong")
 
 
