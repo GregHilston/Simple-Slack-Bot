@@ -50,17 +50,19 @@ if __name__ == "__main__":
 
 At this point your callback functions will be executed every time Simple Slack Bot receives the appropriate event.
 
+A repo of this example Ping Pong Bot can be found [here](https://github.com/GregHilston/Ping-Pong-Bot). Feel free to use it as a refernec or fork it as a stating point!
+
 
 ## Supported Events
 
-Simple Slack Bot handles all of the parsing and routing of Slack events. To be informed of new slack events, you must register a callback function with Simple Slack Bot for each event. All Slack Events are registered to and can be seen [here](https://api.slack.com/events-api).
+Simple Slack Bot handles all of the parsing and routing of Slack events. To be informed of new slack events, you must register a callback function with Simple Slack Bot for each event. All Slack Events are registered to and can be seen [here](https://api.slack.com/events/api).
 
 
 ## The `request` Object
 
 Each method you decorate in your Simple Slack Bot will need to take in a `request`. The contents of the `request` will differ depending on the event(s) you register to.
 
-For each event you register for, take a look at the event [here](https://api.slack.com/events-api), as this is where the contents of the request will be defined.
+For each event you register for, take a look at the event [here](https://api.slack.com/events/api), as this is where the contents of the request will be defined.
 
 For convenience, I've added the following attributes to all `request` objects:
 
