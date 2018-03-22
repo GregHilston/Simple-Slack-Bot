@@ -9,7 +9,7 @@ setup(
     author="Greg Hilston",
     author_email="Gregory.Hilston@gmail.com",
     url="https://github.com/GregHilston/Simple-Slack-Bot",  # use the URL to the github repo
-    download_url="https://github.com/GregHilston/Simple-Slack-Bot/tarball/v1.0.1-alpha",
+    download_url="https://github.com/GregHilston/Simple-Slack-Bot/tarball/v1.0.2",
     keywords=["slack", "bot", "chat", "simple"],  # arbitrary keywords
     classifiers=[],
     install_requires=[
