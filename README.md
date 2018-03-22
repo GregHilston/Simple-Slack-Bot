@@ -101,3 +101,16 @@ or
 `get_slack_socket()`
 
 respectively on your instance of SimpleSlackBot
+
+
+## Simple Slack Bots
+
+We'll be maintaining a list of Simple Slack Bots here.
+
+_If you have written a Simple Slack Bot, please contact me to have yours added!_
+
+
+| Name                                                            | Author                                         | Description                                                                                                                                                                                                                                                                                                                                 |
+|-----------------------------------------------------------------|------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Ping Pong Bot](https://github.com/GregHilston/Ping-Pong-Bot)   | [Greg Hilston](https://github.com/GregHilston) | Ping-Pong-Bot was created to act as an example of how easy it is to create a bot using the open source Simple-Slack-Bot library. Ping-Pong-Bot will look at every message sent to the channels that it is in, waiting for the case insensitive message "Ping". Once received Ping-Pong-Bot will write back to the very same channel "Pong". |
+| [The Office Bot](https://github.com/GregHilston/The-Office-Bot) | [Greg Hilston](https://github.com/GregHilston) | The-Office-Bot will look at every message sent to the channels that,it is in, waiting for a mention of the name of a character in the show, The Office, specifically the US version. Once received, The-Office-Bot will write back a random line that this character had throughout the show, including lines from deleted scenes.          |
