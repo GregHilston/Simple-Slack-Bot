@@ -15,7 +15,7 @@ To install, simply clone the source, which will allow you to import SimpleSlackB
 
 ## Configuration
 
-To configure, set a signle environment variable
+To configure, set a single environment variable
 
 `SLACK_BOT_TOKEN` with your Slack Bot's API token
 
@@ -23,7 +23,7 @@ To configure, set a signle environment variable
 
 To integrate with Simple Slack Bot, simply create an instance of it and register for notifications using a Python decorator.
 
-This can be seen with the following code below. Our Simple Slack Bot will reply to every message of "Ping", with "Pong", to every channel its apart of.:
+This can be seen with the following code below. Our Simple Slack Bot will reply to every message of "Ping", with "Pong", to every channel it's a part of:
 
 
 `ping_pong.py`
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     main()
 ```
 
-At this point your callback functions will be executed every time Simple Slack Bot receives the appropriate event.
+At this point, your callback functions will be executed every time Simple Slack Bot receives the appropriate event.
 
 
 ## Supported Events
@@ -89,7 +89,7 @@ To gain access to these functions, simply call the appropriate function on your 
 
 ## Writing More Advanced Slack Bots
 
-If you have found that Simple-Slack-Bot does not provide everything you are looking for, you can gain access to the underlying [Slacker object](https://github.com/os/slacker) or [SlackSocket object](https://github.com/vektorlab/slacksocket) by calling
+If you have found that Simple Slack Bot does not provide everything you are looking for, you can gain access to the underlying [Slacker object](https://github.com/os/slacker) or [SlackSocket object](https://github.com/vektorlab/slacksocket) by calling
 
 
 `get_slacker()`
