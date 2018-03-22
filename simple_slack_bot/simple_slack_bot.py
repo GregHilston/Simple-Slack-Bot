@@ -33,8 +33,10 @@ class SimpleSlackBot:
         self._registrations = {}  # our dictionary of event_types to a list of callbacks
 
         if debug:
+            print("DEBUG!")
             logger.removeHandler(null_handler)
             logger.addHandler(StreamHandler())
+            logger.setLevel(logging.DEBUG)
 
         logger.info(f"set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}")
         logger.info("initialized")

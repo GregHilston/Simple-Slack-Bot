@@ -1,6 +1,6 @@
-from simple_slack_bot import SimpleSlackBot
+from simple_slack_bot.simple_slack_bot import SimpleSlackBot
 
-simple_slack_bot = SimpleSlackBot()
+simple_slack_bot = SimpleSlackBot(debug=True)
 
 
 @simple_slack_bot.register("hello")
