@@ -2,7 +2,6 @@ import os
 import sys
 import time
 import logging
-from logging import NullHandler
 from logging import StreamHandler
 from slacker import Slacker
 from slacksocket import SlackSocket
@@ -32,7 +31,6 @@ class SimpleSlackBot:
 
         if debug:
             print("DEBUG!")
-            logger.removeHandler(null_handler)
             logger.addHandler(StreamHandler())
             logger.setLevel(logging.DEBUG)
 
