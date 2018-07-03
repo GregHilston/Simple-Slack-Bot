@@ -2,15 +2,12 @@ import os
 import sys
 import time
 import logging
-from logging import NullHandler
 from logging import StreamHandler
 from slacker import Slacker
 from slacksocket import SlackSocket
 from .slack_request import SlackRequest
 
 logger = logging.getLogger(__name__)
-null_handler = NullHandler()
-logger.addHandler(null_handler)
 
 
 class SimpleSlackBot:
@@ -34,7 +31,6 @@ class SimpleSlackBot:
 
         if debug:
             print("DEBUG!")
-            logger.removeHandler(null_handler)
             logger.addHandler(StreamHandler())
             logger.setLevel(logging.DEBUG)
 
@@ -63,7 +59,10 @@ class SimpleSlackBot:
 
         if request.type in self._registrations:
             for callback in self._registrations[request.type]:
-                callback(request)
+                try:
+                    callback(request)
+                except Exception as ex:
+                    logger.exception(f'exception processing event {request.type}')
 
     def listen(self):
         """Listens forever for Slack events, triggering appropriately callbacks when respective events are received
