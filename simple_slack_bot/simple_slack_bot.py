@@ -188,7 +188,7 @@ class SimpleSlackBot:
         user_ids = []
 
         channels_list = self._slacker.channels.list().body["channels"]
-        for channel in channels_list["channels"]:
+        for channel in channels_list:
             if channel["id"] == channel_id:
                 for user_id in channel["members"]:
                     user_ids.append(user_id)
@@ -206,7 +206,7 @@ class SimpleSlackBot:
 
         channels_list = self._slacker.channels.list().body["channels"]
 
-        for channel in channels_list["channels"]:
+        for channel in channels_list:
             if channel["name"] == name:
                 logger.debug(f"converted {channel['name']} to {channel['id']}")
                 return channel["id"]
@@ -232,7 +232,7 @@ class SimpleSlackBot:
 
         channels_list = self._slacker.channels.list().body["channels"]
 
-        for channel in channels_list["channels"]:
+        for channel in channels_list:
             if channel["id"] == channel_id:
                 logger.debug("converted {} to {}".format(channel_id, channel["name"]))
                 return channel["name"]
