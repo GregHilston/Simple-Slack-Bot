@@ -66,23 +66,34 @@ class SimpleSlackBot:
                     logger.exception(f'exception processing event {request.type}')
 
     def listen(self):
-        """Listens forever for Slack events, triggering appropriately callbacks when respective events are received
+        """Listens forever for Slack events, triggering appropriately callbacks when respective events are received.
+        Catches and logs all Exceptions except for KeyboardInterrupt or SystemExit, which it re-raises.
         """
 
         READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from firehose
 
         logger.info("began listening!")
 
-        for slack_event in self._slackSocket.events():
-            if slack_event:
-                if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
-                    request = SlackRequest(self._slacker, slack_event)
-                    self.route_request_to_callbacks(request)
+        while True: # required to continue to run after experiencing an unexpected exception
+            try:
+                for slack_event in self._slackSocket.events():
+                    if slack_event:
+                        if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
+                            request = SlackRequest(self._slacker, slack_event)
+                            self.route_request_to_callbacks(request)
 
-            time.sleep(READ_WEBSOCKET_DELAY)
+                    time.sleep(READ_WEBSOCKET_DELAY)
+            except KeyboardInterrupt:
+                logger.info("Keyboard interrupt exception received. Gracefully shutting down")
+                break
+            except SystemExit:
+                logger.info("system exit exception received. Gracefully shutting down")
+                raise
+            except Exception as e:
+                logging.warning(f"Unexpected exception caught, but will keep listening. Exception: {str(e)}")
+                continue  # ensuring the loop continues
 
-        logger.info("Keyboard interrupt received. Gracefully shutting down")
-        sys.exit(0)
+        logger.info("stopped listening!")
 
     def start(self):
         """Connect the Slack bot to the chatroom and begin listening
@@ -96,6 +107,8 @@ class SimpleSlackBot:
         else:
             logger.error("Connection failed. Are you connected to the internet? Potentially invalid Slack token? "
                                "Check environment variable and \"SLACK_BOT_TOKEN\"")
+
+        logger.info("stopped!")
 
     def get_slacker(self):
         """Returns SimpleSlackBot's SlackClient.
