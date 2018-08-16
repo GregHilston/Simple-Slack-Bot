@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import logging
+import logging.config
 from logging import StreamHandler
 from slacker import Slacker
 from slacksocket import SlackSocket
@@ -30,7 +31,7 @@ class SimpleSlackBot:
         self._registrations = {}  # our dictionary of event_types to a list of callbacks
 
         if debug:
-            print("DEBUG!")
+            # Enable logging for our users
             logger.addHandler(StreamHandler())
             logger.setLevel(logging.DEBUG)
 

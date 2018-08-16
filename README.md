@@ -66,6 +66,52 @@ simple_slack_bot = SimpleSlackBot(debug=True)
 ```
 
 
+#### Additional Logging Control
+
+If you want more control on the routing of your logging, instead of passing `debug=True` when initializing Simple Slack Bot, you can configure the global `logging` variable in your own application.
+
+An example:
+
+```
+import logging
+from simple_slack_bot.simple_slack_bot import SimpleSlackBot
+
+dict_config = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+        },
+    },
+    'handlers': {
+        'default': {
+            'level': 'INFO',
+            'formatter': 'standard',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['default'],
+            'level': 'INFO',
+            'propagate': True
+        },
+        'django.request': {
+            'handlers': ['default'],
+            'level': 'WARN',
+            'propagate': False
+        },
+    }
+}
+
+simple_slack_bot = SimpleSlackBot()
+logging.config.dictConfig(dict_config)
+```
+
+Where you'd create your own `dictConfig` based on your own needs.
+
+
 ## Supported Events
 
 Simple Slack Bot handles all of the parsing and routing of Slack events. To be informed of new slack events, you must register a callback function with Simple Slack Bot for each event. All Slack Events are registered to and can be seen [here](https://api.slack.com/events/api).
@@ -114,6 +160,19 @@ or
 `get_slack_socket()`
 
 respectively on your instance of SimpleSlackBot
+
+
+## Running Local Development Version
+
+If you want to run the local version of Simple Slack Bot and not the verison you downloaded through PyPi, you can run the following in the `Simple-Slack-Bot` directory:
+
+`python3 setup.py install`
+
+and then import it as usual
+
+`from simple_slack_bot.simple_slack_bot import SimpleSlackBot`.
+
+You'll also have to install Simple Slack Bot's dependencies using PyPi. A `requirements.txt` will be kept up to date, along side the `setup.py` for this use case and your convenience.
 
 
 ## Simple Slack Bots
