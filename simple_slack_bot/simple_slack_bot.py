@@ -36,6 +36,15 @@ class SimpleSlackBot:
             return None
         return first, itertools.chain([first], iterable)
 
+    @staticmethod
+    def log_gracefully_shutdown(prefix_str):
+        """Just a convenient way to log multiple messages in a similar way
+
+        :param prefix_str: String to log in the begging
+        :return: None
+        """
+        logger.info(f"{prefix_str} Gracefully shutting down")
+
     def __init__(self, debug=False):
         """Initializes our Slack bot and slack bot token. Will exit if the required environment
         variable is not set.
@@ -99,14 +108,6 @@ class SimpleSlackBot:
                 except Exception as ex:
                     logger.exception(f'exception processing event {request.type}')
 
-    def log_gracefully_shutdown(self, prefix_str):
-        """Just a convenient way to log multiple messages in a similar way
-
-        :param prefix_str: String to log in the begging
-        :return: None
-        """
-        logger.info(f"{prefix_str} Gracefully shutting down")
-
     def listen(self):
         """Listens forever for Slack events, triggering appropriately callbacks when respective events are received.
         Catches and logs all Exceptions except for KeyboardInterrupt or SystemExit, which it re-raises.
@@ -158,7 +159,7 @@ class SimpleSlackBot:
             self.listen()
         else:
             logger.error("Connection failed. Are you connected to the internet? Potentially invalid Slack token? "
-                               "Check environment variable and \"SLACK_BOT_TOKEN\"")
+                         "Check environment variable and \"SLACK_BOT_TOKEN\"")
 
         logger.info("stopped!")
 
