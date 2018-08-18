@@ -110,7 +110,14 @@ class SimpleSlackBot:
 
     def listen(self):
         """Listens forever for Slack events, triggering appropriately callbacks when respective events are received.
-        Catches and logs all Exceptions except for KeyboardInterrupt or SystemExit, which it re-raises.
+        Catches and logs all Exceptions except for KeyboardInterrupt or SystemExit, which gracefully shuts down program.
+
+        The following function is crucial to Simple Slack Bot and looks a little messy. This is do partly to the way
+        that our dependency SlackSocket is written. They do not re-raise any caught KeyboardInterrupt exceptions and
+        instead we have to infer one was caught based on what their generator returns. This is incredibly unfortunate,
+        but this currently works. Since most of Simple Slack Bot's time is spent blocked on waiting for events from
+        SlackSocket, a solution was needed to deal with this. Otherwise our application would not respond to a request
+        from the user to stop the program with a CTRL + C.
         """
 
         READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from fire hose
