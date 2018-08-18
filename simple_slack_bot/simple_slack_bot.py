@@ -12,14 +12,35 @@ from .slack_request import SlackRequest
 
 logger = logging.getLogger(__name__)
 
+
 class SimpleSlackBot:
     """Simplifies interacting with the Slack API. Allows users to register functions to specific events, get those
     functions called when those specific events are triggered and run their business code
     """
 
+    KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE = "KeyboardInterrupt exception caught."
+    SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE = "SystemExit exception caught."
+
+    @staticmethod
+    def peek(iterable):
+        """Allows us to look at the next yield in an Iterable.
+        From: https://stackoverflow.com/a/664239/1983957
+
+        :param iterable: some Iterable to peek at
+        :return: the first and rest of the yielded items
+        """
+
+        try:
+            first = next(iterable)
+        except StopIteration:
+            return None
+        return first, itertools.chain([first], iterable)
+
     def __init__(self, debug=False):
         """Initializes our Slack bot and slack bot token. Will exit if the required environment
         variable is not set.
+
+        :param debug: Whether or not to use default a Logging config
         """
 
         self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
@@ -42,9 +63,18 @@ class SimpleSlackBot:
     def register(self, event_type):
         """Registers a callback function to a a event type. All supported even types are defined here
         https://api.slack.com/events-api
+
+        :param event_type: the type of the event to register
+        :return: reference to wrapped function
         """
 
         def function_wrapper(callback):
+            """Registers event before executing wrapped function, referred to as callback
+
+            :param callback: function to execute after runnign wrapped code
+            :return: None
+            """
+
             logger.info(f"registering callback {callback.__name__} to event type {event_type}")
 
             if event_type not in self._registrations:
@@ -55,6 +85,9 @@ class SimpleSlackBot:
 
     def route_request_to_callbacks(self, request):
         """Routes the request to the correct notify
+
+        :param request: request to be routed
+        :return: None
         """
 
         logger.info(f"received an event of type {request.type} and slack event {request._slack_event.event}")
@@ -66,14 +99,12 @@ class SimpleSlackBot:
                 except Exception as ex:
                     logger.exception(f'exception processing event {request.type}')
 
-    def peek(self, iterable):
-        try:
-            first = next(iterable)
-        except StopIteration:
-            return None
-        return first, itertools.chain([first], iterable)
-
     def log_gracefully_shutdown(self, prefix_str):
+        """Just a convenient way to log multiple messages in a similar way
+
+        :param prefix_str: String to log in the begging
+        :return: None
+        """
         logger.info(f"{prefix_str} Gracefully shutting down")
 
     def listen(self):
@@ -82,8 +113,6 @@ class SimpleSlackBot:
         """
 
         READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from fire hose
-        KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE = "KeyboardInterrupt exception received."
-        SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE = "SystemExit exception received."
         running = True
 
         logger.info("began listening!")
@@ -91,7 +120,7 @@ class SimpleSlackBot:
         while running:  # required to continue to run after experiencing an unexpected exception
             res = self.peek(self._slackSocket.events())
             if res is None:
-                self.log_gracefully_shutdown(KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
+                self.log_gracefully_shutdown(self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
                 running = False
                 break
             else:
@@ -104,15 +133,15 @@ class SimpleSlackBot:
 
                         time.sleep(READ_WEBSOCKET_DELAY)
                     except KeyboardInterrupt:
-                        self.log_gracefully_shutdown(KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
+                        self.log_gracefully_shutdown(self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
                         running = False
                         break
                     except SystemExit:
-                        self.log_gracefully_shutdown(SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE)
+                        self.log_gracefully_shutdown(self.SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE)
                         running = False
                         break
                     except Exception as e:
-                        logging.warning(f"Unexpected exception caught, but will keep listening. Exception: {e}")
+                        logging.warning(f"Unexpected exception caught, but we will keep listening. Exception: {e}")
                         logging.warning(traceback.format_stack())
                         continue  # ensuring the loop continues
 
@@ -220,6 +249,9 @@ class SimpleSlackBot:
 
     def helper_get_users_in_channel(self, channel_id):
         """Helper function that gets all users in a given channel id
+
+        :param channel_id: channel id to get all user ids in it
+        :return: list of user ids
         """
 
         user_ids = []
@@ -238,7 +270,10 @@ class SimpleSlackBot:
         return user_ids
 
     def helper_channel_name_to_channel_id(self, name):
-        """Helpfer function that converts a channel name to its respected channel id
+        """Helper function that converts a channel name to its respected channel id
+
+        :param name: name of channel to convert to id
+        :return: id representation of original channel name
         """
 
         channels_list = self._slacker.channels.list().body["channels"]
@@ -252,6 +287,9 @@ class SimpleSlackBot:
 
     def helper_user_name_to_user_id(self, name):
         """Helper function that converts a user name to its respected user id
+
+        :param name: name of user to convert to id
+        :return: id representation of original user name
         """
 
         users = self._slacker.users.list().body["members"]
@@ -265,6 +303,9 @@ class SimpleSlackBot:
 
     def helper_channel_id_to_channel_name(self, channel_id):
         """Helper function that converts a channel id to its respected channel name
+
+        :param channel_id: id of channel to convert to name
+        :return: name representation of original channel id
         """
 
         channels_list = self._slacker.channels.list().body["channels"]
@@ -278,6 +319,9 @@ class SimpleSlackBot:
 
     def helper_user_id_to_user_name(self, user_id):
         """Helper function that converts a user id to its respected user name
+
+        :param user_id: id of user to convert to name
+        :return: name representation of original user id
         """
 
         users_list = self._slacker.users.list()
