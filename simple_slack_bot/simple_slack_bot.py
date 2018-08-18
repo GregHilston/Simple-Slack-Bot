@@ -3,6 +3,7 @@ import sys
 import time
 import logging
 import logging.config
+import traceback
 from logging import StreamHandler
 from slacker import Slacker
 from slacksocket import SlackSocket
@@ -71,27 +72,32 @@ class SimpleSlackBot:
         """
 
         READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from firehose
+        running = True
 
         logger.info("began listening!")
 
-        while True: # required to continue to run after experiencing an unexpected exception
-            try:
-                for slack_event in self._slackSocket.events():
-                    if slack_event:
-                        if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
-                            request = SlackRequest(self._slacker, slack_event)
-                            self.route_request_to_callbacks(request)
+        while running:  # required to continue to run after experiencing an unexpected exception
+            logger.info("Top of while True loop")
 
-                    time.sleep(READ_WEBSOCKET_DELAY)
-            except KeyboardInterrupt:
-                logger.info("Keyboard interrupt exception received. Gracefully shutting down")
-                break
-            except SystemExit:
-                logger.info("system exit exception received. Gracefully shutting down")
-                raise
-            except Exception as e:
-                logging.warning(f"Unexpected exception caught, but will keep listening. Exception: {str(e)}")
-                continue  # ensuring the loop continues
+            for slack_event in self._slackSocket.events():
+                if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
+                    try:
+                        request = SlackRequest(self._slacker, slack_event)
+                        self.route_request_to_callbacks(request)
+
+                        time.sleep(READ_WEBSOCKET_DELAY)
+                    except KeyboardInterrupt:
+                        logger.info("KeyboardInterrupt exception received. Gracefully shutting down")
+                        running = False
+                        break
+                    except SystemExit:
+                        logger.info("SystemExit exception received. Gracefully shutting down")
+                        running = False
+                        break
+                    except Exception as e:
+                        logging.warning(f"Unexpected exception caught, but will keep listening. Exception: {e}")
+                        logging.warning(traceback.format_stack())
+                        continue  # ensuring the loop continues
 
         logger.info("stopped listening!")
 
