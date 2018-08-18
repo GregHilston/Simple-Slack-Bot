@@ -12,7 +12,6 @@ from .slack_request import SlackRequest
 
 logger = logging.getLogger(__name__)
 
-
 class SimpleSlackBot:
     """Simplifies interacting with the Slack API. Allows users to register functions to specific events, get those
     functions called when those specific events are triggered and run their business code
@@ -74,40 +73,42 @@ class SimpleSlackBot:
             return None
         return first, itertools.chain([first], iterable)
 
+    def log_gracefully_shutdown(self, prefix_str):
+        logger.info(f"{prefix_str} Gracefully shutting down")
+
     def listen(self):
         """Listens forever for Slack events, triggering appropriately callbacks when respective events are received.
         Catches and logs all Exceptions except for KeyboardInterrupt or SystemExit, which it re-raises.
         """
 
-        READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from firehose
+        READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from fire hose
+        KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE = "KeyboardInterrupt exception received."
+        SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE = "SystemExit exception received."
         running = True
 
         logger.info("began listening!")
 
         while running:  # required to continue to run after experiencing an unexpected exception
-            logger.info("Top of while True loop")
-
             res = self.peek(self._slackSocket.events())
             if res is None:
-                logger.info("KeyboardInterrupt exception received. Gracefully shutting down")
+                self.log_gracefully_shutdown(KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
                 running = False
+                break
             else:
                 slack_event, mysequence = res
 
-                print("here")
                 if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
-                    print("here2")
                     try:
                         request = SlackRequest(self._slacker, slack_event)
                         self.route_request_to_callbacks(request)
 
                         time.sleep(READ_WEBSOCKET_DELAY)
                     except KeyboardInterrupt:
-                        logger.info("KeyboardInterrupt exception received. Gracefully shutting down")
+                        self.log_gracefully_shutdown(KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
                         running = False
                         break
                     except SystemExit:
-                        logger.info("SystemExit exception received. Gracefully shutting down")
+                        self.log_gracefully_shutdown(SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE)
                         running = False
                         break
                     except Exception as e:
