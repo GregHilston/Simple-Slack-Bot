@@ -4,6 +4,7 @@ import time
 import logging
 import logging.config
 import traceback
+import itertools
 from logging import StreamHandler
 from slacker import Slacker
 from slacksocket import SlackSocket
@@ -66,6 +67,13 @@ class SimpleSlackBot:
                 except Exception as ex:
                     logger.exception(f'exception processing event {request.type}')
 
+    def peek(self, iterable):
+        try:
+            first = next(iterable)
+        except StopIteration:
+            return None
+        return first, itertools.chain([first], iterable)
+
     def listen(self):
         """Listens forever for Slack events, triggering appropriately callbacks when respective events are received.
         Catches and logs all Exceptions except for KeyboardInterrupt or SystemExit, which it re-raises.
@@ -79,8 +87,16 @@ class SimpleSlackBot:
         while running:  # required to continue to run after experiencing an unexpected exception
             logger.info("Top of while True loop")
 
-            for slack_event in self._slackSocket.events():
+            res = self.peek(self._slackSocket.events())
+            if res is None:
+                logger.info("KeyboardInterrupt exception received. Gracefully shutting down")
+                running = False
+            else:
+                slack_event, mysequence = res
+
+                print("here")
                 if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
+                    print("here2")
                     try:
                         request = SlackRequest(self._slacker, slack_event)
                         self.route_request_to_callbacks(request)
