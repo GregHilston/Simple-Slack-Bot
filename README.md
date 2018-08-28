@@ -19,6 +19,29 @@ To configure, set a single environment variable
 
 `SLACK_BOT_TOKEN` with your Slack Bot's API token
 
+
+### Finding Your Slack Bot API Token
+
+To generate or locate your Slack Bot Token, visit
+
+> https://[YOUR SLACK TEAM NAME HERE].slack.com/apps/manage/custom-integrations
+
+and click
+
+> Bots
+
+If you already have a bot created, you should see it listed here, otherwise you should be able to click
+
+> Add Configuration
+
+to create one.
+
+Once you have a bot find it listed in the configurations and click the
+
+> Edit
+
+icon. You'll be brought to a page that lists your API token. This is what you'll use with Simple Slack Bot.
+
 ## Example
 
 To integrate with Simple Slack Bot, simply create an instance of it and register for notifications using a Python decorator.
