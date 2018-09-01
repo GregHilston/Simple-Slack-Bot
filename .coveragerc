@@ -1,0 +1,3 @@
+[run]
+include =
+    simple_slack_bot/simgple_slack_bot.py

@@ -4,14 +4,10 @@ from simple_slack_bot.simple_slack_bot import SimpleSlackBot
 
 class TestSimpleSlackBot(unittest.TestCase):
     def setUp(self):
-        print("setUp")
-        self.sut = SimpleSlackBot()
+        self.sut = SimpleSlackBot(slack_bot_token="MOCK BOT TOKEN")
 
     def tearDown(self):
-        print("tearDown")
-
-        self.sut.dispose()
-        self.sut = SimpleSlackBot()
+        self.sut = None
 
     def test_register_actually_registers(self):
         # Given
@@ -19,7 +15,8 @@ class TestSimpleSlackBot(unittest.TestCase):
         # When
         @self.sut.register("hello")
         def mock_function():
-            print("Mock fuction")
+            print("Mock function")
 
         # Then
-        self.assertTrue(len(self.sut._registrations) == 99)
+        self.assertTrue(len(self.sut._registrations) == 1)
+        self.assertTrue(len(self.sut._registrations["hello"]) == 1)
