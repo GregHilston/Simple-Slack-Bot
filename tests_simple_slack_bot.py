@@ -20,3 +20,7 @@ class TestSimpleSlackBot(unittest.TestCase):
         # Then
         self.assertTrue(len(self.sut._registrations) == 1)
         self.assertTrue(len(self.sut._registrations["hello"]) == 1)
+
+
+if __name__ == '__main__':
+    unittest.main()

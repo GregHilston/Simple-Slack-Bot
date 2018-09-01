@@ -1,3 +1,4 @@
 [run]
 include =
-    simple_slack_bot/simgple_slack_bot.py
+    # The only file we're interested in generating code coverage for
+    simple_slack_bot/simple_slack_bot.py
