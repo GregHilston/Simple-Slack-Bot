@@ -1,10 +1,14 @@
 import unittest
 from simple_slack_bot.simple_slack_bot import SimpleSlackBot
+from simple_slack_bot.slack_request import SlackRequest
+from slacksocket.models import SlackEvent
 
 
 class ParametrizedTestCase(unittest.TestCase):
     """ TestCase classes that want to be parametrized should
         inherit from this class.
+
+        From: https://eli.thegreenplace.net/2011/08/02/python-unit-testing-parametrized-test-cases
     """
     def __init__(self, methodName='runTest', param=None):
         super(ParametrizedTestCase, self).__init__(methodName)
@@ -41,6 +45,21 @@ class TestSimpleSlackBot(ParametrizedTestCase):
         # Then
         self.assertTrue(len(self.sut._registrations) == 1)
         self.assertTrue(len(self.sut._registrations[self.param]) == 1)
+
+    def test_route_request_to_callbacks(self):
+        # Given
+        registered_callback_was_called = False
+
+        @self.sut.register(self.param)
+        def mock_function(mock_slack_request):
+            nonlocal registered_callback_was_called
+            registered_callback_was_called = True
+
+        # When
+        self.sut.route_request_to_callbacks(SlackRequest(None, SlackEvent({"type": self.param})))
+
+        # Then
+        self.assertTrue(registered_callback_was_called)
 
 
 suite = unittest.TestSuite()
