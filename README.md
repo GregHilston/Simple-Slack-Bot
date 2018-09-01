@@ -207,7 +207,7 @@ To run the unit test suite, execute
 
 To generate code coverage of the unit test suite, execute:
 
-`$ `
+`$ coverage run tests_simple_slack_bot.py && coverage report`
 
 ## Simple Slack Bots
 
