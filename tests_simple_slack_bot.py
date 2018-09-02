@@ -11,7 +11,17 @@ class TestSimpleSlackBot(unittest.TestCase):
     def tearDown(self):
         self.sut = None
 
-    def test_get_slacker(self):
+    # Getter tests
+    def test_get_slacker_with_invalid_slacker(self):
+        # Given
+
+        # When
+        retrieved_slacker = self.sut.get_slacker()
+
+        # Then
+        self.assertEqual(None, retrieved_slacker, "The retrieved_slacker should be None, as we did not set it in Given")
+
+    def test_get_slacker_with_valid_slacker(self):
         # Given
         mock_slacker = object
         self.sut._slacker = mock_slacker
@@ -22,7 +32,16 @@ class TestSimpleSlackBot(unittest.TestCase):
         # Then
         self.assertEqual(mock_slacker, retrieved_slacker, "The retrieved_slacker should be the one we set in Given")
 
-    def test_get_slack_socket(self):
+    def test_get_slack_socket_with_invalid_slack_socket(self):
+        # Given
+
+        # When
+        retrieved_slack_socket = self.sut.get_slack_socket()
+
+        # Then
+        self.assertEqual(None, retrieved_slack_socket, "The retrieved_slack_socket should be None, as we did not set in Given")
+
+    def test_get_slack_socket_with_valid_slack_socket(self):
         # Given
         mock_slack_socket = object
         self.sut._slackSocket = mock_slack_socket
@@ -32,6 +51,7 @@ class TestSimpleSlackBot(unittest.TestCase):
 
         # Then
         self.assertEqual(mock_slack_socket, retrieved_slack_socket, "The retrieved_slack_socket should be the one we set in Given")
+
 
 class ParametrizedTestCase(unittest.TestCase):
     """ TestCase classes that want to be parametrized should
@@ -75,7 +95,7 @@ class TestSimpleSlackBotParameterized(ParametrizedTestCase):
         self.assertTrue(len(self.sut._registrations) == 1, "We only registered one function, therefore the count should be 1")
         self.assertTrue(len(self.sut._registrations[self.param]) == 1, "We only registered one function of this type, therefore the count should be 1")
 
-    def test_route_request_to_callbacks(self):
+    def test_route_request_to_callbacks_actually_calls_callback(self):
         # Given
         registered_callback_was_called = False
 
