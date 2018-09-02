@@ -209,14 +209,15 @@ class SimpleSlackBot:
 
         public_channel_ids = []
 
-        public_channels = self._slacker.channels.list().body["channels"]
-        for channel in public_channels:
-            public_channel_ids.append(channel["id"])
+        if self._slacker and self._slacker.channels:
+            public_channels = self._slacker.channels.list().body["channels"]
+            for channel in public_channels:
+                public_channel_ids.append(channel["id"])
 
-        if len(public_channel_ids) == 0:
-            logger.warning("got no public channel ids")
-        else:
-            logger.debug(f"got public channel ids {public_channel_ids}")
+            if len(public_channel_ids) == 0:
+                logger.warning("got no public channel ids")
+            else:
+                logger.debug(f"got public channel ids {public_channel_ids}")
 
         return public_channel_ids
 

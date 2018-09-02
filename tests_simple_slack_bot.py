@@ -16,21 +16,21 @@ class TestSimpleSlackBot(unittest.TestCase):
         # Given
 
         # When
-        retrieved_slacker = self.sut.get_slacker()
+        actual_slacker = self.sut.get_slacker()
 
         # Then
-        self.assertEqual(None, retrieved_slacker, "The retrieved_slacker should be None, as we did not set it in Given")
+        self.assertIsNone(actual_slacker, "The actual_slacker should be None, as we did not set it in Given")
 
     def test_get_slacker_with_valid_slacker(self):
         # Given
-        mock_slacker = object
-        self.sut._slacker = mock_slacker
+        expected_slack_socket = object
+        self.sut._slacker = expected_slack_socket
 
         # When
-        retrieved_slacker = self.sut.get_slacker()
+        actual_slacker = self.sut.get_slacker()
 
         # Then
-        self.assertEqual(mock_slacker, retrieved_slacker, "The retrieved_slacker should be the one we set in Given")
+        self.assertEqual(expected_slack_socket, actual_slacker, "The actual_slacker should be the one we set in Given")
 
     def test_get_slack_socket_with_invalid_slack_socket(self):
         # Given
@@ -39,19 +39,29 @@ class TestSimpleSlackBot(unittest.TestCase):
         retrieved_slack_socket = self.sut.get_slack_socket()
 
         # Then
-        self.assertEqual(None, retrieved_slack_socket, "The retrieved_slack_socket should be None, as we did not set in Given")
+        self.assertIsNone(retrieved_slack_socket, "The actual_slack_socket should be None, as we did not set in Given")
 
     def test_get_slack_socket_with_valid_slack_socket(self):
         # Given
-        mock_slack_socket = object
-        self.sut._slackSocket = mock_slack_socket
+        expected_slack_socket = object
+        self.sut._slackSocket = expected_slack_socket
 
         # When
-        retrieved_slack_socket = self.sut.get_slack_socket()
+        actual_slack_socket = self.sut.get_slack_socket()
 
         # Then
-        self.assertEqual(mock_slack_socket, retrieved_slack_socket, "The retrieved_slack_socket should be the one we set in Given")
+        self.assertEqual(expected_slack_socket, actual_slack_socket, "The actual_slack_socket should be the one we set in Given")
 
+    # Helper function tests
+    def test_helper_get_public_channel_ids_with_no_channels(self):
+        # Given
+        expected_public_channel_ids = []
+
+        # When
+        actual_public_channel_ids = self.sut.helper_get_public_channel_ids()
+
+        # Then
+        self.assertEqual(expected_public_channel_ids, actual_public_channel_ids, "With no slacker set under the hood, there should be no public channel ids to retreive")
 
 class ParametrizedTestCase(unittest.TestCase):
     """ TestCase classes that want to be parametrized should
