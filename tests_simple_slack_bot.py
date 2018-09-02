@@ -20,7 +20,7 @@ class TestSimpleSlackBot(unittest.TestCase):
         retrieved_slacker = self.sut.get_slacker()
 
         # Then
-        self.assertEqual(mock_slacker, retrieved_slacker)
+        self.assertEqual(mock_slacker, retrieved_slacker, "The retrieved_slacker should be the one we set in Given")
 
 
 class ParametrizedTestCase(unittest.TestCase):
@@ -62,8 +62,8 @@ class TestSimpleSlackBotParameterized(ParametrizedTestCase):
             print("Mock function")
 
         # Then
-        self.assertTrue(len(self.sut._registrations) == 1)
-        self.assertTrue(len(self.sut._registrations[self.param]) == 1)
+        self.assertTrue(len(self.sut._registrations) == 1, "We only registered one function, therefore the count should be 1")
+        self.assertTrue(len(self.sut._registrations[self.param]) == 1, "We only registered one function of this type, therefore the count should be 1")
 
     def test_route_request_to_callbacks(self):
         # Given
@@ -78,7 +78,7 @@ class TestSimpleSlackBotParameterized(ParametrizedTestCase):
         self.sut.route_request_to_callbacks(SlackRequest(None, SlackEvent({"type": self.param})))
 
         # Then
-        self.assertTrue(registered_callback_was_called)
+        self.assertTrue(registered_callback_was_called, "We registered a function of this type and triggered it, so it should be called")
 
 
 # initialize the test suite
