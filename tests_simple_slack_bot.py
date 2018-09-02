@@ -3,10 +3,15 @@ from simple_slack_bot.simple_slack_bot import SimpleSlackBot
 from simple_slack_bot.slack_request import SlackRequest
 from slacksocket.models import SlackEvent
 
+# Mocks out the dependency of Slacker
+class MockSlacker:
+    def __init__(self):
+        self.groups = []
 
 class TestSimpleSlackBot(unittest.TestCase):
     def setUp(self):
         self.sut = SimpleSlackBot(slack_bot_token="MOCK BOT TOKEN")
+        self.mock_slacker = MockSlacker()
 
     def tearDown(self):
         self.sut = None
@@ -53,8 +58,9 @@ class TestSimpleSlackBot(unittest.TestCase):
         self.assertEqual(expected_slack_socket, actual_slack_socket, "The actual_slack_socket should be the one we set in Given")
 
     # Helper function tests
-    def test_helper_get_public_channel_ids_with_no_channels(self):
+    def test_helper_get_public_channel_ids_with_slacker_as_none(self):
         # Given
+        # We purposefully don't set anything here so that sut's _slacker object is None
         expected_public_channel_ids = []
 
         # When
@@ -62,6 +68,18 @@ class TestSimpleSlackBot(unittest.TestCase):
 
         # Then
         self.assertEqual(expected_public_channel_ids, actual_public_channel_ids, "With no slacker set under the hood, there should be no public channel ids to retreive")
+
+    def test_helper_get_public_channel_ids_with_slacker_and_zero_channels(self):
+        # Given
+        self.sut._slacker = self.mock_slacker
+        expected_public_channel_ids = []
+
+        # When
+        actual_public_channel_ids = self.sut.helper_get_public_channel_ids()
+
+        # Then
+        self.assertEqual(expected_public_channel_ids, actual_public_channel_ids, "Slacker under the hood has no channels set, so there should be no public channel ids to retreive")
+
 
 class ParametrizedTestCase(unittest.TestCase):
     """ TestCase classes that want to be parametrized should
