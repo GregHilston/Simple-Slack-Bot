@@ -22,6 +22,16 @@ class TestSimpleSlackBot(unittest.TestCase):
         # Then
         self.assertEqual(mock_slacker, retrieved_slacker, "The retrieved_slacker should be the one we set in Given")
 
+    def test_get_slack_socket(self):
+        # Given
+        mock_slack_socket = object
+        self.sut._slackSocket = mock_slack_socket
+
+        # When
+        retrieved_slack_socket = self.sut.get_slack_socket()
+
+        # Then
+        self.assertEqual(mock_slack_socket, retrieved_slack_socket, "The retrieved_slack_socket should be the one we set in Given")
 
 class ParametrizedTestCase(unittest.TestCase):
     """ TestCase classes that want to be parametrized should
