@@ -4,6 +4,25 @@ from simple_slack_bot.slack_request import SlackRequest
 from slacksocket.models import SlackEvent
 
 
+class TestSimpleSlackBot(unittest.TestCase):
+    def setUp(self):
+        self.sut = SimpleSlackBot(slack_bot_token="MOCK BOT TOKEN")
+
+    def tearDown(self):
+        self.sut = None
+
+    def test_get_slacker(self):
+        # Given
+        mock_slacker = object
+        self.sut._slacker = mock_slacker
+
+        # When
+        retrieved_slacker = self.sut.get_slacker()
+
+        # Then
+        self.assertEqual(mock_slacker, retrieved_slacker)
+
+
 class ParametrizedTestCase(unittest.TestCase):
     """ TestCase classes that want to be parametrized should
         inherit from this class.
@@ -27,7 +46,7 @@ class ParametrizedTestCase(unittest.TestCase):
         return suite
 
 
-class TestSimpleSlackBot(ParametrizedTestCase):
+class TestSimpleSlackBotParameterized(ParametrizedTestCase):
     def setUp(self):
         self.sut = SimpleSlackBot(slack_bot_token="MOCK BOT TOKEN")
 
@@ -62,13 +81,20 @@ class TestSimpleSlackBot(ParametrizedTestCase):
         self.assertTrue(registered_callback_was_called)
 
 
-# Now we'll set up our unit tests to work with our parameters which are every possible event from the Slack API
+# initialize the test suite
 suite = unittest.TestSuite()
 
+# add non-parameterized tests
+suite.addTest(unittest.makeSuite(TestSimpleSlackBot))
+
+# add parameterized tests
 SLACK_RTM_EVENTS = ['accounts_changed', 'app_mention', 'app_rate_limited', 'app_uninstalled', 'bot_added', 'bot_changed', 'channel_archive', 'channel_created', 'channel_deleted', 'channel_history_changed', 'channel_joined', 'channel_left', 'channel_marked', 'channel_rename', 'channel_unarchive', 'commands_changed', 'dnd_updated', 'dnd_updated_user', 'email_domain_changed', 'emoji_changed', 'file_change', 'file_comment_added', 'file_comment_deleted', 'file_comment_edited', 'file_created', 'file_deleted', 'file_public', 'file_shared', 'file_unshared', 'goodbye', 'grid_migration_finished', 'grid_migration_started', 'group_archive', 'group_close', 'group_deleted', 'group_history_changed', 'group_joined', 'group_left', 'group_marked', 'group_open', 'group_rename', 'group_unarchive', 'hello', 'im_close', 'im_created', 'im_history_changed', 'im_marked', 'im_open', 'link_shared', 'manual_presence_change', 'member_joined_channel', 'member_left_channel', 'message', 'message.app_home', 'message.channels', 'message.groups', 'message.im', 'message.mpim', 'pin_added', 'pin_removed', 'pref_change', 'presence_change', 'presence_query', 'presence_sub', 'reaction_added', 'reaction_removed', 'reconnect_url', 'resources_added', 'resources_removed', 'scope_denied', 'scope_granted', 'star_added', 'star_removed', 'subteam_created', 'subteam_members_changed', 'subteam_self_added', 'subteam_self_removed', 'subteam_updated', 'team_domain_change', 'team_join', 'team_migration_started', 'team_plan_change', 'team_pref_change', 'team_profile_change', 'team_profile_delete', 'team_profile_reorder', 'team_rename', 'tokens_revoked', 'url_verification', 'user_change', 'user_resource_denied', 'user_resource_granted', 'user_resource_removed', 'user_typing']
 for slack_rtm_event in SLACK_RTM_EVENTS:
-    suite.addTest(ParametrizedTestCase.parametrize(TestSimpleSlackBot, param=slack_rtm_event))
-unittest.TextTestRunner(verbosity=2).run(suite)
+    suite.addTest(ParametrizedTestCase.parametrize(TestSimpleSlackBotParameterized, param=slack_rtm_event))
+
+# initialize a runner, pass it your suite and run it
+runner = unittest.TextTestRunner(verbosity=3)
+result = runner.run(suite)
 
 
 if __name__ == '__main__':
