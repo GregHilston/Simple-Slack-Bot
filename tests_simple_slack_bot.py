@@ -3,10 +3,12 @@ from simple_slack_bot.simple_slack_bot import SimpleSlackBot
 from simple_slack_bot.slack_request import SlackRequest
 from slacksocket.models import SlackEvent
 
+
 # Mocks out the dependency of Slacker
 class MockSlacker:
     def __init__(self):
         self.groups = []
+
 
 class TestSimpleSlackBot(unittest.TestCase):
     def setUp(self):
@@ -71,6 +73,7 @@ class TestSimpleSlackBot(unittest.TestCase):
 
     def test_helper_get_public_channel_ids_with_slacker_and_zero_channels(self):
         # Given
+        self.mock_slacker.channels = []
         self.sut._slacker = self.mock_slacker
         expected_public_channel_ids = []
 
@@ -80,6 +83,18 @@ class TestSimpleSlackBot(unittest.TestCase):
         # Then
         self.assertEqual(expected_public_channel_ids, actual_public_channel_ids, "Slacker under the hood has no channels set, so there should be no public channel ids to retreive")
 
+    def test_helper_get_private_channel_ids_with_slacker_and_zero_channels(self):
+        # Given
+        self.mock_slacker.groups = []
+        self.sut._slacker = self.mock_slacker
+        expected_private_channel_ids = []
+
+        # When
+        actual_private_channel_ids = self.sut.helper_get_private_channel_ids()
+
+        # Then
+        self.assertEqual(expected_private_channel_ids, actual_private_channel_ids, "Slacker under the hood has no channels set, so there should be no private channel ids to retreive")
+
 
 class ParametrizedTestCase(unittest.TestCase):
     """ TestCase classes that want to be parametrized should
@@ -87,6 +102,7 @@ class ParametrizedTestCase(unittest.TestCase):
 
         From: https://eli.thegreenplace.net/2011/08/02/python-unit-testing-parametrized-test-cases
     """
+
     def __init__(self, methodName='runTest', param=None):
         super(ParametrizedTestCase, self).__init__(methodName)
         self.param = param
@@ -96,9 +112,11 @@ class ParametrizedTestCase(unittest.TestCase):
         """ Create a suite containing all tests taken from the given
             subclass, passing them the parameter 'param'.
         """
+
         testloader = unittest.TestLoader()
         testnames = testloader.getTestCaseNames(testcase_klass)
         suite = unittest.TestSuite()
+
         for name in testnames:
             suite.addTest(testcase_klass(name, param=param))
         return suite
