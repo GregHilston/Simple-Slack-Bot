@@ -7,4 +7,4 @@ six==1.10.0
 slackclient==1.0.2
 slacker==0.9.42
 slacksocket==0.7
-websocket-client==0.40.0
+websocket-client==0.48.0
