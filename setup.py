@@ -13,9 +13,9 @@ setup(
     keywords=["slack", "bot", "chat", "simple"],  # arbitrary keywords
     classifiers=[],
     install_requires=[
-        "slacker",
-        "slacksocket",
+        "slacker==0.9",
+        "slacksocket>=0.7,!=0.8,<=0.9",
         "pyyaml",
-        "websocket-client==0.48.0", # required to define as our dependency has a dependency which broke backwards compatibility
+        "websocket-client==0.48", # required to define as our dependency has a dependency which broke backwards compatibility
     ],
 )
