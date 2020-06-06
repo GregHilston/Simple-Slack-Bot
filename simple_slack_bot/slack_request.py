@@ -43,6 +43,20 @@ class SlackRequest(object):
         return channel
 
     @property
+    def thread_ts(self):
+        """Gets the thread_ts from the underlying SlackEvent.
+        Note: This can be an empty String. For example, this will be an empty String when a message was not sent in a thread.
+
+        :return: the thread_ts this SlackEvent originated from, if there is one
+        """
+
+        thread_ts = ""
+        if "thread_ts" in self._slack_event.event:
+            thread_ts = self._slack_event.event["thread_ts"]
+
+        return thread_ts
+
+    @property
     def message(self):
         """Gets the underlying message from the SlackEvent
         Note: This can be an empty String. For example, this will be an empty String for the 'message_changed' event.
@@ -53,12 +67,13 @@ class SlackRequest(object):
         if "text" in self._slack_event.event:
             return self._slack_event.event["text"]
 
-    def write(self, content, channel=None):
+    def write(self, content, channel=None, thread_ts=None):
         """
         Writes the content to the channel
 
         :param content: The text you wish to send
         :param channel: By default send to same channel request came from, if any
+        :param thread_ts:      The time stamp of the message, indicating that this is a thread
         """
 
         if channel is None and self.channel != "":
@@ -67,7 +82,7 @@ class SlackRequest(object):
             logger.warning("no channel provided by developer or respective slack event")
 
         try:
-            self._slacker.chat.post_message(channel, content)
+            self._slacker.chat.post_message(channel, content, thread_ts=thread_ts)
         except Exception as e:
             logger.warning(e)
 
