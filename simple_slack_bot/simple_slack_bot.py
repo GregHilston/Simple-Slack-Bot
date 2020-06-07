@@ -45,29 +45,42 @@ class SimpleSlackBot:
         """
         logger.info(f"{prefix_str} Gracefully shutting down")
 
-    def __init__(self, debug=False):
+    def __init__(self, slack_bot_token=None, debug=False):
         """Initializes our Slack bot and slack bot token. Will exit if the required environment
         variable is not set.
 
         :param debug: Whether or not to use default a Logging config
         """
 
-        self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
+        if slack_bot_token is None:
+            self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
+        else:
+            self._SLACK_BOT_TOKEN = slack_bot_token
         if self._SLACK_BOT_TOKEN is None:
-            sys.exit("ERROR: environment variable SLACK_BOT_TOKEN is not set")
+            sys.exit("ERROR: SLACK_BOT_TOKEN not passed to constructor or set as environment variable")
 
-        self._slacker = Slacker(self._SLACK_BOT_TOKEN)
-        self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN, translate=False)
-        self._BOT_ID = self._slacker.auth.test().body["user_id"]
-        self._registrations = {}  # our dictionary of event_types to a list of callbacks
+        # The following instance attributes will be set upon connecting
+        self._slacker = None
+        self._slackSocket = None
+        self._BOT_ID = None
+        self._registrations = None
 
         if debug:
             # Enable logging for our users
             logger.addHandler(StreamHandler())
             logger.setLevel(logging.DEBUG)
 
-        logger.info(f"set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}")
-        logger.info("initialized")
+        logger.info("initialized. Ready to connect")
+
+    def connect(self):
+        logger.info("Connecting...")
+
+        self._slacker = Slacker(self._SLACK_BOT_TOKEN)
+        self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN, translate=False)
+        self._BOT_ID = self._slacker.auth.test().body["user_id"]
+        self._registrations = {}  # our dictionary of event_types to a list of callbacks
+
+        logger.info(f"Connected. Set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}")
 
     def register(self, event_type):
         """Registers a callback function to a a event type. All supported even types are defined here
@@ -85,6 +98,10 @@ class SimpleSlackBot:
             """
 
             logger.info(f"registering callback {callback.__name__} to event type {event_type}")
+
+            # first time initialization
+            if self._registrations is None:
+                self._registrations = {}
 
             if event_type not in self._registrations:
                 self._registrations[event_type] = []  # create an empty list
@@ -195,14 +212,15 @@ class SimpleSlackBot:
 
         public_channel_ids = []
 
-        public_channels = self._slacker.channels.list().body["channels"]
-        for channel in public_channels:
-            public_channel_ids.append(channel["id"])
+        if self._slacker and self._slacker.channels:
+            public_channels = self._slacker.channels.list().body["channels"]
+            for channel in public_channels:
+                public_channel_ids.append(channel["id"])
 
-        if len(public_channel_ids) == 0:
-            logger.warning("got no public channel ids")
-        else:
-            logger.debug(f"got public channel ids {public_channel_ids}")
+            if len(public_channel_ids) == 0:
+                logger.warning("got no public channel ids")
+            else:
+                logger.debug(f"got public channel ids {public_channel_ids}")
 
         return public_channel_ids
 
