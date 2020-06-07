@@ -28,6 +28,16 @@ class SlackRequest(object):
             return self._slack_event.event["type"]
 
     @property
+    def subtype(self):
+        """Gets the subtype of event from the underlying SlackEvent
+
+        :return: the subtype of event, if there is one
+        """
+
+        if "subtype" in self._slack_event.event:
+            return self._slack_event.event["subtype"]
+
+    @property
     def channel(self):
         """Gets the channel from the underlying SlackEvent
         Note: This can be an empty String. For example, this will be an empty String for the 'Hello' event.
@@ -67,13 +77,12 @@ class SlackRequest(object):
         if "text" in self._slack_event.event:
             return self._slack_event.event["text"]
 
-    def write(self, content, channel=None, thread_ts=None):
+    def write(self, content, channel=None):
         """
         Writes the content to the channel
 
         :param content: The text you wish to send
         :param channel: By default send to same channel request came from, if any
-        :param thread_ts:      The time stamp of the message, indicating that this is a thread
         """
 
         if channel is None and self.channel != "":
@@ -81,8 +90,16 @@ class SlackRequest(object):
         else:
             logger.warning("no channel provided by developer or respective slack event")
 
+        # optional arguments
+        kwargs = {}
+
+        # if the message we're replying to came from a thread, we'll grab the thread_ts
+        # so we can reply in said thread
+        if "thread_ts" in self._slack_event.event:
+            kwargs["thread_ts"] = self._slack_event.event["thread_ts"]
+
         try:
-            self._slacker.chat.post_message(channel, content, thread_ts=thread_ts)
+            self._slacker.chat.post_message(channel, content, **kwargs)
         except Exception as e:
             logger.warning(e)
 
