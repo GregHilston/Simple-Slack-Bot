@@ -6,10 +6,21 @@ from slacksocket.models import SlackEvent
 
 # Mocks out the dependency of Slacker
 class MockSlacker:
+    class MockGroups:
+        class MockList:
+            def __init__(self):
+                self.body = {"groups": []}
+
+        def __init__(self):
+            self.groups = MockSlacker.MockGroups.MockList()
+   
+        def list(self):
+            return self.groups
+
     def __init__(self):
-        self.groups = []
-
-
+        self.groups = MockSlacker.MockGroups()
+    
+    
 class TestSimpleSlackBot(unittest.TestCase):
     def setUp(self):
         self.sut = SimpleSlackBot(slack_bot_token="MOCK BOT TOKEN")
@@ -85,7 +96,6 @@ class TestSimpleSlackBot(unittest.TestCase):
 
     def test_helper_get_private_channel_ids_with_slacker_and_zero_channels(self):
         # Given
-        self.mock_slacker.groups = []
         self.sut._slacker = self.mock_slacker
         expected_private_channel_ids = []
 
