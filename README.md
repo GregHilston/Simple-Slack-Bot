@@ -198,6 +198,17 @@ and then import it as usual
 You'll also have to install Simple Slack Bot's dependencies using PyPi. A `requirements.txt` will be kept up to date, along side the `setup.py` for this use case and your convenience.
 
 
+## Unit Tests
+
+To run the unit test suite, execute
+
+`$ python3 tests_simple_slack_bot.py`
+
+
+To generate code coverage of the unit test suite, execute:
+
+`$ coverage run tests_simple_slack_bot.py && coverage report`
+
 ## Simple Slack Bots
 
 We'll be maintaining a list of Simple Slack Bots here.
