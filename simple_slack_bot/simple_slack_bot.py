@@ -1,11 +1,13 @@
 import os
 import sys
 import time
+import typing
 import logging
 import logging.config
 import traceback
 import itertools
 from logging import StreamHandler
+
 from slack import WebClient
 from slack.errors import SlackApiError
 from slacksocket import SlackSocket
@@ -23,7 +25,7 @@ class SimpleSlackBot:
     SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE = "SystemExit exception caught."
 
     @staticmethod
-    def peek(iterable):
+    def peek(iterable: typing.Iterable):
         """Allows us to look at the next yield in an Iterable.
         From: https://stackoverflow.com/a/664239/1983957
 
@@ -38,7 +40,7 @@ class SimpleSlackBot:
         return first, itertools.chain([first], iterable)
 
     @staticmethod
-    def log_gracefully_shutdown(prefix_str):
+    def log_gracefully_shutdown(prefix_str: str):
         """Just a convenient way to log multiple messages in a similar way
 
         :param prefix_str: String to log in the begging
@@ -46,7 +48,7 @@ class SimpleSlackBot:
         """
         logger.info(f"{prefix_str} Gracefully shutting down")
 
-    def __init__(self, slack_bot_token=None, debug=False):
+    def __init__(self, slack_bot_token: str = None, debug: bool = False):
         """Initializes our Slack bot and slack bot token. Will exit if the required environment
         variable is not set.
 
