@@ -64,7 +64,7 @@ class SimpleSlackBot:
         self._python_slackclient = None
         self._slackSocket = None
         self._BOT_ID = None
-        self._registrations = None
+        # self._registrations = None
 
         if debug:
             # Enable logging for our users
@@ -79,7 +79,7 @@ class SimpleSlackBot:
         self._python_slackclient = WebClient(self._SLACK_BOT_TOKEN)
         self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN)
         self._BOT_ID = self._python_slackclient.auth_test()["bot_id"]
-        self._registrations = {}  # our dictionary of event_types to a list of callbacks
+        # self._registrations = {}  # our dictionary of event_types to a list of callbacks
 
         logger.info(f"Connected. Set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}")
 
@@ -98,16 +98,16 @@ class SimpleSlackBot:
             :return: None
             """
 
-            logger.info(f"registering callback {callback.__name__} to event type {event_type}")
+            # logger.info(f"registering callback {callback.__name__} to event type {event_type}")
 
             # first time initialization
-            if self._registrations is None:
+            if not hasattr(self, "_registrations"):
                 self._registrations = {}
 
             if event_type not in self._registrations:
                 self._registrations[event_type] = []  # create an empty list
             self._registrations[event_type].append(callback)
-
+            print(f"registered {event_type} to {callback}")
         return function_wrapper
 
     def route_request_to_callbacks(self, request):
@@ -117,11 +117,12 @@ class SimpleSlackBot:
         :return: None
         """
 
-        logger.info(f"received an event of type {request.type} and slack event type of {request._slack_event.type}")
+        logger.info(f"received an event of type {request.type} and slack event type of {request._slack_event.type} with content {request}")
         
         # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
         # i'm totally confident this will have unexpected consequences but have not discovered any at the time of 
         # writing this
+        # print(f"self._registrations {self._registrations}")
         if request.type in self._registrations and request.subtype == None:
             for callback in self._registrations[request.type]:
                 try:
@@ -157,6 +158,7 @@ class SimpleSlackBot:
 
                 try:
                     request = SlackRequest(self._python_slackclient, slack_event)
+                    print(f"attempting to route request {request}")
                     self.route_request_to_callbacks(request)
 
                     time.sleep(READ_WEBSOCKET_DELAY)

@@ -1,3 +1,4 @@
+import traceback
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,8 +35,8 @@ class SlackRequest(object):
         :return: the subtype of event, if there is one
         """
 
-        if "subtype" in self._slack_event.event:
-            return self._slack_event.event["subtype"]
+        if "subtype" in self._slack_event:
+            return self._slack_event["subtype"]
 
     @property
     def channel(self):
@@ -47,8 +48,8 @@ class SlackRequest(object):
 
         channel = ""
 
-        if "channel" in self._slack_event.event:
-            channel = self._slack_event.event["channel"]
+        if "channel" in self._slack_event:
+            channel = self._slack_event["channel"]
 
         return channel
 
@@ -61,8 +62,8 @@ class SlackRequest(object):
         """
 
         thread_ts = ""
-        if "thread_ts" in self._slack_event.event:
-            thread_ts = self._slack_event.event["thread_ts"]
+        if "thread_ts" in self._slack_event:
+            thread_ts = self._slack_event["thread_ts"]
 
         return thread_ts
 
@@ -74,8 +75,8 @@ class SlackRequest(object):
         :return: the message this SlackEvent came with, if there is one
         """
 
-        if "text" in self._slack_event.event:
-            return self._slack_event.event["text"]
+        if "text" in self._slack_event:
+            return self._slack_event["text"]
 
     def write(self, content, channel=None):
         """
@@ -95,13 +96,15 @@ class SlackRequest(object):
 
         # if the message we're replying to came from a thread, we'll grab the thread_ts
         # so we can reply in said thread
-        if "thread_ts" in self._slack_event.event:
-            kwargs["thread_ts"] = self._slack_event.event["thread_ts"]
-
+        if "thread_ts" in self._slack_event:
+            kwargs["thread_ts"] = self._slack_event["thread_ts"]
         try:
-            self._python_slackclient.chat_postMessage(channel, content, **kwargs)
+            print(f"channel {channel}")
+            response = self._python_slackclient.chat_postMessage(channel=channel, text=content, **kwargs)
+            print(f"response.ok {response.ok}")
         except Exception as e:
-            logger.warning(e)
+            logging.warning(f"Unexpected exception caught, but we will keep listening. Exception: {e}")
+            logger.warning(traceback.format_exc())
 
     def __str__(self):
         """Generates the String representation of a SlackRequest
