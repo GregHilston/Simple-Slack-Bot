@@ -99,9 +99,7 @@ class SlackRequest(object):
         if "thread_ts" in self._slack_event:
             kwargs["thread_ts"] = self._slack_event["thread_ts"]
         try:
-            print(f"channel {channel}")
             response = self._python_slackclient.chat_postMessage(channel=channel, text=content, **kwargs)
-            print(f"response.ok {response.ok}")
         except Exception as e:
             logging.warning(f"Unexpected exception caught, but we will keep listening. Exception: {e}")
             logger.warning(traceback.format_exc())

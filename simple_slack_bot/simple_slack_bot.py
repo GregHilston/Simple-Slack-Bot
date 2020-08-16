@@ -107,7 +107,6 @@ class SimpleSlackBot:
             if event_type not in self._registrations:
                 self._registrations[event_type] = []  # create an empty list
             self._registrations[event_type].append(callback)
-            print(f"registered {event_type} to {callback}")
         return function_wrapper
 
     def route_request_to_callbacks(self, request):
@@ -122,7 +121,6 @@ class SimpleSlackBot:
         # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
         # i'm totally confident this will have unexpected consequences but have not discovered any at the time of 
         # writing this
-        # print(f"self._registrations {self._registrations}")
         if request.type in self._registrations and request.subtype == None:
             for callback in self._registrations[request.type]:
                 try:
@@ -158,7 +156,6 @@ class SimpleSlackBot:
 
                 try:
                     request = SlackRequest(self._python_slackclient, slack_event)
-                    print(f"attempting to route request {request}")
                     self.route_request_to_callbacks(request)
 
                     time.sleep(READ_WEBSOCKET_DELAY)
