@@ -16,7 +16,7 @@ requests==2.20.0
 requests-toolbelt==0.9.1
 six==1.10.0
 slackclient==1.0.2
-slacker==0.9.42
+slacker==0.14.0
 slacksocket==0.7
 tqdm==4.45.0
 twine==3.1.1
