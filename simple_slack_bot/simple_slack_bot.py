@@ -55,6 +55,8 @@ class SimpleSlackBot:
         :param debug: Whether or not to use default a Logging config
         """
         
+        # fetch a slack_bot_token first checking params, then environment variable otherwise 
+        # raising a SystemExit exception as this is required for execution
         if slack_bot_token is None:
             self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
         else:
@@ -62,14 +64,8 @@ class SimpleSlackBot:
         if self._SLACK_BOT_TOKEN is None:
             sys.exit("ERROR: SLACK_BOT_TOKEN not passed to constructor or set as environment variable")
 
-        # The following instance attributes will be set upon connecting
-        self._python_slackclient = None
-        self._slackSocket = None
-        self._BOT_ID = None
-        # self._registrations = None
-
         if debug:
-            # Enable logging for our users
+            # Enable logging additional debug logging
             logger.addHandler(StreamHandler())
             logger.setLevel(logging.DEBUG)
 
@@ -81,7 +77,6 @@ class SimpleSlackBot:
         self._python_slackclient = WebClient(self._SLACK_BOT_TOKEN)
         self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN)
         self._BOT_ID = self._python_slackclient.auth_test()["bot_id"]
-        # self._registrations = {}  # our dictionary of event_types to a list of callbacks
 
         logger.info(f"Connected. Set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}")
 
