@@ -8,13 +8,13 @@ class SlackRequest(object):
     messages, upload content and gain access to the underlying SlackClient
     """
 
-    def __init__(self, slacker, slack_event):
+    def __init__(self, python_slackclient, slack_event):
         """Initializes a SlackRequest
 
-        :param slacker: the Slacker object for this specific SlackRequest
+        :param WebClient: the WebClient object for this specific SlackRequest
         :param slack_event: the SlackEvent for this specific SlackRequest
         """
-        self._slacker = slacker
+        self._python_slackclient = python_slackclient
         self._slack_event = slack_event
 
     @property
@@ -23,9 +23,9 @@ class SlackRequest(object):
 
         :return: the type of event, if there is one
         """
-
-        if "type" in self._slack_event.event:
-            return self._slack_event.event["type"]
+        
+        if "type" in self._slack_event:
+            return self._slack_event["type"]
 
     @property
     def subtype(self):
@@ -99,7 +99,7 @@ class SlackRequest(object):
             kwargs["thread_ts"] = self._slack_event.event["thread_ts"]
 
         try:
-            self._slacker.chat.post_message(channel, content, **kwargs)
+            self._python_slackclient.chat_postMessage(channel, content, **kwargs)
         except Exception as e:
             logger.warning(e)
 

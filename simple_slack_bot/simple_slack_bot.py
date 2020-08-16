@@ -6,7 +6,8 @@ import logging.config
 import traceback
 import itertools
 from logging import StreamHandler
-from slacker import Slacker
+from slack import WebClient
+from slack.errors import SlackApiError
 from slacksocket import SlackSocket
 from .slack_request import SlackRequest
 
@@ -51,7 +52,7 @@ class SimpleSlackBot:
 
         :param debug: Whether or not to use default a Logging config
         """
-
+        
         if slack_bot_token is None:
             self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
         else:
@@ -60,7 +61,7 @@ class SimpleSlackBot:
             sys.exit("ERROR: SLACK_BOT_TOKEN not passed to constructor or set as environment variable")
 
         # The following instance attributes will be set upon connecting
-        self._slacker = None
+        self._python_slackclient = None
         self._slackSocket = None
         self._BOT_ID = None
         self._registrations = None
@@ -75,9 +76,9 @@ class SimpleSlackBot:
     def connect(self):
         logger.info("Connecting...")
 
-        self._slacker = Slacker(self._SLACK_BOT_TOKEN)
-        self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN, translate=False)
-        self._BOT_ID = self._slacker.auth.test().body["user_id"]
+        self._python_slackclient = WebClient(self._SLACK_BOT_TOKEN)
+        self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN)
+        self._BOT_ID = self._python_slackclient.auth_test()["bot_id"]
         self._registrations = {}  # our dictionary of event_types to a list of callbacks
 
         logger.info(f"Connected. Set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}")
@@ -88,7 +89,7 @@ class SimpleSlackBot:
 
         :param event_type: the type of the event to register
         :return: reference to wrapped function
-        """
+"""
 
         def function_wrapper(callback):
             """Registers event before executing wrapped function, referred to as callback
@@ -116,7 +117,7 @@ class SimpleSlackBot:
         :return: None
         """
 
-        logger.info(f"received an event of type {request.type} and slack event {request._slack_event.event}")
+        logger.info(f"received an event of type {request.type} and slack event type of {request._slack_event.type}")
         
         # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
         # i'm totally confident this will have unexpected consequences but have not discovered any at the time of 
@@ -154,33 +155,33 @@ class SimpleSlackBot:
             else:
                 slack_event, mysequence = res
 
-                if slack_event.event and "bot_id" not in slack_event.event:  # We don't reply to bots
-                    try:
-                        request = SlackRequest(self._slacker, slack_event)
-                        self.route_request_to_callbacks(request)
+                try:
+                    request = SlackRequest(self._python_slackclient, slack_event)
+                    self.route_request_to_callbacks(request)
 
-                        time.sleep(READ_WEBSOCKET_DELAY)
-                    except KeyboardInterrupt:
-                        self.log_gracefully_shutdown(self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
-                        running = False
-                        break
-                    except SystemExit:
-                        self.log_gracefully_shutdown(self.SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE)
-                        running = False
-                        break
-                    except Exception as e:
-                        logging.warning(f"Unexpected exception caught, but we will keep listening. Exception: {e}")
-                        logging.warning(traceback.format_stack())
-                        continue  # ensuring the loop continues
+                    time.sleep(READ_WEBSOCKET_DELAY)
+                except KeyboardInterrupt:
+                    self.log_gracefully_shutdown(self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
+                    running = False
+                    break
+                except SystemExit:
+                    self.log_gracefully_shutdown(self.SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE)
+                    running = False
+                    break
+                except Exception as e:
+                    logging.warning(f"Unexpected exception caught, but we will keep listening. Exception: {e}")
+                    logging.warning(traceback.format_exc())
+                    continue  # ensuring the loop continues
 
-        logger.info("stopped listening!")
+    logger.info("stopped listening!")
 
     def start(self):
         """Connect the Slack bot to the chatroom and begin listening
         """
 
-        ok = self._slacker.rtm.start().body["ok"]
-
+        self.connect()
+        ok = self._python_slackclient.rtm_start()
+        
         if ok:
             logger.info("started!")
             self.listen()
@@ -190,30 +191,14 @@ class SimpleSlackBot:
 
         logger.info("stopped!")
 
-    def get_slacker(self):
-        """Returns SimpleSlackBot's SlackClient.
-
-        This is useful if you are writing a more advanced bot and want complete access to all SlackClient has to offer.
-        """
-
-        return self._slacker
-
-    def get_slack_socket(self):
-        """Returns SimpleSlackBot's SlackSocket.
-
-        This is useful if you are writing a more advanced bot and want complete access to all SlackSocket has to offer.
-        """
-
-        return self._slackSocket
-
     def helper_get_public_channel_ids(self):
         """Helper function that gets all public channel ids
         """
 
         public_channel_ids = []
 
-        if self._slacker and self._slacker.channels:
-            public_channels = self._slacker.channels.list().body["channels"]
+        if self._python_slackclient and self._python_slackclient.channels_list():
+            public_channels = self._python_slackclient.channels_list()["channels"]
             for channel in public_channels:
                 public_channel_ids.append(channel["id"])
 
@@ -230,7 +215,7 @@ class SimpleSlackBot:
 
         private_channel_ids = []
 
-        private_channels = self._slacker.groups.list().body["groups"]
+        private_channels = self._python_slackclient.groups_list()["groups"]
 
         for private_channel in private_channels:
             private_channels.append(private_channel["id"])
@@ -248,7 +233,7 @@ class SimpleSlackBot:
 
         user_ids = []
 
-        users = self._slacker.users.list().body["members"]
+        users = self._python_slackclient.users_list()["members"]
         for user in users:
             user_ids.append(user["id"])
 
@@ -265,7 +250,7 @@ class SimpleSlackBot:
 
         user_names = []
 
-        users = self._slacker.users.list().body["members"]
+        users = self._python_slackclient.users_list()["members"]
         for user in users:
             user_names.append(user["name"])
 
@@ -285,7 +270,7 @@ class SimpleSlackBot:
 
         user_ids = []
 
-        channels_list = self._slacker.channels.list().body["channels"]
+        channels_list = self._python_slackclient.channels_list()["channels"]
         for channel in channels_list:
             if channel["id"] == channel_id:
                 for user_id in channel["members"]:
@@ -305,7 +290,7 @@ class SimpleSlackBot:
         :return: id representation of original channel name
         """
 
-        channels_list = self._slacker.channels.list().body["channels"]
+        channels_list = self._python_slackclient.channels_list()["channels"]
 
         for channel in channels_list:
             if channel["name"] == name:
@@ -321,7 +306,7 @@ class SimpleSlackBot:
         :return: id representation of original user name
         """
 
-        users = self._slacker.users.list().body["members"]
+        users = self._python_slackclient.users_list()["members"]
 
         for user in users:
             if user["name"] == name:
@@ -337,7 +322,7 @@ class SimpleSlackBot:
         :return: name representation of original channel id
         """
 
-        channels_list = self._slacker.channels.list().body["channels"]
+        channels_list = self._python_slackclient.channels_list()["channels"]
 
         for channel in channels_list:
             if channel["id"] == channel_id:
@@ -353,9 +338,9 @@ class SimpleSlackBot:
         :return: name representation of original user id
         """
 
-        users_list = self._slacker.users.list()
+        users_list = self._python_slackclient.users_list()
 
-        for user in users_list.body["members"]:
+        for user in users_list["members"]:
             if user["id"] == user_id:
                 logger.debug(f"converted {user_id} to {user['name']}")
                 return user["name"]

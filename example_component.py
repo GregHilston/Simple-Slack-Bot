@@ -5,6 +5,7 @@ simple_slack_bot = SimpleSlackBot(debug=True)
 
 @simple_slack_bot.register("hello")
 def hello_callback(request):
+    print(f"request {request}")
     request.write("Hello!")
 
 
