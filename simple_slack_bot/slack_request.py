@@ -28,6 +28,16 @@ class SlackRequest(object):
             return self._slack_event.event["type"]
 
     @property
+    def subtype(self):
+        """Gets the subtype of event from the underlying SlackEvent
+
+        :return: the subtype of event, if there is one
+        """
+
+        if "subtype" in self._slack_event.event:
+            return self._slack_event.event["subtype"]
+
+    @property
     def channel(self):
         """Gets the channel from the underlying SlackEvent
         Note: This can be an empty String. For example, this will be an empty String for the 'Hello' event.
@@ -41,6 +51,20 @@ class SlackRequest(object):
             channel = self._slack_event.event["channel"]
 
         return channel
+
+    @property
+    def thread_ts(self):
+        """Gets the thread_ts from the underlying SlackEvent.
+        Note: This can be an empty String. For example, this will be an empty String when a message was not sent in a thread.
+
+        :return: the thread_ts this SlackEvent originated from, if there is one
+        """
+
+        thread_ts = ""
+        if "thread_ts" in self._slack_event.event:
+            thread_ts = self._slack_event.event["thread_ts"]
+
+        return thread_ts
 
     @property
     def message(self):
@@ -66,8 +90,16 @@ class SlackRequest(object):
         else:
             logger.warning("no channel provided by developer or respective slack event")
 
+        # optional arguments
+        kwargs = {}
+
+        # if the message we're replying to came from a thread, we'll grab the thread_ts
+        # so we can reply in said thread
+        if "thread_ts" in self._slack_event.event:
+            kwargs["thread_ts"] = self._slack_event.event["thread_ts"]
+
         try:
-            self._slacker.chat.post_message(channel, content)
+            self._slacker.chat.post_message(channel, content, **kwargs)
         except Exception as e:
             logger.warning(e)
 

@@ -117,8 +117,11 @@ class SimpleSlackBot:
         """
 
         logger.info(f"received an event of type {request.type} and slack event {request._slack_event.event}")
-
-        if request.type in self._registrations:
+        
+        # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
+        # i'm totally confident this will have unexpected consequences but have not discovered any at the time of 
+        # writing this
+        if request.type in self._registrations and request.subtype == None:
             for callback in self._registrations[request.type]:
                 try:
                     callback(request)
