@@ -5,6 +5,17 @@ import pytest
 from simple_slack_bot.simple_slack_bot import SimpleSlackBot
 
 
+def test_init_raises_systemexit_exception_when_not_passed_slack_bot_token_or_has_environment_variable_to_fall_back_on():
+    # Given
+
+    # When
+
+    with pytest.raises(SystemExit):
+        sut = SimpleSlackBot()
+    
+    # Then
+
+
 def test_init_prefers_paramters_over_environment_variables():
     # Given
     slack_bot_token = "token1"
