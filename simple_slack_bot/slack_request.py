@@ -99,7 +99,7 @@ class SlackRequest(object):
         if "thread_ts" in self._slack_event:
             kwargs["thread_ts"] = self._slack_event["thread_ts"]
         try:
-            response = self._python_slackclient.chat_postMessage(
+            self._python_slackclient.chat_postMessage(
                 channel=channel, text=content, **kwargs
             )
         except Exception as e:
