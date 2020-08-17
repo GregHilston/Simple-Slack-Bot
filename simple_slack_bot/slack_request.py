@@ -24,7 +24,7 @@ class SlackRequest(object):
 
         :return: the type of event, if there is one
         """
-        
+
         if "type" in self._slack_event:
             return self._slack_event["type"]
 
@@ -99,9 +99,13 @@ class SlackRequest(object):
         if "thread_ts" in self._slack_event:
             kwargs["thread_ts"] = self._slack_event["thread_ts"]
         try:
-            response = self._python_slackclient.chat_postMessage(channel=channel, text=content, **kwargs)
+            response = self._python_slackclient.chat_postMessage(
+                channel=channel, text=content, **kwargs
+            )
         except Exception as e:
-            logging.warning(f"Unexpected exception caught, but we will keep listening. Exception: {e}")
+            logging.warning(
+                f"Unexpected exception caught, but we will keep listening. Exception: {e}"
+            )
             logger.warning(traceback.format_exc())
 
     def __str__(self):

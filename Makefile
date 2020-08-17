@@ -7,6 +7,9 @@ run:
 start:
 	$(PYTHON) app.py > /dev/null 2>&1 & echo $$! > $(PID)
 
+test:
+	pytest
+
 package:
 	python3 setup.py sdist bdist_wheel
 
