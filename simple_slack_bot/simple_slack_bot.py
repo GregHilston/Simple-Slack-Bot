@@ -1,16 +1,17 @@
+import itertools
+import logging
+import logging.config
 import os
 import sys
 import time
-import typing
-import logging
-import logging.config
 import traceback
-import itertools
+import typing
 from logging import StreamHandler
 
 from slack import WebClient
 from slack.errors import SlackApiError
 from slacksocket import SlackSocket  # type: ignore
+
 from .slack_request import SlackRequest
 
 logger = logging.getLogger(__name__)
@@ -25,7 +26,9 @@ class SimpleSlackBot:
     SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE = "SystemExit exception caught."
 
     @staticmethod
-    def peek(iterator: typing.Iterator) -> typing.Union[None, typing.Tuple[typing.Any, typing.Iterator]]:
+    def peek(
+        iterator: typing.Iterator,
+    ) -> typing.Union[None, typing.Tuple[typing.Any, typing.Iterator]]:
         """Allows us to look at the next yield in an Iterator.
         From: https://stackoverflow.com/a/664239/1983957
 
@@ -62,7 +65,9 @@ class SimpleSlackBot:
         else:
             self._SLACK_BOT_TOKEN = slack_bot_token
         if self._SLACK_BOT_TOKEN is None:
-            sys.exit("ERROR: SLACK_BOT_TOKEN not passed to constructor or set as environment variable")
+            sys.exit(
+                "ERROR: SLACK_BOT_TOKEN not passed to constructor or set as environment variable"
+            )
 
         if debug:
             # enable logging additional debug logging
@@ -78,7 +83,9 @@ class SimpleSlackBot:
         self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN)
         self._BOT_ID = self._python_slackclient.auth_test()["bot_id"]
 
-        logger.info(f"Connected. Set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}")
+        logger.info(
+            f"Connected. Set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}"
+        )
 
     def register(self, event_type: str):
         """Registers a callback function to a a event type. All supported even types are defined here
@@ -103,6 +110,7 @@ class SimpleSlackBot:
                 # first registration of this type
                 self._registrations[event_type] = []
             self._registrations[event_type].append(callback)
+
         return function_wrapper
 
     def route_request_to_callbacks(self, request: SlackRequest):
@@ -111,7 +119,9 @@ class SimpleSlackBot:
         :param request: request to be routed
         :return: None
         """
-        logger.info(f"received an event of type {request.type} and slack event type of {request._slack_event.type} with content {request}")
+        logger.info(
+            f"received an event of type {request.type} and slack event type of {request._slack_event.type} with content {request}"
+        )
 
         # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
         # i'm totally confident this will have unexpected consequences but have not discovered any at the time of
@@ -121,7 +131,7 @@ class SimpleSlackBot:
                 try:
                     callback(request)
                 except Exception:
-                    logger.exception(f'exception processing event {request.type}')
+                    logger.exception(f"exception processing event {request.type}")
 
     def listen(self):
         """Listens forever for Slack events, triggering appropriately callbacks when respective events are received.
@@ -141,12 +151,16 @@ class SimpleSlackBot:
         logger.info("began listening!")
         print("here")
 
-        while running:  # required to continue to run after experiencing an unexpected exception
+        while (
+            running
+        ):  # required to continue to run after experiencing an unexpected exception
             print("running")
             res = self.peek(self._slackSocket.events())
             print(f"res '{res}'")
             if res is None:
-                self.log_gracefully_shutdown(self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
+                self.log_gracefully_shutdown(
+                    self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE
+                )
                 running = False
                 break
             else:
@@ -158,15 +172,21 @@ class SimpleSlackBot:
 
                     time.sleep(READ_WEBSOCKET_DELAY)
                 except KeyboardInterrupt:
-                    self.log_gracefully_shutdown(self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
+                    self.log_gracefully_shutdown(
+                        self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE
+                    )
                     running = False
                     break
                 except SystemExit:
-                    self.log_gracefully_shutdown(self.SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE)
+                    self.log_gracefully_shutdown(
+                        self.SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE
+                    )
                     running = False
                     break
                 except Exception as e:
-                    logging.warning(f"Unexpected exception caught, but we will keep listening. Exception: {e}")
+                    logging.warning(
+                        f"Unexpected exception caught, but we will keep listening. Exception: {e}"
+                    )
                     logging.warning(traceback.format_exc())
                     continue  # ensuring the loop continues
 
@@ -183,8 +203,10 @@ class SimpleSlackBot:
             logger.info("started!")
             self.listen()
         else:
-            logger.error("Connection failed. Are you connected to the internet? Potentially invalid Slack token? "
-                         "Check environment variable and \"SLACK_BOT_TOKEN\"")
+            logger.error(
+                "Connection failed. Are you connected to the internet? Potentially invalid Slack token? "
+                'Check environment variable and "SLACK_BOT_TOKEN"'
+            )
 
         logger.info("stopped!")
 
