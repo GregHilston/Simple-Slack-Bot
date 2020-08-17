@@ -1,5 +1,7 @@
 # Simple Slack Bot
 
+[![<ORG_NAME>](https://circleci.com/gh/GregHilston/Simple-Slack-Bot.svg?style=svg)](https://app.circleci.com/pipelines/github/GregHilston/Simple-Slack-Bot)
+
 Simple Slack Bot makes writing your next Slack bot incredibly easy. By factoring out common functionality all Slack Bots require, you can focus on writing your business logic.
 
 
