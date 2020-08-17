@@ -2,7 +2,7 @@ import os
 
 import pytest
 from slack import WebClient
-from slacksocket.models import SlackEvent
+from slacksocket.models import SlackEvent  # type: ignore
 
 from simple_slack_bot.simple_slack_bot import SimpleSlackBot, SlackRequest
 
@@ -81,7 +81,7 @@ def test_route_request_to_callbacks_routes_correct_type_to_correct_callback():
     sut.route_request_to_callbacks(mock_slackrequest)
 
     # Then
-    assert Monitor.was_called == True
+    assert Monitor.was_called is True
 
 
 @pytest.mark.skip(
@@ -104,11 +104,6 @@ def test_listen_stops_listening_when_slack_socket_events_returns_none():
 
 
 def test_listen_calls_route_request_to_callbacks_when_valid_request():
-    # TODO
-    pass
-
-
-def test_listen_stops_listening_when_keyboard_interrupt_exception_occurs():
     # TODO
     pass
 

@@ -8,7 +8,7 @@ start:
 	$(PYTHON) app.py > /dev/null 2>&1 & echo $$! > $(PID)
 
 magic:
-	black simple_slack_bot tests && isort . && flake8 simple_slack_bot --show-source && mypy simple_slack_bot && bandit simple_slack_bot && safety check && dodgy
+	black simple_slack_bot tests && isort . && flake8 simple_slack_bot tests --show-source && mypy simple_slack_bot tests && bandit simple_slack_bot tests && safety check && dodgy
 
 test: magic
 	pytest
