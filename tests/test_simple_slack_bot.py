@@ -10,15 +10,19 @@ from slacksocket.models import SlackEvent
 def test_init_raises_systemexit_exception_when_not_passed_slack_bot_token_or_has_environment_variable_to_fall_back_on():
     # Given
     # unset any state that may have been set by user or other tests prior
-    del os.environ["SLACK_BOT_TOKEN"]
+    if "SLACK_BOT_TOKEN" in os.environ:
+        temp_slack_bot_token = os.environ["SLACK_BOT_TOKEN"]
+        del os.environ["SLACK_BOT_TOKEN"]
 
     # When
 
     with pytest.raises(SystemExit):
         sut = SimpleSlackBot()
-    
-    # Then
 
+    # Then
+    # reset environment variable if it was unset
+    if "temp_slack_bot_token" in locals():
+        os.environ["SLACK_BOT_TOKEN"] = temp_slack_bot_token
 
 def test_init_prefers_parameters_over_environment_variables():
     # Given
