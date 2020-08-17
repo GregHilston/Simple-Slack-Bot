@@ -13,6 +13,9 @@ magic:
 test: magic
 	pytest
 
+coverage: magic
+	coverage run -m pytest && coverage report -m
+
 package:
 	python3 setup.py sdist bdist_wheel
 
