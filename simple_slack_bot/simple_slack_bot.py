@@ -25,7 +25,7 @@ class SimpleSlackBot:
     SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE = "SystemExit exception caught."
 
     @staticmethod
-    def peek(iterable: typing.Iterable):
+    def peek(iterable: typing.Iterable) -> typing.Tuple[typing.Any, typing.Iterable]:
         """Allows us to look at the next yield in an Iterable.
         From: https://stackoverflow.com/a/664239/1983957
 
@@ -65,7 +65,7 @@ class SimpleSlackBot:
             sys.exit("ERROR: SLACK_BOT_TOKEN not passed to constructor or set as environment variable")
 
         if debug:
-            # Enable logging additional debug logging
+            # enable logging additional debug logging
             logger.addHandler(StreamHandler())
             logger.setLevel(logging.DEBUG)
 
@@ -80,39 +80,37 @@ class SimpleSlackBot:
 
         logger.info(f"Connected. Set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}")
 
-    def register(self, event_type):
+    def register(self, event_type: str):
         """Registers a callback function to a a event type. All supported even types are defined here
         https://api.slack.com/events-api
 
         :param event_type: the type of the event to register
         :return: reference to wrapped function
-"""
+        """
 
-        def function_wrapper(callback):
+        def function_wrapper(callback: typing.Callable):
             """Registers event before executing wrapped function, referred to as callback
 
             :param callback: function to execute after runnign wrapped code
             :return: None
             """
 
-            # logger.info(f"registering callback {callback.__name__} to event type {event_type}")
-
             # first time initialization
             if not hasattr(self, "_registrations"):
                 self._registrations = {}
 
             if event_type not in self._registrations:
-                self._registrations[event_type] = []  # create an empty list
+                # first registration of this type
+                self._registrations[event_type] = []
             self._registrations[event_type].append(callback)
         return function_wrapper
 
-    def route_request_to_callbacks(self, request):
+    def route_request_to_callbacks(self, request: SlackRequest):
         """Routes the request to the correct notify
 
         :param request: request to be routed
         :return: None
         """
-
         logger.info(f"received an event of type {request.type} and slack event type of {request._slack_event.type} with content {request}")
         
         # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
