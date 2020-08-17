@@ -3,6 +3,7 @@ chardet==3.0.4
 idna==2.10
 requests==2.24.0
 six==1.15.0
+slackclient==2.8.0
 slacker==0.14.0
 slacksocket==1.0.1
 urllib3==1.25.10
