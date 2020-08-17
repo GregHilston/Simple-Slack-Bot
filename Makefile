@@ -10,7 +10,7 @@ start:
 magic:
 	black simple_slack_bot tests && isort . && mypy simple_slack_bot && bandit simple_slack_bot && safety check && dodgy
 
-test:
+test: magic
 	pytest
 
 package:
