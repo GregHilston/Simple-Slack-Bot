@@ -84,3 +84,21 @@ def test_listen_stops_listening_when_slack_socket_events_returns_none():
     sut.listen()
 
     # Then
+
+def test_listen_calls_route_request_to_callbacks_when_valid_request():
+    # TODO
+
+def test_listen_stops_listening_when_keyboard_interrupt_exception_occurs():
+    # TODO
+
+def test_listen_stops_listening_when_keyboard_interrupt_exception_occurs():
+    # TODO
+
+def test_listen_stops_listening_when_unexpected_exception_occurs():
+    # TODO
+
+def start_calls_listen_if_slackclient_rtm_has_valid_ok():
+    # TODO
+
+def start_errors_out_if_slackclient_rtm_has_invalid_ok():
+    # TODO
