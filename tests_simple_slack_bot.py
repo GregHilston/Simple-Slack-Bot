@@ -1,7 +1,9 @@
 import unittest
+
+from slacksocket.models import SlackEvent
+
 from simple_slack_bot.simple_slack_bot import SimpleSlackBot
 from simple_slack_bot.slack_request import SlackRequest
-from slacksocket.models import SlackEvent
 
 
 # Mocks out the dependency of Slacker

@@ -1,6 +1,7 @@
 # Utility Script for getting a list of all rtm events
 
 import urllib.request as urllib2
+
 from bs4 import BeautifulSoup
 
 url = "https://api.slack.com/rtm"

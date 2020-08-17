@@ -1,16 +1,17 @@
+import itertools
+import logging
+import logging.config
 import os
 import sys
 import time
-import typing
-import logging
-import logging.config
 import traceback
-import itertools
+import typing
 from logging import StreamHandler
 
 from slack import WebClient
 from slack.errors import SlackApiError
 from slacksocket import SlackSocket
+
 from .slack_request import SlackRequest
 
 logger = logging.getLogger(__name__)

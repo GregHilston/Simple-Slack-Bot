@@ -7,6 +7,9 @@ run:
 start:
 	$(PYTHON) app.py > /dev/null 2>&1 & echo $$! > $(PID)
 
+magic:
+	black simple_slack_bot tests && isort .
+
 test:
 	pytest
 
