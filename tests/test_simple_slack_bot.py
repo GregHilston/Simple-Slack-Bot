@@ -69,3 +69,18 @@ def test_route_request_to_callbacks_routes_correct_type_to_correct_callback():
 
     # Then
     assert Monitor.was_called == True
+
+@pytest.mark.skip(reason="Currently hanging forever instead of getting into if res is None conditinal")
+def test_listen_stops_listening_when_slack_socket_events_returns_none():
+    # Given
+    class MockSlackSocket:
+        def events(self):
+            yield None
+    mock_slack_socket = MockSlackSocket()
+    sut = SimpleSlackBot("mock slack bot token")
+    sut._slackSocket = mock_slack_socket
+
+    # When
+    sut.listen()
+
+    # Then

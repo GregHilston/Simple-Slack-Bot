@@ -54,8 +54,8 @@ class SimpleSlackBot:
 
         :param debug: Whether or not to use default a Logging config
         """
-        
-        # fetch a slack_bot_token first checking params, then environment variable otherwise 
+
+        # fetch a slack_bot_token first checking params, then environment variable otherwise
         # raising a SystemExit exception as this is required for execution
         if slack_bot_token is None:
             self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
@@ -112,9 +112,9 @@ class SimpleSlackBot:
         :return: None
         """
         logger.info(f"received an event of type {request.type} and slack event type of {request._slack_event.type} with content {request}")
-        
+
         # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
-        # i'm totally confident this will have unexpected consequences but have not discovered any at the time of 
+        # i'm totally confident this will have unexpected consequences but have not discovered any at the time of
         # writing this
         if request.type in self._registrations and request.subtype == None:
             for callback in self._registrations[request.type]:
@@ -139,9 +139,12 @@ class SimpleSlackBot:
         running = True
 
         logger.info("began listening!")
+        print("here")
 
         while running:  # required to continue to run after experiencing an unexpected exception
+            print("running")
             res = self.peek(self._slackSocket.events())
+            print(f"res '{res}'")
             if res is None:
                 self.log_gracefully_shutdown(self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
                 running = False
@@ -175,7 +178,7 @@ class SimpleSlackBot:
 
         self.connect()
         ok = self._python_slackclient.rtm_start()
-        
+
         if ok:
             logger.info("started!")
             self.listen()
