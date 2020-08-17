@@ -1,3 +1,5 @@
+-r requirements.txt
+
 bandit==1.6.2
 black==19.10b0
 dodgy==0.2.1
@@ -7,6 +9,4 @@ mypy==0.782
 pip-chill==1.0.0
 pytest==6.0.1
 safety==1.9.0
-slackclient==2.8.0
-slacksocket==1.0.1
 twine==3.2.0
