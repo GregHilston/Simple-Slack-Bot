@@ -10,7 +10,7 @@ from logging import StreamHandler
 
 from slack import WebClient
 from slack.errors import SlackApiError
-from slacksocket import SlackSocket
+from slacksocket import SlackSocket  # type: ignore
 
 from .slack_request import SlackRequest
 
@@ -26,19 +26,21 @@ class SimpleSlackBot:
     SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE = "SystemExit exception caught."
 
     @staticmethod
-    def peek(iterable: typing.Iterable) -> typing.Tuple[typing.Any, typing.Iterable]:
-        """Allows us to look at the next yield in an Iterable.
+    def peek(
+        iterator: typing.Iterator,
+    ) -> typing.Union[None, typing.Tuple[typing.Any, typing.Iterator]]:
+        """Allows us to look at the next yield in an Iterator.
         From: https://stackoverflow.com/a/664239/1983957
 
-        :param iterable: some Iterable to peek at
+        :param iterator: some Iterator to peek at
         :return: the first and rest of the yielded items
         """
 
         try:
-            first = next(iterable)
+            first = next(iterator)
         except StopIteration:
             return None
-        return first, itertools.chain([first], iterable)
+        return first, itertools.chain([first], iterator)
 
     @staticmethod
     def log_gracefully_shutdown(prefix_str: str):
@@ -102,7 +104,7 @@ class SimpleSlackBot:
 
             # first time initialization
             if not hasattr(self, "_registrations"):
-                self._registrations = {}
+                self._registrations: typing.Dict[str, typing.List[typing.Callable]] = {}
 
             if event_type not in self._registrations:
                 # first registration of this type
