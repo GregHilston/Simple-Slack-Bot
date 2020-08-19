@@ -1,12 +1,7 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
 version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
       - image: circleci/python:3.8.2-buster
 
     working_directory: ~/project
@@ -14,7 +9,6 @@ jobs:
     steps:
       - checkout
 
-      # Download and cache dependencies
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "requirements_dev.txt" }}
@@ -31,7 +25,6 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements_dev.txt" }}
 
-      # run tests
       - run:
           name: make test
           command: |
