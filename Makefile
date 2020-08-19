@@ -42,3 +42,6 @@ example: ## Runs the example component.
 
 circle-ci-validate: ## Validates the circleci config.
 	circleci config validate
+
+circle-ci-local-execute: ## Execute circleci config locally.
+	circleci local execute

@@ -9,21 +9,18 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "requirements_dev.txt" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+      - restore_cache: # Find a cache corresponding to this specific requirements_dev.txt checksum. When this file has changed this lookup will fail which is good and intended
+          key: deps9-{{ .Branch }}-{{ checksum "requirements_dev.txt" }}
 
       - run:
           name: install dependencies
           command: |
             pip install -r requirements_dev.txt
 
-      - save_cache:
+      - save_cache: # cache Python dependencies using checksum of requirements_dev.txt as the cache-key
+          key: deps9-{{ .Branch }}-{{ checksum "requirements_dev.txt" }}
           paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "requirements_dev.txt" }}
+            - "venv"
 
       - run:
           name: make test
