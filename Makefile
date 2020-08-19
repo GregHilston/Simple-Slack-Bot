@@ -7,8 +7,22 @@ run:
 start:
 	$(PYTHON) app.py > /dev/null 2>&1 & echo $$! > $(PID)
 
-magic:
-	black simple_slack_bot tests && isort . && flake8 simple_slack_bot tests --show-source && mypy simple_slack_bot tests && bandit simple_slack_bot tests && safety check && dodgy
+format:
+	black simple_slack_bot tests
+
+isort:
+	isort .
+
+lint:
+	flake8 simple_slack_bot tests --show-source
+
+type:
+	mypy simple_slack_bot tests
+
+security:
+	bandit simple_slack_bot tests && safety check && dodgy
+
+magic: format isort lint type security
 
 test: magic
 	pytest
