@@ -1,5 +1,4 @@
 PYTHON=python3
-PID=app.pid
 .DEFAULT_GOAL := help
 
 .PHONY: help
@@ -40,9 +39,6 @@ upload-pypi: ## Uploads the project to pypi.org
 
 example: ## Runs the example component.
 	python3 example_component.py
-
-kill:
-	kill $$(cat $(PID))
 
 circle-ci-validate: ## Validates the circleci config.
 	circleci config validate
