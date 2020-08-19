@@ -24,8 +24,6 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
             pip install -r requirements_dev.txt
 
       - save_cache:
@@ -35,7 +33,6 @@ jobs:
 
       # run tests
       - run:
-          name: run tests
+          name: make test
           command: |
-            . venv/bin/activate
             pytest
