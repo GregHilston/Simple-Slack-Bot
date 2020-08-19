@@ -1,46 +1,48 @@
 PYTHON=python3
 PID=app.pid
+.DEFAULT_GOAL := help
 
-run:
-	$(PYTHON) app.py
+.PHONY: help
+help: ## This help.
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-start:
-	$(PYTHON) app.py > /dev/null 2>&1 & echo $$! > $(PID)
-
-format:
+format: ## Formats the code base and tests using Black.
 	black simple_slack_bot tests
 
-isort:
+isort: ## Orders the imports of the code base and tests using isort.
 	isort .
 
-lint:
+lint: ## Performs linting on the code base and tests using flake8.
 	flake8 simple_slack_bot tests --show-source
 
-type:
+type: ## Checks type hints on the code base and tests using mypy.
 	mypy simple_slack_bot tests
 
-security:
+security: ## Checks code base and tests for security vulnerability, bad imports and keys using bandit, safety and dodgy.
 	bandit simple_slack_bot tests && safety check && dodgy
 
-magic: format isort lint type security
+magic: format isort lint type security ## Performs format, isort, lint, type and security in that order.
 
-test: magic
+test: ## Runs the pytest suite.
 	pytest
 
-coverage: magic
+coverage: ## Runs the pytest suite and generates code coverage.
 	coverage run -m pytest && coverage report -m
 
-package:
+package: ## Packages up the project.
 	python3 setup.py sdist bdist_wheel
 
-upload-test-pypi:
+upload-test-pypi: ## Uploads the project to test.pypi.org.
 	python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
-upload-pypi:
+upload-pypi: ## Uploads the project to pypi.org
 	python3 -m twine upload dist/*
 
-example:
+example: ## Runs the example component.
 	python3 example_component.py
 
 kill:
 	kill $$(cat $(PID))
+
+circle-ci-validate: ## Validates the circleci config.
+	circleci config validate
