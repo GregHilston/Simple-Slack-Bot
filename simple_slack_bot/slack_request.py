@@ -28,6 +28,9 @@ class SlackRequest(object):
         if "type" in self._slack_event:
             return self._slack_event["type"]
 
+        logger.warning("could not find type for _slack_event")
+        return None
+
     @property
     def subtype(self):
         """Gets the subtype of event from the underlying SlackEvent
@@ -37,6 +40,9 @@ class SlackRequest(object):
 
         if "subtype" in self._slack_event:
             return self._slack_event["subtype"]
+
+        logger.warning("could not find subtype for _slack_event")
+        return None
 
     @property
     def channel(self):
@@ -77,6 +83,9 @@ class SlackRequest(object):
 
         if "text" in self._slack_event:
             return self._slack_event["text"]
+
+        logger.warning("could not find text for _slack_event")
+        return None
 
     def write(self, content, channel=None):
         """

@@ -321,6 +321,7 @@ class SimpleSlackBot:
                 return channel["id"]
 
         logger.warning("could not convert channel name %s to an id", name)
+        return None
 
     def helper_user_name_to_user_id(self, name):
         """Helper function that converts a user name to its respected user id
@@ -337,6 +338,7 @@ class SimpleSlackBot:
                 return user["id"]
 
         logger.warning("could not convert user name %s to a user id", name)
+        return None
 
     def helper_channel_id_to_channel_name(self, channel_id):
         """Helper function that converts a channel id to its respected channel name
@@ -353,6 +355,7 @@ class SimpleSlackBot:
                 return channel["name"]
 
         logger.warning("could not convert channel id %s to a name", channel_id)
+        return None
 
     def helper_user_id_to_user_name(self, user_id):
         """Helper function that converts a user id to its respected user name
@@ -369,3 +372,4 @@ class SimpleSlackBot:
                 return user["name"]
 
         logger.warning("could not convert user id %s to a name", user_id)
+        return None
