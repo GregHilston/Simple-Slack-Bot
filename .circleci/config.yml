@@ -23,6 +23,6 @@ jobs:
             - "venv"
 
       - run:
-          name: make test
+          name: test
           command: |
-            pytest
+            make magic
