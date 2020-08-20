@@ -11,12 +11,13 @@ logger = logging.getLogger(__name__)
 
 
 class SlackRequest:
-    """Extracts commonly used information from a SlackClient dictionary for easy access. Also allows users to write
-    messages, upload content and gain access to the underlying SlackClient
+    """Extract commonly used information from a SlackClient dictionary for easy access.
+
+    Also allows users to write messages, upload content and gain access to the underlying SlackClient
     """
 
     def __init__(self, python_slackclient, slack_event):
-        """Initializes a SlackRequest
+        """Initialize a SlackRequest.
 
         :param WebClient: the WebClient object for this specific SlackRequest
         :param slack_event: the SlackEvent for this specific SlackRequest
@@ -26,7 +27,7 @@ class SlackRequest:
 
     @property
     def type(self):
-        """Gets the type of event from the underlying SlackEvent
+        """Get the type of event from the underlying SlackEvent.
 
         :return: the type of event, if there is one
         """
@@ -39,7 +40,7 @@ class SlackRequest:
 
     @property
     def subtype(self):
-        """Gets the subtype of event from the underlying SlackEvent
+        """Get the subtype of event from the underlying SlackEvent.
 
         :return: the subtype of event, if there is one
         """
@@ -52,7 +53,8 @@ class SlackRequest:
 
     @property
     def channel(self):
-        """Gets the channel from the underlying SlackEvent
+        """Get the channel from the underlying SlackEvent.
+
         Note: This can be an empty String. For example, this will be an empty String for the 'Hello' event.
 
         :return: the channel this SlackEvent originated from, if there is one
@@ -67,7 +69,8 @@ class SlackRequest:
 
     @property
     def thread_ts(self):
-        """Gets the thread_ts from the underlying SlackEvent.
+        """Get the thread_ts from the underlying SlackEvent.
+
         Note: This can be an empty String. For example, this will be an empty String when a message was not sent in a thread.
 
         :return: the thread_ts this SlackEvent originated from, if there is one
@@ -81,7 +84,8 @@ class SlackRequest:
 
     @property
     def message(self):
-        """Gets the underlying message from the SlackEvent
+        """Get the underlying message from the SlackEvent.
+
         Note: This can be an empty String. For example, this will be an empty String for the 'message_changed' event.
 
         :return: the message this SlackEvent came with, if there is one
@@ -95,7 +99,7 @@ class SlackRequest:
 
     def write(self, content, channel=None):
         """
-        Writes the content to the channel
+        Write the content to the channel.
 
         :param content: The text you wish to send
         :param channel: By default send to same channel request came from, if any
@@ -125,7 +129,7 @@ class SlackRequest:
             logger.warning(traceback.format_exc())
 
     def __str__(self):
-        """Generates the String representation of a SlackRequest
+        """Generate the String representation of a SlackRequest.
 
         :return: the String representation of a SlackRequest
         """

@@ -25,8 +25,10 @@ logger = logging.getLogger(__name__)
 
 
 class SimpleSlackBot:
-    """Simplifies interacting with the Slack API. Allows users to register functions to specific events, get those
-    functions called when those specific events are triggered and run their business code
+    """Simplifie interacting with the Slack API.
+
+    Allows users to register functions to specific events, get those functions
+    called when those specific events are triggered and run their business code
     """
 
     KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE = "KeyboardInterrupt exception caught."
@@ -50,8 +52,9 @@ class SimpleSlackBot:
         return first, itertools.chain([first], iterator)
 
     def __init__(self, slack_bot_token: str = None, debug: bool = False):
-        """Initializes our Slack bot and slack bot token. Will exit if the required environment
-        variable is not set.
+        """Initialize our Slack bot and slack bot token.
+
+        Will exit if the required environment variable is not set.
 
         :param debug: Whether or not to use default a Logging config
         """
@@ -75,7 +78,9 @@ class SimpleSlackBot:
         logger.info("initialized. Ready to connect")
 
     def connect(self):
-        """Connects to underlying SlackSocket. Additionally stores conections for future usage.
+        """Connect to underlying SlackSocket.
+
+        Additionally stores conections for future usage.
         """
         # Disable all the attribute-defined-out-init in this function
         # pylint: disable=attribute-defined-outside-init
@@ -93,8 +98,9 @@ class SimpleSlackBot:
         )
 
     def register(self, event_type: str):
-        """Registers a callback function to a a event type. All supported even types are defined here
-        https://api.slack.com/events-api
+        """Register a callback function to a a event type.
+
+        All supported even types are defined here https://api.slack.com/events-api
 
         :param event_type: the type of the event to register
         :return: reference to wrapped function
@@ -121,7 +127,7 @@ class SimpleSlackBot:
         return function_wrapper
 
     def route_request_to_callbacks(self, request: SlackRequest):
-        """Routes the request to the correct notify
+        """Route the request to the correct notify.
 
         :param request: request to be routed
         :return: None
@@ -148,8 +154,9 @@ class SimpleSlackBot:
                     )
 
     def extract_slack_socket_response(self) -> typing.Union[SlackEvent, None]:
-        """Extracts a useable response from the underlying _slack_socket. Catches sll SlackSocket exceptions except for
-        ExitError, treating those as warnings.
+        """Extract a useable response from the underlying _slack_socket.
+
+        Catch all SlackSocket exceptions except forExitError, treating those as warnings.
         """
         try:
             return self.peek(self._slack_socket.events())
@@ -167,7 +174,8 @@ class SimpleSlackBot:
             return None  # ensuring the loop continues and execution ends
 
     def listen(self):
-        """Listens forever for Slack events, triggering appropriately callbacks when respective events are received.
+        """Listen forever for Slack events, triggering appropriately callbacks when respective events are received.
+
         Catches and logs all Exceptions except for KeyboardInterrupt or SystemExit, which gracefully shuts down program.
 
         The following function is crucial to Simple Slack Bot and looks a little messy. Since most of Simple Slack Bot's
@@ -209,7 +217,7 @@ class SimpleSlackBot:
     logger.info("stopped listening!")
 
     def start(self):
-        """Connect the Slack bot to the chatroom and begin listening
+        """Connect the Slack bot to the chatroom and begin listening.
         """
 
         self.connect()
@@ -227,7 +235,7 @@ class SimpleSlackBot:
         logger.info("stopped!")
 
     def helper_get_public_channel_ids(self):
-        """Helper function that gets all public channel ids
+        """Helper function that gets all public channel ids.
         """
 
         public_channel_ids = []
@@ -245,7 +253,7 @@ class SimpleSlackBot:
         return public_channel_ids
 
     def helper_get_private_channel_ids(self):
-        """Helper function that gets all private channel ids
+        """Helper function that gets all private channel ids.
         """
 
         private_channel_ids = []
@@ -263,7 +271,7 @@ class SimpleSlackBot:
         return private_channel_ids
 
     def helper_get_user_ids(self):
-        """Helper function that gets all user ids
+        """Helper function that gets all user ids.
         """
 
         user_ids = []
@@ -280,7 +288,7 @@ class SimpleSlackBot:
         return user_ids
 
     def helper_get_user_names(self):
-        """Helper function that gets all user names
+        """Helper function that gets all user names.
         """
 
         user_names = []
@@ -297,7 +305,7 @@ class SimpleSlackBot:
         return user_names
 
     def helper_get_users_in_channel(self, channel_id):
-        """Helper function that gets all users in a given channel id
+        """Helper function that gets all users in a given channel id.
 
         :param channel_id: channel id to get all user ids in it
         :return: list of user ids
@@ -319,7 +327,7 @@ class SimpleSlackBot:
         return user_ids
 
     def helper_channel_name_to_channel_id(self, name):
-        """Helper function that converts a channel name to its respected channel id
+        """Helper function that converts a channel name to its respected channel id.
 
         :param name: name of channel to convert to id
         :return: id representation of original channel name
@@ -336,7 +344,7 @@ class SimpleSlackBot:
         return None
 
     def helper_user_name_to_user_id(self, name):
-        """Helper function that converts a user name to its respected user id
+        """Helper function that converts a user name to its respected user id.
 
         :param name: name of user to convert to id
         :return: id representation of original user name
@@ -353,7 +361,7 @@ class SimpleSlackBot:
         return None
 
     def helper_channel_id_to_channel_name(self, channel_id):
-        """Helper function that converts a channel id to its respected channel name
+        """Helper function that converts a channel id to its respected channel name.
 
         :param channel_id: id of channel to convert to name
         :return: name representation of original channel id
@@ -370,7 +378,7 @@ class SimpleSlackBot:
         return None
 
     def helper_user_id_to_user_name(self, user_id):
-        """Helper function that converts a user id to its respected user name
+        """Helper function that converts a user id to its respected user name.
 
         :param user_id: id of user to convert to name
         :return: name representation of original user id

@@ -15,7 +15,8 @@ lint: ## Performs linting on the code base and tests using flake8 and pydocstyle
 	flake8 simple_slack_bot tests --show-source
 	# does not check tests to help me keep my sanity as there's many issues that provide little value resolving
 	pylint simple_slack_bot --ignore=tests
-	pydocstyle simple_slack_bot/* tests/*
+	# also does not check tests to help me keep my sanity as there's many issues that provide little value resolving
+	pydocstyle simple_slack_bot/*
 
 type: ## Checks type hints on the code base and tests using mypy.
 	mypy simple_slack_bot tests --disallow-untyped-calls
