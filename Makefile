@@ -12,13 +12,17 @@ isort: ## Orders the imports of the code base and tests using isort.
 	isort --recursive simple_slack_bot tests
 
 lint: ## Performs linting on the code base and tests using flake8 and pydocstyle.
-	flake8 simple_slack_bot tests --show-source && pylint simple_slack_bot tests && pydocstyle simple_slack_bot/* tests/*
+	flake8 simple_slack_bot tests --show-source
+	pylint simple_slack_bot tests
+	pydocstyle simple_slack_bot/* tests/*
 
 type: ## Checks type hints on the code base and tests using mypy.
 	mypy simple_slack_bot tests --disallow-untyped-calls
 
 security: ## Checks code base and tests for security vulnerability, bad imports and keys using bandit, safety and dodgy.
-	bandit simple_slack_bot tests && safety check && dodgy
+	bandit simple_slack_bot tests
+	safety check
+	dodgy
 
 magic: format isort lint type security ## Performs format, isort, lint, type and security in that order.
 
