@@ -242,6 +242,14 @@ def test_listen_calls_route_request_to_callbacks_when_valid_request():
     # Given
 
     # When
-    # sut.listen()
+
+    # Then
+
+
+def test_listen_logs_exception_and_conntinue_when_exception_is_raised():
+    pass
+    # Given
+
+    # When
 
     # Then
