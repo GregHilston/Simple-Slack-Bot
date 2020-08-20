@@ -8,10 +8,11 @@ import traceback
 import typing
 from logging import StreamHandler
 
+import slacksocket.errors  # type: ignore
+
 from slack import WebClient
 from slack.errors import SlackApiError
 from slacksocket import SlackSocket  # type: ignore
-from slacksocket.errors import ExitError  # type: ignore
 
 from .slack_request import SlackRequest
 
@@ -42,15 +43,6 @@ class SimpleSlackBot:
         except StopIteration:
             return None
         return first, itertools.chain([first], iterator)
-
-    @staticmethod
-    def log_gracefully_shutdown(prefix_str: str):
-        """Just a convenient way to log multiple messages in a similar way
-
-        :param prefix_str: String to log in the begging
-        :return: None
-        """
-        logger.info(f"{prefix_str} Gracefully shutting down")
 
     def __init__(self, slack_bot_token: str = None, debug: bool = False):
         """Initializes our Slack bot and slack bot token. Will exit if the required environment
@@ -148,41 +140,32 @@ class SimpleSlackBot:
 
         logger.info("began listening!")
 
-        while (
-            running
-        ):  # required to continue to run after experiencing an unexpected exception
+        # required to continue to run after experiencing an unexpected exception
+        while (running):
             try:
                 res = self.peek(self._slackSocket.events())
-            except ExitError:
-                self.log_gracefully_shutdown(
+            except (slacksocket.errors.APIError, slacksocket.errors.ConfigError, slacksocket.errors.APINameError, slacksocket.errors.ConnectionError, slacksocket.errors.TimeoutError):
+                logging.warning(
+                    f"Unexpected exception caught, but we will keep listening. Exception: {traceback.format_exc()}"
+                )
+                continue  # ensuring the loop continues and execution ends
+            except slacksocket.errors.ExitError:
+                logging.info(
                     self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE
                 )
                 running = False
-                break
+                break  # ensuring the loop stops and execution ceases
+
             slack_event, mysequence = res
 
             try:
-                request = SlackRequest(self._python_slackclient, slack_event)
-                self.route_request_to_callbacks(request)
+                self.route_request_to_callbacks(SlackRequest(self._python_slackclient, slack_event))
 
                 time.sleep(READ_WEBSOCKET_DELAY)
-            except KeyboardInterrupt:
-                self.log_gracefully_shutdown(
-                    self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE
-                )
-                running = False
-                break
-            except SystemExit:
-                self.log_gracefully_shutdown(
-                    self.SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE
-                )
-                running = False
-                break
-            except Exception as e:
+            except:
                 logging.warning(
-                    f"Unexpected exception caught, but we will keep listening. Exception: {e}"
+                    f"Unexpected exception caught, but we will keep listening. Exception: {traceback.format_exc()}"
                 )
-                logging.warning(traceback.format_exc())
                 continue  # ensuring the loop continues
 
     logger.info("stopped listening!")
