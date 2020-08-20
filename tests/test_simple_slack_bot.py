@@ -127,10 +127,22 @@ def test_listen_stops_listening_when_slack_socket_keyboard_interrupt_exception_o
     assert SimpleSlackBot.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE in caplog.text
 
 
-def test_listen_stops_listening_when_unexpected_exception_occurs():
+@pytest.mark.parametrize(
+    "slacksocket_error",
+    [
+        slacksocket.errors.APIError,
+        slacksocket.errors.ConfigError,
+        slacksocket.errors.APINameError,
+        slacksocket.errors.ConnectionError,
+        slacksocket.errors.TimeoutError,
+    ],
+)
+def test_extract_slack_socket_reponse_returns_none_when_non_exiterror_slack_socket_exception_occurs(
+    slacksocket_error,
+):
     # Given
     mock_iterator = MockIterator()
-    mock_iterator.raiseable_exception = slacksocket.errors.APIError
+    mock_iterator.raiseable_exception = slacksocket_error
 
     mock_slack_socket = MockSlackSocket()
     mock_slack_socket.mock_iterator = mock_iterator
