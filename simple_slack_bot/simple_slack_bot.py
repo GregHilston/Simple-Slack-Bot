@@ -126,6 +126,15 @@ class SimpleSlackBot:
                 except Exception:
                     logger.exception(f"exception processing event {request.type}")
 
+    def extract_slack_socket_response(self):
+        try:
+            return self.peek(self._slackSocket.events())
+        except (slacksocket.errors.APIError, slacksocket.errors.ConfigError, slacksocket.errors.APINameError, slacksocket.errors.ConnectionError, slacksocket.errors.TimeoutError):
+            logging.warning(
+                f"Unexpected exception caught, but we will keep listening. Exception: {traceback.format_exc()}"
+            )
+            return None  # ensuring the loop continues and execution ends
+
     def listen(self):
         """Listens forever for Slack events, triggering appropriately callbacks when respective events are received.
         Catches and logs all Exceptions except for KeyboardInterrupt or SystemExit, which gracefully shuts down program.
@@ -142,13 +151,11 @@ class SimpleSlackBot:
 
         # required to continue to run after experiencing an unexpected exception
         while (running):
+            response = None
+
             try:
-                res = self.peek(self._slackSocket.events())
-            except (slacksocket.errors.APIError, slacksocket.errors.ConfigError, slacksocket.errors.APINameError, slacksocket.errors.ConnectionError, slacksocket.errors.TimeoutError):
-                logging.warning(
-                    f"Unexpected exception caught, but we will keep listening. Exception: {traceback.format_exc()}"
-                )
-                continue  # ensuring the loop continues and execution ends
+                while response is None:
+                    response = self.extract_slack_socket_response()
             except slacksocket.errors.ExitError:
                 logging.info(
                     self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE
@@ -156,8 +163,7 @@ class SimpleSlackBot:
                 running = False
                 break  # ensuring the loop stops and execution ceases
 
-            slack_event, mysequence = res
-
+            slack_event, mysequence = response
             try:
                 self.route_request_to_callbacks(SlackRequest(self._python_slackclient, slack_event))
 

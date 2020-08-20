@@ -126,11 +126,7 @@ def test_listen_stops_listening_when_slack_socket_keyboard_interrupt_exception_o
     assert SimpleSlackBot.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE in caplog.text
 
 
-# Since this test uses an infinite loop and we're testing if that loop isn't
-# killed by sending an APIError we'll use a timeout. Additionally we have to use
-# the method=Thread as this test is dependent on the SIGALRM signal.
-@pytest.mark.timeout(1, method="thread")
-def test_listen_stops_listening_when_unexpected_exception_occurs(caplog):
+def test_listen_stops_listening_when_unexpected_exception_occurs():
     # Given
     mock_iterator = MockIterator()
     mock_iterator.raiseable_exception = slacksocket.errors.APIError
@@ -141,12 +137,13 @@ def test_listen_stops_listening_when_unexpected_exception_occurs(caplog):
     sut = SimpleSlackBot("mock slack bot token")
     sut._slackSocket = mock_slack_socket
 
+    expected_response = None
+
     # When
-    with caplog.at_level(logging.INFO):
-        sut.listen()
+    actual_response = sut.extract_slack_socket_response()
 
     # Then
-    assert "Unexpected" in caplog.text
+    assert expected_response == actual_response
 
 
 def test_start_calls_listen_if_slackclient_rtm_has_valid_ok():
