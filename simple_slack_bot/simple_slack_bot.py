@@ -11,6 +11,7 @@ from logging import StreamHandler
 from slack import WebClient
 from slack.errors import SlackApiError
 from slacksocket import SlackSocket  # type: ignore
+from slacksocket.errors import ExitError  # type: ignore
 
 from .slack_request import SlackRequest
 
@@ -137,58 +138,52 @@ class SimpleSlackBot:
         """Listens forever for Slack events, triggering appropriately callbacks when respective events are received.
         Catches and logs all Exceptions except for KeyboardInterrupt or SystemExit, which gracefully shuts down program.
 
-        The following function is crucial to Simple Slack Bot and looks a little messy. This is do partly to the way
-        that our dependency SlackSocket is written. They do not re-raise any caught KeyboardInterrupt exceptions and
-        instead we have to infer one was caught based on what their generator returns. This is incredibly unfortunate,
-        but this currently works. Since most of Simple Slack Bot's time is spent blocked on waiting for events from
-        SlackSocket, a solution was needed to deal with this. Otherwise our application would not respond to a request
-        from the user to stop the program with a CTRL + C.
+        The following function is crucial to Simple Slack Bot and looks a little messy. Since most of Simple Slack Bot's
+        time is spent blocked on waiting for events from SlackSocket, a solution was needed to deal with this. Otherwise
+        our application would not respond to a request from the user to stop the program with a CTRL + C.
         """
 
         READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from fire hose
         running = True
 
         logger.info("began listening!")
-        print("here")
 
         while (
             running
         ):  # required to continue to run after experiencing an unexpected exception
-            print("running")
-            res = self.peek(self._slackSocket.events())
-            print(f"res '{res}'")
-            if res is None:
+            try:
+                res = self.peek(self._slackSocket.events())
+            except ExitError:
                 self.log_gracefully_shutdown(
                     self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE
                 )
                 running = False
                 break
-            else:
-                slack_event, mysequence = res
+            slack_event, mysequence = res
 
-                try:
-                    request = SlackRequest(self._python_slackclient, slack_event)
-                    self.route_request_to_callbacks(request)
+            try:
+                request = SlackRequest(self._python_slackclient, slack_event)
+                self.route_request_to_callbacks(request)
 
-                    time.sleep(READ_WEBSOCKET_DELAY)
-                except KeyboardInterrupt:
-                    self.log_gracefully_shutdown(
-                        self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE
-                    )
-                    running = False
-                    break
-                except SystemExit:
-                    self.log_gracefully_shutdown(
-                        self.SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE
-                    )
-                    running = False
-                    break
-                except Exception as e:
-                    logging.warning(
-                        f"Unexpected exception caught, but we will keep listening. Exception: {e}"
-                    )
-                    logging.warning(traceback.format_exc())
-                    continue  # ensuring the loop continues
+                time.sleep(READ_WEBSOCKET_DELAY)
+            except KeyboardInterrupt:
+                self.log_gracefully_shutdown(
+                    self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE
+                )
+                running = False
+                break
+            except SystemExit:
+                self.log_gracefully_shutdown(
+                    self.SYSTEM_INTERRUPT_EXCEPTION_LOG_MESSAGE
+                )
+                running = False
+                break
+            except Exception as e:
+                logging.warning(
+                    f"Unexpected exception caught, but we will keep listening. Exception: {e}"
+                )
+                logging.warning(traceback.format_exc())
+                continue  # ensuring the loop continues
 
     logger.info("stopped listening!")
 
