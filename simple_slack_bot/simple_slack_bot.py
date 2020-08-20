@@ -79,7 +79,7 @@ class SimpleSlackBot:
         logger.info("Connecting...")
 
         self._python_slackclient = WebClient(self._slack_bot_token)
-        self._slackSocket = SlackSocket(self._slack_bot_token)
+        self._slack_socket = SlackSocket(self._slack_bot_token)
         self._bot_id = self._python_slackclient.auth_test()["bot_id"]
 
         logger.info(
@@ -190,7 +190,7 @@ class SimpleSlackBot:
                 time.sleep(read_websocket_delay)
             except:  # noqa: E722 This is acceptable in a framework as we are catching all exceptions our users could raise
                 logging.warning(
-                    f"Unexpected exception caught, but we will keep listening. Exception: {traceback.format_exc()}"
+                    "Unexpected exception caught, but we will keep listening. Exception: ", traceback.format_exc()
                 )
                 continue  # ensuring the loop continues
 
@@ -320,7 +320,7 @@ class SimpleSlackBot:
                 logger.debug("converted %s to %s", channel["name"], channel["id"])
                 return channel["id"]
 
-        logger.warning(f"could not convert channel name {name} to an id")
+        logger.warning("could not convert channel name %s to an id", name)
 
     def helper_user_name_to_user_id(self, name):
         """Helper function that converts a user name to its respected user id
@@ -352,7 +352,7 @@ class SimpleSlackBot:
                 logger.debug("converted %s to %s", channel_id, channel["name"])
                 return channel["name"]
 
-        logger.warning(f"could not convert channel id {channel_id} to a name")
+        logger.warning("could not convert channel id %s to a name", channel_id)
 
     def helper_user_id_to_user_name(self, user_id):
         """Helper function that converts a user id to its respected user name
@@ -368,4 +368,4 @@ class SimpleSlackBot:
                 logger.debug("converted %s to %s", user_id, user["name"])
                 return user["name"]
 
-        logger.warning(f"could not convert user id {user_id} to a name")
+        logger.warning("could not convert user id %s to a name", user_id)
