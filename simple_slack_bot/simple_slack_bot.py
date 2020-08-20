@@ -76,11 +76,14 @@ class SimpleSlackBot:
         logger.info("initialized. Ready to connect")
 
     def connect(self):
+        """Connetts to underlying SlackSocket. Additionally stores conections for future usage.
+        """
+
         logger.info("Connecting...")
 
-        self._python_slackclient = WebClient(self._slack_bot_token)
-        self._slack_socket = SlackSocket(self._slack_bot_token)
-        self._bot_id = self._python_slackclient.auth_test()["bot_id"]
+        self._python_slackclient = WebClient(self._slack_bot_token)  # pylint: disable=attribute-defined-outside-init
+        self._slack_socket = SlackSocket(self._slack_bot_token)  # pylint: disable=attribute-defined-outside-init
+        self._bot_id = self._python_slackclient.auth_test()["bot_id"]  # pylint: disable=attribute-defined-outside-init
 
         logger.info(
             "Connected. Set bot id to %s with name %s",
@@ -105,7 +108,7 @@ class SimpleSlackBot:
 
             # first time initialization
             if not hasattr(self, "_registrations"):
-                self._registrations: typing.Dict[str, typing.List[typing.Callable]] = {}
+                self._registrations: typing.Dict[str, typing.List[typing.Callable]] = {}  # pylint: disable=attribute-defined-outside-init
 
             if event_type not in self._registrations:
                 # first registration of this type
@@ -182,7 +185,7 @@ class SimpleSlackBot:
                 running = False
                 break  # ensuring the loop stops and execution ceases
 
-            slack_event, mysequence = response
+            slack_event, _ = response
             try:
                 self.route_request_to_callbacks(
                     SlackRequest(self._python_slackclient, slack_event)
@@ -202,9 +205,9 @@ class SimpleSlackBot:
         """
 
         self.connect()
-        ok = self._python_slackclient.rtm_start()
+        ok_reponse = self._python_slackclient.rtm_start()
 
-        if ok:
+        if ok_reponse:
             logger.info("started!")
             self.listen()
         else:
