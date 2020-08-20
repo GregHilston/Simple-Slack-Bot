@@ -30,6 +30,25 @@ class MockSlackSocket:
         return iter(self.mock_iterator)
 
 
+def mock_connect():
+    pass
+
+
+class MockPythonSlackclient:
+    def __init__(self, injectable_bool):
+        self.injectable_bool = injectable_bool
+    def rtm_start(self):
+        return self.injectable_bool
+
+
+class MockListen:
+    def __init__(self):
+        self.was_mock_listen_called = False
+
+    def mock_listen(self):
+        self.was_mock_listen_called = True
+
+
 def test_init_raises_systemexit_exception_when_not_passed_slack_bot_token_or_has_environment_variable_to_fall_back_on():
     # Given
     # unset any state that may have been set by user or other tests prior
@@ -183,36 +202,41 @@ def test_extract_slack_socket_reponse_returns_none_when_non_exiterror_slack_sock
 
 
 def test_start_calls_listen_if_slackclient_rtm_has_valid_ok():
-    def mock_connect():
-        pass
-    
-    class MockPythonSlackclient:
-        def rtm_start(self):
-            return True
-    
-    class MockListen:
-        def mock_listen(self):
-            self.was_mock_listen_called = True
     # Given
     sut = SimpleSlackBot("mock slack bot token")
-    
+
     sut.connect = mock_connect
 
-    mock_python_slackclient = MockPythonSlackclient()
+    mock_python_slackclient = MockPythonSlackclient(True)
     sut._python_slackclient = mock_python_slackclient
 
     mock_listen = MockListen()
     sut.listen = mock_listen.mock_listen
-    
+
     # When
     sut.start()
 
     # Then
     assert mock_listen.was_mock_listen_called is True
 
+
 def test_start_errors_out_if_slackclient_rtm_has_invalid_ok():
-    # TODO
-    pass
+    # Given
+    sut = SimpleSlackBot("mock slack bot token")
+
+    sut.connect = mock_connect
+
+    mock_python_slackclient = MockPythonSlackclient(False)
+    sut._python_slackclient = mock_python_slackclient
+
+    mock_listen = MockListen()
+    sut.listen = mock_listen.mock_listen
+
+    # When
+    sut.start()
+
+    # Then
+    assert mock_listen.was_mock_listen_called is False
 
 
 def test_listen_calls_route_request_to_callbacks_when_valid_request():
