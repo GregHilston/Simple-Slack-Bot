@@ -23,7 +23,8 @@ type: ## Checks type hints on the code base and tests using mypy.
 
 security: ## Checks code base and tests for security vulnerability, bad imports and keys using bandit, safety and dodgy.
 	bandit simple_slack_bot tests
-	safety check --full-report
+	# ignoring pipenv installed in Circle Ci Docker container
+	safety check --full-report --ignore 38334
 	dodgy
 
 magic: format isort lint type security ## Performs format, isort, lint, type and security in that order.
