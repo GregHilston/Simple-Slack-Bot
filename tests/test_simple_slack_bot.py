@@ -11,9 +11,9 @@ from simple_slack_bot.simple_slack_bot import SimpleSlackBot, SlackRequest
 
 
 class MockIterator:
-    def __init__(self):
-        self.injectable_yield = None
-        self.injectable_exception = None
+    def __init__(self, injectable_yield=None, injectable_exception=None):
+        self.injectable_yield = injectable_yield
+        self.injectable_exception = injectable_exception
 
     def __iter__(self):
         return self
@@ -37,6 +37,7 @@ def mock_connect():
 class MockPythonSlackclient:
     def __init__(self, injectable_bool):
         self.injectable_bool = injectable_bool
+
     def rtm_start(self):
         return self.injectable_bool
 
@@ -130,8 +131,7 @@ def test_listen_stops_listening_when_slack_socket_keyboard_interrupt_exception_o
     caplog,
 ):
     # Given
-    mock_iterator = MockIterator()
-    mock_iterator.injectable_exception = slacksocket.errors.ExitError
+    mock_iterator = MockIterator(injectable_exception=slacksocket.errors.ExitError)
 
     mock_slack_socket = MockSlackSocket()
     mock_slack_socket.mock_iterator = mock_iterator
@@ -149,8 +149,7 @@ def test_listen_stops_listening_when_slack_socket_keyboard_interrupt_exception_o
 
 def test_extract_slack_socket_reponse_returns_response_when_no_exception_is_raised():
     # Given
-    mock_iterator = MockIterator()
-    mock_iterator.injectable_yield = 42
+    mock_iterator = MockIterator(injectable_yield=42)
 
     mock_slack_socket = MockSlackSocket()
     mock_slack_socket.mock_iterator = mock_iterator
@@ -183,8 +182,7 @@ def test_extract_slack_socket_reponse_returns_none_when_non_exiterror_slack_sock
     slacksocket_error,
 ):
     # Given
-    mock_iterator = MockIterator()
-    mock_iterator.injectable_exception = slacksocket_error
+    mock_iterator = MockIterator(injectable_exception=slacksocket_error)
 
     mock_slack_socket = MockSlackSocket()
     mock_slack_socket.mock_iterator = mock_iterator
