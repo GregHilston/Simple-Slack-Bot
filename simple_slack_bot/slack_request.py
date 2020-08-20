@@ -10,7 +10,7 @@ import traceback
 logger = logging.getLogger(__name__)
 
 
-class SlackRequest():
+class SlackRequest:
     """Extracts commonly used information from a SlackClient dictionary for easy access. Also allows users to write
     messages, upload content and gain access to the underlying SlackClient
     """
@@ -120,7 +120,7 @@ class SlackRequest():
         except Exception:  # pylint: disable=broad-except
             logging.warning(
                 "Unexpected exception caught, but we will keep listening. Exception: %s",
-                traceback.format_exc()
+                traceback.format_exc(),
             )
             logger.warning(traceback.format_exc())
 

@@ -75,14 +75,16 @@ class SimpleSlackBot:
         logger.info("initialized. Ready to connect")
 
     def connect(self):
-        """Connetts to underlying SlackSocket. Additionally stores conections for future usage.
+        """Connects to underlying SlackSocket. Additionally stores conections for future usage.
         """
+        # Disable all the attribute-defined-out-init in this function
+        # pylint: disable=attribute-defined-outside-init
 
         logger.info("Connecting...")
 
-        self._python_slackclient = WebClient(self._slack_bot_token)  # pylint: disable=attribute-defined-outside-init
-        self._slack_socket = SlackSocket(self._slack_bot_token)  # pylint: disable=attribute-defined-outside-init
-        self._bot_id = self._python_slackclient.auth_test()["bot_id"]  # pylint: disable=attribute-defined-outside-init
+        self._python_slackclient = WebClient(self._slack_bot_token)
+        self._slack_socket = SlackSocket(self._slack_bot_token)
+        self._bot_id = self._python_slackclient.auth_test()["bot_id"]
 
         logger.info(
             "Connected. Set bot id to %s with name %s",
@@ -104,10 +106,12 @@ class SimpleSlackBot:
             :param callback: function to execute after runnign wrapped code
             :return: None
             """
+            # Disable all the attribute-defined-out-init in this function
+            # pylint: disable=attribute-defined-outside-init
 
             # first time initialization
             if not hasattr(self, "_registrations"):
-                self._registrations: typing.Dict[str, typing.List[typing.Callable]] = {}  # pylint: disable=attribute-defined-outside-init
+                self._registrations: typing.Dict[str, typing.List[typing.Callable]] = {}
 
             if event_type not in self._registrations:
                 # first registration of this type
@@ -126,7 +130,7 @@ class SimpleSlackBot:
             "received an event of type %s and slack event type of %s with content %s",
             request.type,
             request.slack_event.type,
-            request
+            request,
         )
 
         # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
@@ -137,7 +141,11 @@ class SimpleSlackBot:
                 try:
                     callback(request)
                 except Exception:  # pylint: disable=broad-except
-                    logger.exception("exception processing event %s . Exception %s", request.type, traceback.format_exc())
+                    logger.exception(
+                        "exception processing event %s . Exception %s",
+                        request.type,
+                        traceback.format_exc(),
+                    )
 
     def extract_slack_socket_response(self) -> typing.Union[SlackEvent, None]:
         """Extracts a useable response from the underlying _slack_socket. Catches sll SlackSocket exceptions except for
@@ -193,7 +201,8 @@ class SimpleSlackBot:
                 time.sleep(read_websocket_delay)
             except Exception:  # pylint: disable=broad-except
                 logging.warning(
-                    "Unexpected exception caught, but we will keep listening. Exception: %s", traceback.format_exc()
+                    "Unexpected exception caught, but we will keep listening. Exception: %s",
+                    traceback.format_exc(),
                 )
                 continue  # ensuring the loop continues
 
