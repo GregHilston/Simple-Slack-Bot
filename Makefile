@@ -14,7 +14,7 @@ isort: ## Orders the imports of the code base and tests using isort.
 lint: ## Performs linting on the code base and tests using flake8 and pydocstyle.
 	flake8 simple_slack_bot tests --show-source
 	# does not check tests to help me keep my sanity as there's many issues that provide little value resolving
-	pylint simple_slack_bot
+	pylint simple_slack_bot --ignore=tests
 	pydocstyle simple_slack_bot/* tests/*
 
 type: ## Checks type hints on the code base and tests using mypy.

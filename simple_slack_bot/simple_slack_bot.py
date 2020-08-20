@@ -16,7 +16,6 @@ from logging import StreamHandler
 
 import slacksocket.errors  # type: ignore
 from slack import WebClient
-from slack.errors import SlackApiError
 from slacksocket import SlackSocket  # type: ignore
 from slacksocket.models import SlackEvent  # type: ignore
 
@@ -126,7 +125,7 @@ class SimpleSlackBot:
         logger.info(
             "received an event of type %s and slack event type of %s with content %s",
             request.type,
-            request._slack_event.type,
+            request.slack_event.type,
             request
         )
 
@@ -137,8 +136,8 @@ class SimpleSlackBot:
             for callback in self._registrations[request.type]:
                 try:
                     callback(request)
-                except Exception:
-                    logger.exception("exception processing event %s", request.type)
+                except Exception:  # pylint: disable=broad-except
+                    logger.exception("exception processing event %s . Exception %s", request.type, traceback.format_exc())
 
     def extract_slack_socket_response(self) -> typing.Union[SlackEvent, None]:
         """Extracts a useable response from the underlying _slack_socket. Catches sll SlackSocket exceptions except for
@@ -192,7 +191,7 @@ class SimpleSlackBot:
                 )
 
                 time.sleep(read_websocket_delay)
-            except:  # noqa: E722 This is acceptable in a framework as we are catching all exceptions our users could raise
+            except Exception:  # pylint: disable=broad-except
                 logging.warning(
                     "Unexpected exception caught, but we will keep listening. Exception: %s", traceback.format_exc()
                 )

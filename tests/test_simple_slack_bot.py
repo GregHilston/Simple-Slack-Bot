@@ -114,9 +114,9 @@ def test_route_request_to_callbacks_routes_correct_type_to_correct_callback():
         def monitor_if_called(self, request):
             Monitor.was_called = True
 
-    mock_slack_event = SlackEvent({"type": "message"})
+    mockslack_event = SlackEvent({"type": "message"})
     mock_slackrequest = SlackRequest(
-        python_slackclient=None, slack_event=mock_slack_event
+        python_slackclient=None, slack_event=mockslack_event
     )
     sut = SimpleSlackBot(slack_bot_token="Mock slack bot token")
     monitor = Monitor()
