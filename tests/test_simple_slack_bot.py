@@ -7,7 +7,10 @@ import slacksocket.errors  # type: ignore
 from slack import WebClient
 from slacksocket.models import SlackEvent  # type: ignore
 
-from simple_slack_bot.simple_slack_bot import SimpleSlackBot, SlackRequest
+from simple_slack_bot.simple_slack_bot import (
+    SimpleSlackBot,
+    SlackRequest,
+)
 
 
 class MockIterator:
@@ -78,10 +81,10 @@ def test_init_prefers_parameters_over_environment_variables():
 
     # Then
     assert (
-        sut._SLACK_BOT_TOKEN == slack_bot_token
+        sut._slack_bot_token == slack_bot_token
     ), "Should prioritize this value when storing over environment variable"
     assert (
-        sut._SLACK_BOT_TOKEN != os.environ["SLACK_BOT_TOKEN"]
+        sut._slack_bot_token != os.environ["SLACK_BOT_TOKEN"]
     ), "Should not use this value, priorizing the paramter"
 
 
@@ -137,7 +140,7 @@ def test_listen_stops_listening_when_slack_socket_keyboard_interrupt_exception_o
     mock_slack_socket.mock_iterator = mock_iterator
 
     sut = SimpleSlackBot("mock slack bot token")
-    sut._slackSocket = mock_slack_socket
+    sut._slack_socket = mock_slack_socket
 
     # When
     with caplog.at_level(logging.INFO):
@@ -155,7 +158,7 @@ def test_extract_slack_socket_reponse_returns_response_when_no_exception_is_rais
     mock_slack_socket.mock_iterator = mock_iterator
 
     sut = SimpleSlackBot("mock slack bot token")
-    sut._slackSocket = mock_slack_socket
+    sut._slack_socket = mock_slack_socket
 
     expected_first_value = 42
     expected_second_value_type = typing.Iterable
@@ -188,7 +191,7 @@ def test_extract_slack_socket_reponse_returns_none_when_non_exiterror_slack_sock
     mock_slack_socket.mock_iterator = mock_iterator
 
     sut = SimpleSlackBot("mock slack bot token")
-    sut._slackSocket = mock_slack_socket
+    sut._slack_socket = mock_slack_socket
 
     expected_response = None
 

@@ -1,3 +1,9 @@
+"""
+Please refer to the documentation provided in the README.md.
+which can be found at the PyPI URL: https://pypi.org/project/simple-slack-bot/
+"""
+
+
 import itertools
 import logging
 import logging.config
@@ -54,10 +60,10 @@ class SimpleSlackBot:
         # fetch a slack_bot_token first checking params, then environment variable otherwise
         # raising a SystemExit exception as this is required for execution
         if slack_bot_token is None:
-            self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
+            self._slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
         else:
-            self._SLACK_BOT_TOKEN = slack_bot_token
-        if self._SLACK_BOT_TOKEN is None:
+            self._slack_bot_token = slack_bot_token
+        if self._slack_bot_token is None:
             sys.exit(
                 "ERROR: SLACK_BOT_TOKEN not passed to constructor or set as environment variable"
             )
@@ -72,12 +78,12 @@ class SimpleSlackBot:
     def connect(self):
         logger.info("Connecting...")
 
-        self._python_slackclient = WebClient(self._SLACK_BOT_TOKEN)
-        self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN)
-        self._BOT_ID = self._python_slackclient.auth_test()["bot_id"]
+        self._python_slackclient = WebClient(self._slack_bot_token)
+        self._slack_socket = SlackSocket(self._slack_bot_token)
+        self._bot_id = self._python_slackclient.auth_test()["bot_id"]
 
         logger.info(
-            f"Connected. Set bot id to {self._BOT_ID} with name {self.helper_user_id_to_user_name(self._BOT_ID)}"
+            f"Connected. Set bot id to {self._bot_id} with name {self.helper_user_id_to_user_name(self._bot_id)}"
         )
 
     def register(self, event_type: str):
@@ -127,11 +133,11 @@ class SimpleSlackBot:
                     logger.exception(f"exception processing event {request.type}")
 
     def extract_slack_socket_response(self) -> typing.Union[SlackEvent, None]:
-        """Extracts a useable response from the underlying _slackSocket. Catches sll SlackSocket exceptions except for
+        """Extracts a useable response from the underlying _slack_socket. Catches sll SlackSocket exceptions except for
         ExitError, treating those as warnings.
         """
         try:
-            return self.peek(self._slackSocket.events())
+            return self.peek(self._slack_socket.events())
         except (
             slacksocket.errors.APIError,
             slacksocket.errors.ConfigError,
@@ -153,7 +159,7 @@ class SimpleSlackBot:
         our application would not respond to a request from the user to stop the program with a CTRL + C.
         """
 
-        READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from fire hose
+        read_websocket_delay = 1  # 1 second delay between reading from fire hose
         running = True
 
         logger.info("began listening!")
@@ -176,7 +182,7 @@ class SimpleSlackBot:
                     SlackRequest(self._python_slackclient, slack_event)
                 )
 
-                time.sleep(READ_WEBSOCKET_DELAY)
+                time.sleep(read_websocket_delay)
             except:  # noqa: E722 This is acceptable in a framework as we are catching all exceptions our users could raise
                 logging.warning(
                     f"Unexpected exception caught, but we will keep listening. Exception: {traceback.format_exc()}"
