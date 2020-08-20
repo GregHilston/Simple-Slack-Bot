@@ -8,6 +8,7 @@ flake8==3.8.3
 isort==5.4.2
 mypy==0.782
 pip-chill==1.0.0
+pydocstyle==5.0.2
 pytest==6.0.1
 safety==1.9.0
 twine==3.2.0
