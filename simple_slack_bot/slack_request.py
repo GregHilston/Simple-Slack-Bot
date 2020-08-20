@@ -1,5 +1,6 @@
 """
 Please refer to the documentation provided in the README.md.
+
 which can be found at the PyPI URL: https://pypi.org/project/simple-slack-bot/
 """
 
@@ -98,8 +99,7 @@ class SlackRequest:
         return None
 
     def write(self, content, channel=None):
-        """
-        Write the content to the channel.
+        """Write the content to the channel.
 
         :param content: The text you wish to send
         :param channel: By default send to same channel request came from, if any
@@ -129,7 +129,8 @@ class SlackRequest:
             logger.warning(traceback.format_exc())
 
     def __str__(self):
-        """Generate the String representation of a SlackRequest.
+        """
+        Generate the String representation of a SlackRequest.
 
         :return: the String representation of a SlackRequest
         """

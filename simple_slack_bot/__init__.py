@@ -1,5 +1,4 @@
-"""
-Please refer to the documentation provided in the README.md,
+"""Please refer to the documentation provided in the README.md.
 
 which can be found at the PyPI URL: https://pypi.org/project/simple-slack-bot/
 """
