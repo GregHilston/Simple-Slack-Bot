@@ -13,6 +13,7 @@ import slacksocket.errors  # type: ignore
 from slack import WebClient
 from slack.errors import SlackApiError
 from slacksocket import SlackSocket  # type: ignore
+from slacksocket.models import SlackEvent
 
 from .slack_request import SlackRequest
 
@@ -126,7 +127,10 @@ class SimpleSlackBot:
                 except Exception:
                     logger.exception(f"exception processing event {request.type}")
 
-    def extract_slack_socket_response(self):
+    def extract_slack_socket_response(self) -> typing.Union[SlackEvent, None]:
+        """Extracts a useable response from the underlying _slackSocket. Catches sll SlackSocket exceptions except for
+        ExitError, treating those as warnings.
+        """
         try:
             return self.peek(self._slackSocket.events())
         except (slacksocket.errors.APIError, slacksocket.errors.ConfigError, slacksocket.errors.APINameError, slacksocket.errors.ConnectionError, slacksocket.errors.TimeoutError):
