@@ -15,7 +15,7 @@ lint: ## Performs linting on the code base and tests using flake8.
 	flake8 simple_slack_bot tests --show-source
 
 type: ## Checks type hints on the code base and tests using mypy.
-	mypy simple_slack_bot tests
+	mypy simple_slack_bot tests --disallow-untyped-calls
 
 security: ## Checks code base and tests for security vulnerability, bad imports and keys using bandit, safety and dodgy.
 	bandit simple_slack_bot tests && safety check && dodgy
