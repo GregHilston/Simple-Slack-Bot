@@ -183,9 +183,32 @@ def test_extract_slack_socket_reponse_returns_none_when_non_exiterror_slack_sock
 
 
 def test_start_calls_listen_if_slackclient_rtm_has_valid_ok():
-    # TODO
-    pass
+    def mock_connect():
+        pass
+    
+    class MockPythonSlackclient:
+        def rtm_start(self):
+            return True
+    
+    class MockListen:
+        def mock_listen(self):
+            self.was_mock_listen_called = True
+    # Given
+    sut = SimpleSlackBot("mock slack bot token")
+    
+    sut.connect = mock_connect
 
+    mock_python_slackclient = MockPythonSlackclient()
+    sut._python_slackclient = mock_python_slackclient
+
+    mock_listen = MockListen()
+    sut.listen = mock_listen.mock_listen
+    
+    # When
+    sut.start()
+
+    # Then
+    assert mock_listen.was_mock_listen_called is True
 
 def test_start_errors_out_if_slackclient_rtm_has_invalid_ok():
     # TODO
