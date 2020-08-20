@@ -60,10 +60,10 @@ class SimpleSlackBot:
         # fetch a slack_bot_token first checking params, then environment variable otherwise
         # raising a SystemExit exception as this is required for execution
         if slack_bot_token is None:
-            self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
+            self._slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
         else:
-            self._SLACK_BOT_TOKEN = slack_bot_token
-        if self._SLACK_BOT_TOKEN is None:
+            self._slack_bot_token = slack_bot_token
+        if self._slack_bot_token is None:
             sys.exit(
                 "ERROR: SLACK_BOT_TOKEN not passed to constructor or set as environment variable"
             )
@@ -78,11 +78,15 @@ class SimpleSlackBot:
     def connect(self):
         logger.info("Connecting...")
 
-        self._python_slackclient = WebClient(self._SLACK_BOT_TOKEN)
-        self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN)
-        self._BOT_ID = self._python_slackclient.auth_test()["bot_id"]
+        self._python_slackclient = WebClient(self._slack_bot_token)
+        self._slackSocket = SlackSocket(self._slack_bot_token)
+        self._bot_id = self._python_slackclient.auth_test()["bot_id"]
 
-        logger.info("Connected. Set bot id to %s with name %s", self._BOT_ID, self.helper_user_id_to_user_name(self._BOT_ID))
+        logger.info(
+            "Connected. Set bot id to %s with name %s",
+            self._bot_id,
+            self.helper_user_id_to_user_name(self._bot_id),
+        )
 
     def register(self, event_type: str):
         """Registers a callback function to a a event type. All supported even types are defined here
@@ -116,7 +120,11 @@ class SimpleSlackBot:
         :param request: request to be routed
         :return: None
         """
-        logger.info("received an event of type %s and slack event type of %s with content {request}", request.type, request._slack_event.type)
+        logger.info(
+            "received an event of type %s and slack event type of %s with content {request}",
+            request.type,
+            request._slack_event.type,
+        )
 
         # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
         # i'm totally confident this will have unexpected consequences but have not discovered any at the time of
@@ -141,7 +149,10 @@ class SimpleSlackBot:
             slacksocket.errors.ConnectionError,
             slacksocket.errors.TimeoutError,
         ):
-            logging.warning("Unexpected exception caught, but we will keep listening. Exception: %s", traceback.format_exc())
+            logging.warning(
+                "Unexpected exception caught, but we will keep listening. Exception: %s",
+                traceback.format_exc(),
+            )
             return None  # ensuring the loop continues and execution ends
 
     def listen(self):
@@ -302,7 +313,6 @@ class SimpleSlackBot:
         :return: id representation of original channel name
         """
 
-
         channels_list = self._python_slackclient.channels_list()["channels"]
 
         for channel in channels_list:
@@ -355,7 +365,7 @@ class SimpleSlackBot:
 
         for user in users_list["members"]:
             if user["id"] == user_id:
-                logger.debug(f"converted %s to %s", user_id, user["name"])
+                logger.debug("converted %s to %s", user_id, user["name"])
                 return user["name"]
 
         logger.warning(f"could not convert user id {user_id} to a name")
