@@ -121,9 +121,10 @@ class SimpleSlackBot:
         :return: None
         """
         logger.info(
-            "received an event of type %s and slack event type of %s with content {request}",
+            "received an event of type %s and slack event type of %s with content %s",
             request.type,
             request._slack_event.type,
+            request
         )
 
         # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
@@ -190,7 +191,7 @@ class SimpleSlackBot:
                 time.sleep(read_websocket_delay)
             except:  # noqa: E722 This is acceptable in a framework as we are catching all exceptions our users could raise
                 logging.warning(
-                    "Unexpected exception caught, but we will keep listening. Exception: ", traceback.format_exc()
+                    "Unexpected exception caught, but we will keep listening. Exception: %s", traceback.format_exc()
                 )
                 continue  # ensuring the loop continues
 
@@ -228,7 +229,7 @@ class SimpleSlackBot:
             if len(public_channel_ids) == 0:
                 logger.warning("got no public channel ids")
             else:
-                logger.debug("got public channel ids ", public_channel_ids)
+                logger.debug("got public channel ids %s", public_channel_ids)
 
         return public_channel_ids
 
@@ -246,7 +247,7 @@ class SimpleSlackBot:
         if len(private_channel_ids) == 0:
             logger.warning("got no private channel ids")
         else:
-            logger.debug("got private channel ids ", private_channel_ids)
+            logger.debug("got private channel ids %s", private_channel_ids)
 
         return private_channel_ids
 
@@ -263,7 +264,7 @@ class SimpleSlackBot:
         if len(user_ids) == 0:
             logger.warning("got no user ids")
         else:
-            logger.debug("got user ids ", user_ids)
+            logger.debug("got user ids %s", user_ids)
 
         return user_ids
 
@@ -280,7 +281,7 @@ class SimpleSlackBot:
         if len(user_names) == 0:
             logger.warning("got no user names")
         else:
-            logger.debug("got user names ", user_names)
+            logger.debug("got user names %s", user_names)
 
         return user_names
 
@@ -300,9 +301,9 @@ class SimpleSlackBot:
                     user_ids.append(user_id)
 
         if len(user_ids) == 0:
-            logger.warning("got no user ids for channel {channel_id}")
+            logger.warning("got no user ids for channel %s", channel_id)
         else:
-            logger.debug("got user ids {user_ids}")
+            logger.debug("got user ids %s", user_ids)
 
         return user_ids
 

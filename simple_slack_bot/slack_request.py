@@ -113,7 +113,8 @@ class SlackRequest(object):
             )
         except Exception as e:
             logging.warning(
-                f"Unexpected exception caught, but we will keep listening. Exception: {e}"
+                "Unexpected exception caught, but we will keep listening. Exception: %s",
+                e
             )
             logger.warning(traceback.format_exc())
 
