@@ -9,11 +9,10 @@ import typing
 from logging import StreamHandler
 
 import slacksocket.errors  # type: ignore
-
 from slack import WebClient
 from slack.errors import SlackApiError
 from slacksocket import SlackSocket  # type: ignore
-from slacksocket.models import SlackEvent
+from slacksocket.models import SlackEvent  # type: ignore
 
 from .slack_request import SlackRequest
 
@@ -133,7 +132,13 @@ class SimpleSlackBot:
         """
         try:
             return self.peek(self._slackSocket.events())
-        except (slacksocket.errors.APIError, slacksocket.errors.ConfigError, slacksocket.errors.APINameError, slacksocket.errors.ConnectionError, slacksocket.errors.TimeoutError):
+        except (
+            slacksocket.errors.APIError,
+            slacksocket.errors.ConfigError,
+            slacksocket.errors.APINameError,
+            slacksocket.errors.ConnectionError,
+            slacksocket.errors.TimeoutError,
+        ):
             logging.warning(
                 f"Unexpected exception caught, but we will keep listening. Exception: {traceback.format_exc()}"
             )
@@ -154,25 +159,25 @@ class SimpleSlackBot:
         logger.info("began listening!")
 
         # required to continue to run after experiencing an unexpected exception
-        while (running):
+        while running:
             response = None
 
             try:
                 while response is None:
                     response = self.extract_slack_socket_response()
             except slacksocket.errors.ExitError:
-                logging.info(
-                    self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE
-                )
+                logging.info(self.KEYBOARD_INTERRUPT_EXCEPTION_LOG_MESSAGE)
                 running = False
                 break  # ensuring the loop stops and execution ceases
 
             slack_event, mysequence = response
             try:
-                self.route_request_to_callbacks(SlackRequest(self._python_slackclient, slack_event))
+                self.route_request_to_callbacks(
+                    SlackRequest(self._python_slackclient, slack_event)
+                )
 
                 time.sleep(READ_WEBSOCKET_DELAY)
-            except:
+            except:  # noqa: E722 This is acceptable in a framework as we are catching all exceptions our users could raise
                 logging.warning(
                     f"Unexpected exception caught, but we will keep listening. Exception: {traceback.format_exc()}"
                 )

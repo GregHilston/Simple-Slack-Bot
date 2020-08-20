@@ -1,7 +1,6 @@
 import logging
 import os
 
-
 import pytest
 import slacksocket.errors  # type: ignore
 from slack import WebClient
@@ -107,7 +106,9 @@ def test_route_request_to_callbacks_routes_correct_type_to_correct_callback():
     assert Monitor.was_called is True
 
 
-def test_listen_stops_listening_when_slack_socket_keyboard_interrupt_exception_occurs(caplog):
+def test_listen_stops_listening_when_slack_socket_keyboard_interrupt_exception_occurs(
+    caplog,
+):
     # Given
     mock_iterator = MockIterator()
     mock_iterator.raiseable_exception = slacksocket.errors.ExitError
