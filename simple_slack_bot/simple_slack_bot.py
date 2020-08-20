@@ -60,10 +60,10 @@ class SimpleSlackBot:
         # fetch a slack_bot_token first checking params, then environment variable otherwise
         # raising a SystemExit exception as this is required for execution
         if slack_bot_token is None:
-            self._slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
+            self._SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
         else:
-            self._slack_bot_token = slack_bot_token
-        if self._slack_bot_token is None:
+            self._SLACK_BOT_TOKEN = slack_bot_token
+        if self._SLACK_BOT_TOKEN is None:
             sys.exit(
                 "ERROR: SLACK_BOT_TOKEN not passed to constructor or set as environment variable"
             )
@@ -78,13 +78,11 @@ class SimpleSlackBot:
     def connect(self):
         logger.info("Connecting...")
 
-        self._python_slackclient = WebClient(self._slack_bot_token)
-        self._slack_socket = SlackSocket(self._slack_bot_token)
-        self._bot_id = self._python_slackclient.auth_test()["bot_id"]
+        self._python_slackclient = WebClient(self._SLACK_BOT_TOKEN)
+        self._slackSocket = SlackSocket(self._SLACK_BOT_TOKEN)
+        self._BOT_ID = self._python_slackclient.auth_test()["bot_id"]
 
-        logger.info(
-            f"Connected. Set bot id to {self._bot_id} with name {self.helper_user_id_to_user_name(self._bot_id)}"
-        )
+        logger.info("Connected. Set bot id to %s with name %s", self._BOT_ID, self.helper_user_id_to_user_name(self._BOT_ID))
 
     def register(self, event_type: str):
         """Registers a callback function to a a event type. All supported even types are defined here
@@ -118,9 +116,7 @@ class SimpleSlackBot:
         :param request: request to be routed
         :return: None
         """
-        logger.info(
-            f"received an event of type {request.type} and slack event type of {request._slack_event.type} with content {request}"
-        )
+        logger.info("received an event of type %s and slack event type of %s with content {request}", request.type, request._slack_event.type)
 
         # we ignore subtypes to ensure thread messages don't go to the channel as well, as two events are created
         # i'm totally confident this will have unexpected consequences but have not discovered any at the time of
@@ -130,7 +126,7 @@ class SimpleSlackBot:
                 try:
                     callback(request)
                 except Exception:
-                    logger.exception(f"exception processing event {request.type}")
+                    logger.exception("exception processing event %s", request.type)
 
     def extract_slack_socket_response(self) -> typing.Union[SlackEvent, None]:
         """Extracts a useable response from the underlying _slack_socket. Catches sll SlackSocket exceptions except for
@@ -145,9 +141,7 @@ class SimpleSlackBot:
             slacksocket.errors.ConnectionError,
             slacksocket.errors.TimeoutError,
         ):
-            logging.warning(
-                f"Unexpected exception caught, but we will keep listening. Exception: {traceback.format_exc()}"
-            )
+            logging.warning("Unexpected exception caught, but we will keep listening. Exception: %s", traceback.format_exc())
             return None  # ensuring the loop continues and execution ends
 
     def listen(self):
@@ -223,7 +217,7 @@ class SimpleSlackBot:
             if len(public_channel_ids) == 0:
                 logger.warning("got no public channel ids")
             else:
-                logger.debug(f"got public channel ids {public_channel_ids}")
+                logger.debug("got public channel ids ", public_channel_ids)
 
         return public_channel_ids
 
@@ -241,7 +235,7 @@ class SimpleSlackBot:
         if len(private_channel_ids) == 0:
             logger.warning("got no private channel ids")
         else:
-            logger.debug(f"got private channel ids {private_channel_ids}")
+            logger.debug("got private channel ids ", private_channel_ids)
 
         return private_channel_ids
 
@@ -258,7 +252,7 @@ class SimpleSlackBot:
         if len(user_ids) == 0:
             logger.warning("got no user ids")
         else:
-            logger.debug(f"got user ids {user_ids}")
+            logger.debug("got user ids ", user_ids)
 
         return user_ids
 
@@ -275,7 +269,7 @@ class SimpleSlackBot:
         if len(user_names) == 0:
             logger.warning("got no user names")
         else:
-            logger.debug(f"got user names {user_names}")
+            logger.debug("got user names ", user_names)
 
         return user_names
 
@@ -295,9 +289,9 @@ class SimpleSlackBot:
                     user_ids.append(user_id)
 
         if len(user_ids) == 0:
-            logger.warning(f"got no user ids for channel {channel_id}")
+            logger.warning("got no user ids for channel {channel_id}")
         else:
-            logger.debug(f"got user ids {user_ids}")
+            logger.debug("got user ids {user_ids}")
 
         return user_ids
 
@@ -308,11 +302,12 @@ class SimpleSlackBot:
         :return: id representation of original channel name
         """
 
+
         channels_list = self._python_slackclient.channels_list()["channels"]
 
         for channel in channels_list:
             if channel["name"] == name:
-                logger.debug(f"converted {channel['name']} to {channel['id']}")
+                logger.debug("converted %s to %s", channel["name"], channel["id"])
                 return channel["id"]
 
         logger.warning(f"could not convert channel name {name} to an id")
@@ -328,10 +323,10 @@ class SimpleSlackBot:
 
         for user in users:
             if user["name"] == name:
-                logger.debug(f"converted {name} to {user['id']}")
+                logger.debug("converted %s to %s", name, user["id"])
                 return user["id"]
 
-        logger.warning(f"could not convert user name {name} to a user id")
+        logger.warning("could not convert user name %s to a user id", name)
 
     def helper_channel_id_to_channel_name(self, channel_id):
         """Helper function that converts a channel id to its respected channel name
@@ -344,7 +339,7 @@ class SimpleSlackBot:
 
         for channel in channels_list:
             if channel["id"] == channel_id:
-                logger.debug("converted {} to {}".format(channel_id, channel["name"]))
+                logger.debug("converted %s to %s", channel_id, channel["name"])
                 return channel["name"]
 
         logger.warning(f"could not convert channel id {channel_id} to a name")
@@ -360,7 +355,7 @@ class SimpleSlackBot:
 
         for user in users_list["members"]:
             if user["id"] == user_id:
-                logger.debug(f"converted {user_id} to {user['name']}")
+                logger.debug(f"converted %s to %s", user_id, user["name"])
                 return user["name"]
 
         logger.warning(f"could not convert user id {user_id} to a name")
