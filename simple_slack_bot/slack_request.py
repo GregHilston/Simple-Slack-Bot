@@ -102,17 +102,23 @@ class SlackRequest:
         logger.warning("could not find text for slack_event")
         return None
 
-    def write(self, content: str, channel: str = None):
+    def write(self, content: str, channel: typing.Optional[str] = None):
         """Write the content to the channel.
 
         :param content: The text you wish to send
         :param channel: By default send to same channel request came from, if any
+        :raises Exception: If channel cannot be determined
         """
 
         if channel is None and self.channel != "":
             channel = self.channel
         else:
             logger.warning("no channel provided by developer or respective slack event")
+
+        # optional promotion
+        if channel is None:
+            raise Exception("Unable to determine which channel to write to")
+        actual_channel: str = channel
 
         # optional arguments
         kwargs = {}
@@ -122,7 +128,9 @@ class SlackRequest:
         if "thread_ts" in self.slack_event:
             kwargs["thread_ts"] = self.slack_event["thread_ts"]
         try:
-            self._python_slackclient.chat_postMessage(channel=channel, text=content, **kwargs)
+            self._python_slackclient.chat_postMessage(
+                channel=actual_channel, text=content, **kwargs
+            )
         except Exception:  # pylint: disable=broad-except
             logging.warning(
                 "Unexpected exception caught, but we will keep listening. Exception: %s",
