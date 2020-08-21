@@ -6,7 +6,7 @@ help: ## This help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 format: ## Formats the code base and tests using Black.
-	black simple_slack_bot tests
+	black --line-length 100 simple_slack_bot tests
 
 isort: ## Orders the imports of the code base and tests using isort.
 	isort --recursive simple_slack_bot tests

@@ -202,9 +202,7 @@ class SimpleSlackBot:
 
             slack_event, _ = response
             try:
-                self.route_request_to_callbacks(
-                    SlackRequest(self._python_slackclient, slack_event)
-                )
+                self.route_request_to_callbacks(SlackRequest(self._python_slackclient, slack_event))
 
                 time.sleep(read_websocket_delay)
             except Exception:  # pylint: disable=broad-except

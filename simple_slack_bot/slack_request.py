@@ -118,9 +118,7 @@ class SlackRequest:
         if "thread_ts" in self.slack_event:
             kwargs["thread_ts"] = self.slack_event["thread_ts"]
         try:
-            self._python_slackclient.chat_postMessage(
-                channel=channel, text=content, **kwargs
-            )
+            self._python_slackclient.chat_postMessage(channel=channel, text=content, **kwargs)
         except Exception:  # pylint: disable=broad-except
             logging.warning(
                 "Unexpected exception caught, but we will keep listening. Exception: %s",

@@ -115,9 +115,7 @@ def test_route_request_to_callbacks_routes_correct_type_to_correct_callback():
             Monitor.was_called = True
 
     mockslack_event = SlackEvent({"type": "message"})
-    mock_slackrequest = SlackRequest(
-        python_slackclient=None, slack_event=mockslack_event
-    )
+    mock_slackrequest = SlackRequest(python_slackclient=None, slack_event=mockslack_event)
     sut = SimpleSlackBot(slack_bot_token="Mock slack bot token")
     monitor = Monitor()
     sut._registrations = {}
@@ -130,9 +128,7 @@ def test_route_request_to_callbacks_routes_correct_type_to_correct_callback():
     assert Monitor.was_called is True
 
 
-def test_listen_stops_listening_when_slack_socket_keyboard_interrupt_exception_occurs(
-    caplog,
-):
+def test_listen_stops_listening_when_slack_socket_keyboard_interrupt_exception_occurs(caplog,):
     # Given
     mock_iterator = MockIterator(injectable_exception=slacksocket.errors.ExitError)
 
