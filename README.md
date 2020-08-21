@@ -175,17 +175,7 @@ To gain access to these functions, simply call the appropriate function on your 
 
 ## Writing More Advanced Slack Bots
 
-If you have found that Simple Slack Bot does not provide everything you are looking for, you can gain access to the underlying [Slacker object](https://github.com/os/slacker) or [SlackSocket object](https://github.com/vektorlab/slacksocket) by calling
-
-
-`get_slacker()`
-
-or
-
-`get_slack_socket()`
-
-respectively on your instance of SimpleSlackBot
-
+If you have found that Simple Slack Bot does not provide everything you are looking for, you can gain access to the underlying [python Slack Client](https://github.com/slackapi/python-slackclient) or [SlackSocket object](https://github.com/vektorlab/slacksocket).
 
 ## Running Local Development Version
 
