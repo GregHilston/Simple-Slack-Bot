@@ -1,50 +1,28 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
 version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: circleci/python:3.6.4
-      
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+      - image: circleci/python:3.8.2-buster
 
-    working_directory: ~/repo
+    working_directory: ~/project
 
     steps:
       - checkout
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "requirements.txt" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+      - restore_cache: # Find a cache corresponding to this specific requirements_dev.txt checksum. When this file has changed this lookup will fail which is good and intended
+          key: deps9-{{ .Branch }}-{{ checksum "requirements_dev.txt" }}
 
       - run:
           name: install dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -r requirements.txt
+            pip install -r requirements_dev.txt
 
-      - save_cache:
+      - save_cache: # cache Python dependencies using checksum of requirements_dev.txt as the cache-key
+          key: deps9-{{ .Branch }}-{{ checksum "requirements_dev.txt" }}
           paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
-        
-      # run tests!
-      # this example uses Django's built-in test-runner
-      # other common Python testing frameworks include pytest and nose
-      # https://pytest.org
-      # https://nose.readthedocs.io
+            - "venv"
+
       - run:
-          name: run tests
+          name: test
           command: |
-            . venv/bin/activate
-            python3 tests_simple_slack_bot.py
+            make magic

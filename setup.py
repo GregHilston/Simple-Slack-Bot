@@ -1,5 +1,6 @@
-from setuptools import setup
 from os import path
+
+from setuptools import setup
 
 # read the contents of your README file
 this_directory = path.abspath(path.dirname(__file__))
@@ -24,6 +25,6 @@ setup(
         "slacksocket>=0.7,!=0.8,<=0.9",
         "pyyaml",
         "wheel",
-        "websocket-client==0.48", # required to define as our dependency has a dependency which broke backwards compatibility
+        "websocket-client==0.48",  # required to define as our dependency has a dependency which broke backwards compatibility
     ],
 )
