@@ -7,6 +7,10 @@ which can be found at the PyPI URL: https://pypi.org/project/simple-slack-bot/
 
 import logging
 import traceback
+import typing
+
+from slack import WebClient
+from slacksocket.models import SlackEvent  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -17,17 +21,17 @@ class SlackRequest:
     Also allows users to write messages, upload content and gain access to the underlying SlackClient
     """
 
-    def __init__(self, python_slackclient, slack_event):
+    def __init__(self, python_slackclient: WebClient, slack_event: SlackEvent):
         """Initialize a SlackRequest.
 
-        :param WebClient: the WebClient object for this specific SlackRequest
+        :param python_slackclient: the WebClient object for this specific SlackRequest
         :param slack_event: the SlackEvent for this specific SlackRequest
         """
         self._python_slackclient = python_slackclient
         self.slack_event = slack_event
 
     @property
-    def type(self):
+    def type(self) -> typing.Union[str, None]:
         """Get the type of event from the underlying SlackEvent.
 
         :return: the type of event, if there is one
@@ -40,7 +44,7 @@ class SlackRequest:
         return None
 
     @property
-    def subtype(self):
+    def subtype(self) -> typing.Union[str, None]:
         """Get the subtype of event from the underlying SlackEvent.
 
         :return: the subtype of event, if there is one
@@ -53,7 +57,7 @@ class SlackRequest:
         return None
 
     @property
-    def channel(self):
+    def channel(self) -> typing.Union[str, None]:
         """Get the channel from the underlying SlackEvent.
 
         Note: This can be an empty String. For example, this will be an empty String for the 'Hello' event.
@@ -69,7 +73,7 @@ class SlackRequest:
         return channel
 
     @property
-    def thread_ts(self):
+    def thread_ts(self) -> str:
         """Get the thread_ts from the underlying SlackEvent.
 
         Note: This can be an empty String. For example, this will be an empty String when a message was not sent in a thread.
@@ -84,7 +88,7 @@ class SlackRequest:
         return thread_ts
 
     @property
-    def message(self):
+    def message(self) -> typing.Union[str, None]:
         """Get the underlying message from the SlackEvent.
 
         Note: This can be an empty String. For example, this will be an empty String for the 'message_changed' event.
@@ -98,7 +102,7 @@ class SlackRequest:
         logger.warning("could not find text for slack_event")
         return None
 
-    def write(self, content, channel=None):
+    def write(self, content: str, channel: str = None):
         """Write the content to the channel.
 
         :param content: The text you wish to send
@@ -126,7 +130,7 @@ class SlackRequest:
             )
             logger.warning(traceback.format_exc())
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Generate the String representation of a SlackRequest.
 

@@ -56,6 +56,7 @@ class SimpleSlackBot:
 
         Will exit if the required environment variable is not set.
 
+        :param slack_bot_token: The token given by Slack for API authentication
         :param debug: Whether or not to use default a Logging config
         """
 
@@ -97,7 +98,7 @@ class SimpleSlackBot:
             self.helper_user_id_to_user_name(self._bot_id),
         )
 
-    def register(self, event_type: str):
+    def register(self, event_type: str) -> typing.Callable[..., typing.Any]:
         """Register a callback function to a a event type.
 
         All supported even types are defined here https://api.slack.com/events-api
@@ -110,7 +111,6 @@ class SimpleSlackBot:
             """Register event before executing wrapped function, referred to as callback.
 
             :param callback: function to execute after runnign wrapped code
-            :return: None
             """
             # Disable all the attribute-defined-out-init in this function
             # pylint: disable=attribute-defined-outside-init
@@ -130,7 +130,6 @@ class SimpleSlackBot:
         """Route the request to the correct notify.
 
         :param request: request to be routed
-        :return: None
         """
         logger.info(
             "received an event of type %s and slack event type of %s with content %s",
@@ -231,7 +230,7 @@ class SimpleSlackBot:
 
         logger.info("stopped!")
 
-    def helper_get_public_channel_ids(self):
+    def helper_get_public_channel_ids(self) -> typing.List[str]:
         """Get all public channel ids.
 
         :return: list of public channel ids
@@ -251,13 +250,13 @@ class SimpleSlackBot:
 
         return public_channel_ids
 
-    def helper_get_private_channel_ids(self):
+    def helper_get_private_channel_ids(self) -> typing.List[str]:
         """Get all private channel ids.
 
         :return: list of private channel ids
         """
 
-        private_channel_ids = []
+        private_channel_ids: typing.List[str] = []
 
         private_channels = self._python_slackclient.groups_list()["groups"]
 
@@ -271,7 +270,7 @@ class SimpleSlackBot:
 
         return private_channel_ids
 
-    def helper_get_user_ids(self):
+    def helper_get_user_ids(self) -> typing.List[str]:
         """Get all user ids.
 
         :return: list of user ids
@@ -290,7 +289,7 @@ class SimpleSlackBot:
 
         return user_ids
 
-    def helper_get_user_names(self):
+    def helper_get_user_names(self) -> typing.List[str]:
         """Get all user names.
 
         :return: list of user names
@@ -309,7 +308,7 @@ class SimpleSlackBot:
 
         return user_names
 
-    def helper_get_users_in_channel(self, channel_id):
+    def helper_get_users_in_channel(self, channel_id: str) -> typing.List[str]:
         """Get all users in a given channel id.
 
         :param channel_id: channel id to get all user ids in it
@@ -331,7 +330,7 @@ class SimpleSlackBot:
 
         return user_ids
 
-    def helper_channel_name_to_channel_id(self, name):
+    def helper_channel_name_to_channel_id(self, name: str) -> typing.Union[str, None]:
         """Convert a channel name to its respected channel id.
 
         :param name: name of channel to convert to id
@@ -348,7 +347,7 @@ class SimpleSlackBot:
         logger.warning("could not convert channel name %s to an id", name)
         return None
 
-    def helper_user_name_to_user_id(self, name):
+    def helper_user_name_to_user_id(self, name: str) -> typing.Union[str, None]:
         """Convert a user name to its respected user id.
 
         :param name: name of user to convert to id
@@ -365,7 +364,7 @@ class SimpleSlackBot:
         logger.warning("could not convert user name %s to a user id", name)
         return None
 
-    def helper_channel_id_to_channel_name(self, channel_id):
+    def helper_channel_id_to_channel_name(self, channel_id: str) -> typing.Union[str, None]:
         """Convert a channel id to its respected channel name.
 
         :param channel_id: id of channel to convert to name
@@ -382,7 +381,7 @@ class SimpleSlackBot:
         logger.warning("could not convert channel id %s to a name", channel_id)
         return None
 
-    def helper_user_id_to_user_name(self, user_id):
+    def helper_user_id_to_user_name(self, user_id: str) -> typing.Union[str, None]:
         """Convert a user id to its respected user name.
 
         :param user_id: id of user to convert to name
