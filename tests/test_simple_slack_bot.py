@@ -38,10 +38,12 @@ def mock_connect():
 
 
 class MockPythonSlackclient:
-    def __init__(self, injectable_bool=None, injectable_public_channels=[], injectable_private_channels=[]):
+    def __init__(self, injectable_bool=None, injectable_public_channels=[], injectable_private_channels=[], injectable_user_ids=[], injectable_user_names=[]):
         self.injectable_bool = injectable_bool
         self.injectable_public_channels = injectable_public_channels
         self.injectable_private_channels = injectable_private_channels
+        self.injectable_user_ids = injectable_user_ids
+        self.injectable_user_names = injectable_user_names
 
     def rtm_start(self):
         return self.injectable_bool
@@ -51,6 +53,9 @@ class MockPythonSlackclient:
 
     def groups_list(self):
         return {"groups": [{"id": value} for value in self.injectable_private_channels]}
+
+    def users_list(self):
+        return {"members": [{"id": id, "name": name} for id, name in zip(self.injectable_user_ids, self.injectable_user_names)]}
 
 
 class MockListen:
@@ -361,4 +366,64 @@ def test_helper_get_private_channel_ids_returns_empty_list_when_found_zero_priva
 
     # Then
     assert expected_private_channel_ids == actual_private_channel_ids
+
+
+def test_helper_get_user_ids_returns_user_ids():
+    # Given
+    expected_user_ids = [1, 2, 3]
+    user_names = ["foo", "bar", "baz"]  # needed for mock class even though unused by this test
+    mock_python_slackclient = MockPythonSlackclient(injectable_user_ids=expected_user_ids, injectable_user_names=user_names)
+    sut = SimpleSlackBot()
+    sut._python_slackclient = mock_python_slackclient
+
+    # When
+    actual_user_ids = sut.helper_get_user_ids()
+
+    # Then
+    assert expected_user_ids == actual_user_ids
+
+
+def test_helper_get_user_ids_returns_empty_list_when_found_zero_user_ids():
+    # Given
+    expected_user_ids = []
+    mock_python_slackclient = MockPythonSlackclient(injectable_user_ids=expected_user_ids)
+    sut = SimpleSlackBot()
+    sut._python_slackclient = mock_python_slackclient
+
+    # When
+    actual_user_ids = sut.helper_get_user_ids()
+
+    # Then
+    assert expected_user_ids == actual_user_ids
+
+
+def test_helper_get_user_names_returns_user_names():
+    # Given
+    user_ids = [1, 2, 3]  # needed for mock class even though unused by this test
+    expected_user_names = ["foo", "bar", "baz"]
+    mock_python_slackclient = MockPythonSlackclient(injectable_user_ids=user_ids, injectable_user_names=expected_user_names)
+    sut = SimpleSlackBot()
+    sut._python_slackclient = mock_python_slackclient
+
+    # When
+    actual_user_names = sut.helper_get_user_names()
+
+    # Then
+    assert expected_user_names == actual_user_names
+
+
+def test_helper_get_user_names_returns_empty_list_when_found_zero_user_names():
+    # Given
+    user_ids = [1, 2, 3]  # needed for mock class even though unused by this test
+    expected_user_names = []
+    mock_python_slackclient = MockPythonSlackclient(injectable_user_ids=user_ids, injectable_user_names=expected_user_names)
+    sut = SimpleSlackBot()
+    sut._python_slackclient = mock_python_slackclient
+
+    # When
+    actual_user_names = sut.helper_get_user_names()
+
+    # Then
+    assert expected_user_names == actual_user_names
+
 

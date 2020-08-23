@@ -230,6 +230,7 @@ class SimpleSlackBot:
 
         logger.info("stopped!")
 
+
     def helper_get_public_channel_ids(self) -> typing.List[str]:
         """Get all public channel ids.
 
@@ -276,8 +277,7 @@ class SimpleSlackBot:
 
         user_ids = []
 
-        users = self._python_slackclient.users_list()["members"]
-        for user in users:
+        for user in self._python_slackclient.users_list()["members"]:
             user_ids.append(user["id"])
 
         if len(user_ids) == 0:
@@ -295,8 +295,7 @@ class SimpleSlackBot:
 
         user_names = []
 
-        users = self._python_slackclient.users_list()["members"]
-        for user in users:
+        for user in self._python_slackclient.users_list()["members"]:
             user_names.append(user["name"])
 
         if len(user_names) == 0:
