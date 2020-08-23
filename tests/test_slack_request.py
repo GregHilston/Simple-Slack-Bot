@@ -26,26 +26,27 @@ def test_slack_request_initializer_stores_python_slackclient_and_slack_event():
     assert mock_slack_event == sut.slack_event
 
 
-def test_type_returns_type_when_stored():
+def test_get_returns_value_when_stored():
     # Given
-    expected_type = "foo"
-    mock_slack_event = {"type": expected_type}
+    key = "foo"
+    expected_value = "bar"
+    mock_slack_event = {key: expected_value}
     sut = SlackRequest(python_slackclient=None, slack_event=mock_slack_event)
 
     # When
-    actual_type = sut.type
+    actual_value = sut.get(key)
 
     # Then
-    assert expected_type == actual_type
+    assert expected_value == actual_value
 
 
-def test_type_returns_none_when_not_found():
+def test_get_returns_none_when_not_found():
     # Given
     mock_slack_event = {}
     sut = SlackRequest(python_slackclient=None, slack_event=mock_slack_event)
 
     # When
-    actual_type = sut.type
+    actual_type = sut.get("foo")
 
     # Then
     assert None is actual_type

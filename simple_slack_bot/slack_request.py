@@ -30,7 +30,7 @@ class SlackRequest:
         self._python_slackclient = python_slackclient
         self.slack_event = slack_event
 
-    def get(self, key: str, default_value=None) -> typing.Any:
+    def get(self, key: str, default_value: typing.Any = None) -> typing.Any:
         """Get value for given key if found otherwise return default value.
 
         :param key: The key we're looking for
