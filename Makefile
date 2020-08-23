@@ -28,11 +28,14 @@ security: ## Checks code base and tests for security vulnerability, bad imports 
 
 magic: format isort lint type security ## Performs format, isort, lint, type and security in that order.
 
-test: ## Runs the pytest suite.
+test: ## Runs the pytest suite
 	pytest
 
-coverage: ## Runs the pytest suite and generates code coverage.
+test_and_generate_coverage: ## Runs the pytest suite and generates code coverage.
 	coverage run -m pytest && coverage report -m
+
+upload-coverage-to-codecov: ## Uploads the covde coverage to Code Cov IO
+	 bash <(curl -s https://codecov.io/bash)
 
 package: ## Packages up the project.
 	python3 setup.py sdist bdist_wheel
