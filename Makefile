@@ -1,5 +1,6 @@
 PYTHON=python3
 .DEFAULT_GOAL := help
+SHELL := /bin/bash
 
 .PHONY: help
 help: ## This help.
