@@ -258,10 +258,8 @@ class SimpleSlackBot:
 
         private_channel_ids: typing.List[str] = []
 
-        private_channels = self._python_slackclient.groups_list()["groups"]
-
-        for private_channel in private_channels:
-            private_channels.append(private_channel["id"])
+        for private_channel in self._python_slackclient.groups_list()["groups"]:
+            private_channel_ids.append(private_channel["id"])
 
         if len(private_channel_ids) == 0:
             logger.warning("got no private channel ids")
