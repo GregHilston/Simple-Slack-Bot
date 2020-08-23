@@ -52,6 +52,13 @@ class MockListen:
     def mock_listen(self):
         self.was_mock_listen_called = True
 
+class MockLogger:
+    def addHandler(self, stream_handler):
+        self.stream_handler = stream_handler
+
+    def setLevel(self, logging_level):
+        self.logging_level = logging_level
+
 def test_peek_returns_first_and_original_iterator():
     # Given
     mock_iterator = MockIterator()
@@ -77,6 +84,19 @@ def test_peek_returns_none_if_next_raises_stopiteration():
     # Then
     assert expected_yield == actual_yield
 
+
+@pytest.mark.skip(reason="Unable to inject Class varible for mocking. Will resolve later")
+def test_init_adds_streamhandler_with_debug_level_when_init_is_called_with_debug():
+    # Given
+    mock_logger = MockLogger()
+    SimpleSlackBot.logger = mock_logger
+
+    # When
+    SimpleSlackBot(slack_bot_token="mock_slack_bot_token", debug=True)
+
+    # Then
+    assert mock_logger.stream_handler is True
+    assert mock_logger.logging_level == logging.DEBUG
 
 def test_init_raises_systemexit_exception_when_not_passed_slack_bot_token_or_has_environment_variable_to_fall_back_on():
     # Given
