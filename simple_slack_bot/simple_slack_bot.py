@@ -230,7 +230,6 @@ class SimpleSlackBot:
 
         logger.info("stopped!")
 
-
     def helper_get_public_channel_ids(self) -> typing.List[str]:
         """Get all public channel ids.
 
@@ -348,9 +347,7 @@ class SimpleSlackBot:
         :return: id representation of original user name
         """
 
-        users = self._python_slackclient.users_list()["members"]
-
-        for user in users:
+        for user in self._python_slackclient.users_list()["members"]:
             if user["name"] == name:
                 logger.debug("converted %s to %s", name, user["id"])
                 return user["id"]
@@ -365,9 +362,7 @@ class SimpleSlackBot:
         :return: name representation of original channel id
         """
 
-        channels_list = self._python_slackclient.channels_list()["channels"]
-
-        for channel in channels_list:
+        for channel in self._python_slackclient.channels_list()["channels"]:
             if channel["id"] == channel_id:
                 logger.debug("converted %s to %s", channel_id, channel["name"])
                 return channel["name"]
@@ -382,9 +377,7 @@ class SimpleSlackBot:
         :return: name representation of original user id
         """
 
-        users_list = self._python_slackclient.users_list()
-
-        for user in users_list["members"]:
+        for user in self._python_slackclient.users_list()["members"]:
             if user["id"] == user_id:
                 logger.debug("converted %s to %s", user_id, user["name"])
                 return user["name"]
