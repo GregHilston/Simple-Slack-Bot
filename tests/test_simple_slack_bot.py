@@ -316,3 +316,16 @@ def test_helper_get_public_channel_ids_returns_public_channel_ids():
     # Then
     assert expected_public_channel_ids == actual_public_channel_ids
 
+def test_helper_get_public_channel_ids_returns_empty_list_when_found_zero_public_channel_ids():
+    # Given
+    expected_public_channel_ids = []
+    mock_python_slackclient = MockPythonSlackclient(injectable_public_channels=expected_public_channel_ids)
+    sut = SimpleSlackBot()
+    sut._python_slackclient = mock_python_slackclient
+
+    # When
+    actual_public_channel_ids = sut.helper_get_public_channel_ids()
+
+    # Then
+    assert expected_public_channel_ids == actual_public_channel_ids
+
