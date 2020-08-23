@@ -456,7 +456,7 @@ def test_helper_get_users_in_channel_returns_empty_list_when_no_users_found():
     channel_ids = [channel_id]
     channel_names = ["foo"]
     expected_user_ids = []
-    expected_user_names = ["a", "b", "c"]  # needed for mock class even though unused by this test
+    expected_user_names = []  # needed for mock class even though unused by this test
 
     mock_python_slackclient = MockPythonSlackclient(injectable_public_channels=channel_ids, injectable_channel_names=channel_names, injectable_user_ids=expected_user_ids, injectable_user_names=expected_user_names)
 
