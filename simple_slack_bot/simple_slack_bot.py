@@ -314,8 +314,7 @@ class SimpleSlackBot:
 
         user_ids = []
 
-        channels_list = self._python_slackclient.channels_list()["channels"]
-        for channel in channels_list:
+        for channel in self._python_slackclient.channels_list()["channels"]:
             if channel["id"] == channel_id:
                 for user_id in channel["members"]:
                     user_ids.append(user_id)
@@ -334,9 +333,7 @@ class SimpleSlackBot:
         :return: id representation of original channel name
         """
 
-        channels_list = self._python_slackclient.channels_list()["channels"]
-
-        for channel in channels_list:
+        for channel in self._python_slackclient.channels_list()["channels"]:
             if channel["name"] == name:
                 logger.debug("converted %s to %s", channel["name"], channel["id"])
                 return channel["id"]
