@@ -65,6 +65,18 @@ def test_peek_returns_first_and_original_iterator():
     assert expected_yield[0] == actual_yield[0]
     assert expected_yield[1] == mock_iterator
 
+def test_peek_returns_none_if_next_raises_stopiteration():
+    # Given
+    mock_iterator = MockIterator()
+    mock_iterator.injectable_exception = StopIteration
+    expected_yield = None
+
+    # When
+    actual_yield = SimpleSlackBot.peek(mock_iterator)
+
+    # Then
+    assert expected_yield == actual_yield
+
 
 def test_init_raises_systemexit_exception_when_not_passed_slack_bot_token_or_has_environment_variable_to_fall_back_on():
     # Given
