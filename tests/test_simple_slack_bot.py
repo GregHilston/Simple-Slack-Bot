@@ -38,11 +38,15 @@ def mock_connect():
 
 
 class MockPythonSlackclient:
-    def __init__(self, injectable_bool):
+    def __init__(self, injectable_bool=None, injectable_public_channels=[]):
         self.injectable_bool = injectable_bool
+        self.injectable_public_channels = injectable_public_channels
 
     def rtm_start(self):
         return self.injectable_bool
+
+    def channels_list(self):
+        return {"channels": [{"id": value} for value in self.injectable_public_channels]}
 
 
 class MockListen:
@@ -297,3 +301,18 @@ def test_listen_logs_exception_and_conntinue_when_exception_is_raised():
     # When
 
     # Then
+
+
+def test_helper_get_public_channel_ids_returns_public_channel_ids():
+    # Given
+    expected_public_channel_ids = [1, 2, 3]
+    mock_python_slackclient = MockPythonSlackclient(injectable_public_channels=expected_public_channel_ids)
+    sut = SimpleSlackBot()
+    sut._python_slackclient = mock_python_slackclient
+
+    # When
+    actual_public_channel_ids = sut.helper_get_public_channel_ids()
+
+    # Then
+    assert expected_public_channel_ids == actual_public_channel_ids
+
