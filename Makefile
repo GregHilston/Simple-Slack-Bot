@@ -47,6 +47,11 @@ upload-test-pypi: ## Uploads the project to test.pypi.org.
 upload-pypi: ## Uploads the project to pypi.org
 	python3 -m twine upload dist/*
 
+verify-git-tag-matches-version: ## Verifies git tag matches version
+	python3 setup.py verify
+
+deploy: verify-git-tag-matches-version package upload-pypi ## Deploys new version to PyPi
+
 example: ## Runs the example component.
 	python3 example_component.py
 
