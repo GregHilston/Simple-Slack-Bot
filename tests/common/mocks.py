@@ -7,6 +7,7 @@ class MockPythonSlackclient:
         injectable_user_ids=[],
         injectable_user_names=[],
         injectable_channel_names=[],
+        injectable_chat_postMessage_exception=None
     ):
         self.injectable_bool = injectable_bool
         self.injectable_channel_names = injectable_channel_names
@@ -14,6 +15,7 @@ class MockPythonSlackclient:
         self.injectable_private_channels = injectable_private_channels
         self.injectable_user_ids = injectable_user_ids
         self.injectable_user_names = injectable_user_names
+        self.injectable_chat_postMessage_exception = injectable_chat_postMessage_exception
 
     def rtm_start(self):
         return self.injectable_bool
@@ -41,3 +43,11 @@ class MockPythonSlackclient:
             ]
         }
 
+    def chat_postMessage(self, channel, text):
+        self.was_chat_postMessage_called = True
+        self.channel = channel
+        self.text = text
+
+        if self.injectable_chat_postMessage_exception:
+            print("AH")
+            raise self.injectable_chat_postMessage_exception

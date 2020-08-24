@@ -7,6 +7,8 @@ import slacksocket.errors  # type: ignore
 from slack import WebClient
 from slacksocket.models import SlackEvent  # type: ignore
 
+import tests.common.mocks
+
 from simple_slack_bot.simple_slack_bot import (
     SimpleSlackBot,
     SlackRequest,
@@ -149,3 +151,55 @@ def test_message_returns_none_if_not_found():
 
     # Then
     assert None is message
+
+
+def test_write_calls_chat_postMessage_when_channel_is_found():
+    # Given
+    mock_content = "foo"
+    mock_channel = "bar"
+    mock_slack_event = {}
+
+    mock_python_slackclient = tests.common.mocks.MockPythonSlackclient()
+    sut = SlackRequest(python_slackclient=mock_python_slackclient, slack_event=mock_slack_event)
+
+    # When
+    sut.write(mock_content, mock_channel)
+
+    # Then
+    # success
+
+
+def test_write_raises_exception_if_no_channel_found():
+    # Given
+    mock_content = "foo"
+    mock_slack_event = {}
+
+    mock_python_slackclient = tests.common.mocks.MockPythonSlackclient()
+    sut = SlackRequest(python_slackclient=mock_python_slackclient, slack_event=mock_slack_event)
+
+    # When
+    try:
+        sut.write(mock_content, None)
+        pytest.fail("Exception should be thrown as channel cannot be determined")
+    except Exception:
+        pass  # expected
+
+    # Then
+    # success
+
+
+def test_write_which_raises_exception_will_reraise_exception():
+    # Given
+    mock_content = "foo"
+    mock_channel = "bar"
+    mock_slack_event = {}
+
+    mock_python_slackclient = tests.common.mocks.MockPythonSlackclient(injectable_chat_postMessage_exception=Exception("mock exception"))
+    sut = SlackRequest(python_slackclient=mock_python_slackclient, slack_event=mock_slack_event)
+
+    # When
+    sut.write(mock_content, mock_channel)
+
+    # Then
+    # success
+

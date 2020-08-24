@@ -8,7 +8,6 @@ from slack import WebClient
 from slacksocket.models import SlackEvent  # type: ignore
 
 import tests.common.mocks
-
 from simple_slack_bot.simple_slack_bot import (
     SimpleSlackBot,
     SlackRequest,
@@ -37,7 +36,6 @@ class MockSlackSocket:
 
 def mock_connect():
     pass
-
 
 
 class MockListen:
@@ -387,7 +385,9 @@ def test_helper_get_user_ids_returns_user_ids():
 def test_helper_get_user_ids_returns_empty_list_when_found_zero_user_ids():
     # Given
     expected_user_ids = []
-    mock_python_slackclient = tests.common.mocks.MockPythonSlackclient(injectable_user_ids=expected_user_ids)
+    mock_python_slackclient = tests.common.mocks.MockPythonSlackclient(
+        injectable_user_ids=expected_user_ids
+    )
     sut = SimpleSlackBot()
     sut._python_slackclient = mock_python_slackclient
 
@@ -599,6 +599,5 @@ def test_helper_user_id_to_user_name_returns_none_when_nothing_is_found():
     actual_user_name = sut.helper_user_id_to_user_name(expected_user_ids)
 
     # Then
-
 
     assert None is actual_user_name
