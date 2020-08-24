@@ -4,6 +4,7 @@ import sys
 from os import path
 
 from setuptools import setup
+from setuptools.command.install import install
 
 
 VERSION = "2.0.1"
@@ -16,7 +17,7 @@ def readme_to_string() -> str:
         return f.read()
 
 
-class VerifyVersionCommand():
+class VerifyVersionCommand(install):
     """Custom command to verify that the git tag matches our version"""
     description = 'verify that the git tag matches our version'
 
