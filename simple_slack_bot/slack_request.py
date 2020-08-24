@@ -30,6 +30,19 @@ class SlackRequest:
         self._python_slackclient = python_slackclient
         self.slack_event = slack_event
 
+    def get(self, key: str, default_value: typing.Any = None) -> typing.Any:
+        """Get value for given key if found otherwise return default value.
+
+        :param key: The key we're looking for
+        :param default_value: What to return if we can't find a value for this key
+        :return: The found value or default value if not found
+        """
+        if key in self.slack_event:
+            return self.slack_event[key]
+
+        logger.warning("could not find %s for slack_event", key)
+        return default_value
+
     @property
     def type(self) -> typing.Union[str, None]:
         """Get the type of event from the underlying SlackEvent.
@@ -37,11 +50,7 @@ class SlackRequest:
         :return: the type of event, if there is one
         """
 
-        if "type" in self.slack_event:
-            return self.slack_event["type"]
-
-        logger.warning("could not find type for slack_event")
-        return None
+        return self.get("type")
 
     @property
     def subtype(self) -> typing.Union[str, None]:
@@ -50,11 +59,7 @@ class SlackRequest:
         :return: the subtype of event, if there is one
         """
 
-        if "subtype" in self.slack_event:
-            return self.slack_event["subtype"]
-
-        logger.warning("could not find subtype for slack_event")
-        return None
+        return self.get("subtype")
 
     @property
     def channel(self) -> typing.Union[str, None]:
@@ -65,12 +70,7 @@ class SlackRequest:
         :return: the channel this SlackEvent originated from, if there is one
         """
 
-        channel = ""
-
-        if "channel" in self.slack_event:
-            channel = self.slack_event["channel"]
-
-        return channel
+        return self.get("channel")
 
     @property
     def thread_ts(self) -> str:

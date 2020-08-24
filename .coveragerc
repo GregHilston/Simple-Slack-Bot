@@ -1,4 +1,7 @@
 [run]
 include =
-    # The only file we're interested in generating code coverage for
-    simple_slack_bot/simple_slack_bot.py
+    simple_slack_bot/*
+
+[report]
+fail_under = 90
+show_missing = True

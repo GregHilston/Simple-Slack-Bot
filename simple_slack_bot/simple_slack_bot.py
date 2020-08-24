@@ -258,10 +258,8 @@ class SimpleSlackBot:
 
         private_channel_ids: typing.List[str] = []
 
-        private_channels = self._python_slackclient.groups_list()["groups"]
-
-        for private_channel in private_channels:
-            private_channels.append(private_channel["id"])
+        for private_channel in self._python_slackclient.groups_list()["groups"]:
+            private_channel_ids.append(private_channel["id"])
 
         if len(private_channel_ids) == 0:
             logger.warning("got no private channel ids")
@@ -278,8 +276,7 @@ class SimpleSlackBot:
 
         user_ids = []
 
-        users = self._python_slackclient.users_list()["members"]
-        for user in users:
+        for user in self._python_slackclient.users_list()["members"]:
             user_ids.append(user["id"])
 
         if len(user_ids) == 0:
@@ -297,8 +294,7 @@ class SimpleSlackBot:
 
         user_names = []
 
-        users = self._python_slackclient.users_list()["members"]
-        for user in users:
+        for user in self._python_slackclient.users_list()["members"]:
             user_names.append(user["name"])
 
         if len(user_names) == 0:
@@ -317,8 +313,7 @@ class SimpleSlackBot:
 
         user_ids = []
 
-        channels_list = self._python_slackclient.channels_list()["channels"]
-        for channel in channels_list:
+        for channel in self._python_slackclient.channels_list()["channels"]:
             if channel["id"] == channel_id:
                 for user_id in channel["members"]:
                     user_ids.append(user_id)
@@ -337,9 +332,7 @@ class SimpleSlackBot:
         :return: id representation of original channel name
         """
 
-        channels_list = self._python_slackclient.channels_list()["channels"]
-
-        for channel in channels_list:
+        for channel in self._python_slackclient.channels_list()["channels"]:
             if channel["name"] == name:
                 logger.debug("converted %s to %s", channel["name"], channel["id"])
                 return channel["id"]
@@ -354,9 +347,7 @@ class SimpleSlackBot:
         :return: id representation of original user name
         """
 
-        users = self._python_slackclient.users_list()["members"]
-
-        for user in users:
+        for user in self._python_slackclient.users_list()["members"]:
             if user["name"] == name:
                 logger.debug("converted %s to %s", name, user["id"])
                 return user["id"]
@@ -371,9 +362,7 @@ class SimpleSlackBot:
         :return: name representation of original channel id
         """
 
-        channels_list = self._python_slackclient.channels_list()["channels"]
-
-        for channel in channels_list:
+        for channel in self._python_slackclient.channels_list()["channels"]:
             if channel["id"] == channel_id:
                 logger.debug("converted %s to %s", channel_id, channel["name"])
                 return channel["name"]
@@ -388,9 +377,7 @@ class SimpleSlackBot:
         :return: name representation of original user id
         """
 
-        users_list = self._python_slackclient.users_list()
-
-        for user in users_list["members"]:
+        for user in self._python_slackclient.users_list()["members"]:
             if user["id"] == user_id:
                 logger.debug("converted %s to %s", user_id, user["name"])
                 return user["name"]

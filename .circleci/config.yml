@@ -13,7 +13,7 @@ jobs:
           key: deps9-{{ .Branch }}-{{ checksum "requirements_dev.txt" }}
 
       - run:
-          name: install dependencies
+          name: Install dependencies
           command: |
             pip install -r requirements_dev.txt
 
@@ -23,6 +23,11 @@ jobs:
             - "venv"
 
       - run:
-          name: test
+          name: Run tests and generate coverage
           command: |
-            make magic
+            make test-and-generate-coverage
+
+      - run:
+          name: Upload test coverage to Code Cov
+          command : |
+            make upload-coverage-to-codecov
