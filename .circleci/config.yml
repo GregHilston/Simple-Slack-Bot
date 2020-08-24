@@ -25,7 +25,7 @@ jobs:
       - run:
           name: Run tests and generate coverage
           command: |
-            make test_and_generate_coverage
+            make test-and-generate-coverage
 
       - run:
           name: Upload test coverage to Code Cov

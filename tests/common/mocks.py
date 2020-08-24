@@ -7,7 +7,7 @@ class MockPythonSlackclient:
         injectable_user_ids=[],
         injectable_user_names=[],
         injectable_channel_names=[],
-        injectable_chat_postMessage_exception=None
+        injectable_chat_postMessage_exception=None,
     ):
         self.injectable_bool = injectable_bool
         self.injectable_channel_names = injectable_channel_names
