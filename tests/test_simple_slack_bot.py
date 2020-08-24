@@ -526,8 +526,6 @@ def test_helper_channel_name_to_channel_id_returns_none_when_nothing_is_found():
     assert None is actual_channel_id
 
 
-
-
 def test_helper_user_name_to_user_id_returns_user_id_when_found():
     # Given
     expected_user_names = ["foo"]
