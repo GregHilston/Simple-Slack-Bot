@@ -149,4 +149,3 @@ def test_message_returns_none_if_not_found():
 
     # Then
     assert None is message
-
