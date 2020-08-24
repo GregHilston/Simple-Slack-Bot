@@ -53,7 +53,7 @@ setup(
         "wheel",
         "websocket-client==0.48",  # required to define as our dependency has a dependency which broke backwards compatibility
     ],
-    python_requres='>=3.7',
+    python_requires='>=3.7',
     cmdclass={
         'verify': VerifyVersionCommand,
     }
