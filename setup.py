@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 
 from os import path
@@ -22,11 +23,11 @@ class VerifyVersionCommand(install):
     description = 'verify that the git tag matches our version'
 
     def run(self):
-        tag = os.getenv('CIRCLE_TAG')
+        latest_git_tag = subprocess.run(['git', 'describe', '--abbrev=0', '--tags'])
 
-        if tag != VERSION:
+        if latest_git_tag != VERSION:
             info = "Git tag: {0} does not match the version of this app: {1}".format(
-                tag, VERSION
+                latest_git_tag, VERSION
             )
             sys.exit(info)
 
