@@ -49,5 +49,4 @@ class MockPythonSlackclient:
         self.text = text
 
         if self.injectable_chat_postMessage_exception:
-            print("AH")
             raise self.injectable_chat_postMessage_exception

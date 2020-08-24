@@ -8,7 +8,6 @@ from slack import WebClient
 from slacksocket.models import SlackEvent  # type: ignore
 
 import tests.common.mocks
-
 from simple_slack_bot.simple_slack_bot import (
     SimpleSlackBot,
     SlackRequest,
@@ -194,7 +193,9 @@ def test_write_which_raises_exception_will_reraise_exception():
     mock_channel = "bar"
     mock_slack_event = {}
 
-    mock_python_slackclient = tests.common.mocks.MockPythonSlackclient(injectable_chat_postMessage_exception=Exception("mock exception"))
+    mock_python_slackclient = tests.common.mocks.MockPythonSlackclient(
+        injectable_chat_postMessage_exception=Exception("mock exception")
+    )
     sut = SlackRequest(python_slackclient=mock_python_slackclient, slack_event=mock_slack_event)
 
     # When
@@ -203,3 +204,19 @@ def test_write_which_raises_exception_will_reraise_exception():
     # Then
     # success
 
+
+def test_str_returns_json_representation_of_slack_event():
+    class MockSlackEvent:
+        def __init__(self, json):
+            self.json = json
+
+    # Given
+    expected_str = "foo"
+    mock_slack_event = MockSlackEvent(expected_str)
+    sut = SlackRequest(python_slackclient=None, slack_event=mock_slack_event)
+
+    # When
+    actual_str = str(sut)
+
+    # Then
+    assert expected_str == actual_str
