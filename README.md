@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
 At this point, your callback functions will be executed every time Simple Slack Bot receives the appropriate event.
 
-A repo of this example Ping Pong Bot can be found [here](https://github.com/GregHilston/Ping-Pong-Bot). Feel free to use it as a refernec or fork it as a stating point!
+A repo of this example Ping Pong Bot can be found [here](https://github.com/GregHilston/Ping-Pong-Bot). Feel free to use it as a reference or fork it as a stating point!
 
 
 ### Debug Mode
@@ -195,12 +195,12 @@ You'll also have to install Simple Slack Bot's dependencies using PyPi. A `requi
 
 To run the unit test suite, execute
 
-`$ python3 tests_simple_slack_bot.py`
+`$ make test`
 
 
 To generate code coverage of the unit test suite, execute:
 
-`$ coverage run tests_simple_slack_bot.py && coverage report`
+`$ make test-and-generate-coverage`
 
 ## Simple Slack Bots
 
