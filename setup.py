@@ -34,7 +34,7 @@ class VerifyVersionCommand(install):
             sys.exit(info)
 
     def create_matching_git_tag(self):
-        subprocess.run(["git", "tag", "VERSION_WITH_LEADING_V"])
+        subprocess.run(["git", "tag", VERSION_WITH_LEADING_V])
         subprocess.run(["git", "push", "--tags"])
 
 
