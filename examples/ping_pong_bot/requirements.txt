@@ -1,1 +1,1 @@
-simple-slack-bot==1.3.3
+simple-slack-bot==2.0.2

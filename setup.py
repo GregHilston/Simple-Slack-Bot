@@ -8,7 +8,7 @@ from setuptools import setup
 from setuptools.command.install import install
 
 
-VERSION = "2.0.2"
+VERSION = "2.1.0"
 VERSION_WITH_LEADING_V = f"v{VERSION}"
 
 
@@ -54,7 +54,7 @@ setup(
     classifiers=[],
     install_requires=[
         "slacker==0.14.0",
-        "slacksocket>=0.7,!=0.8,<=0.9",
+        "slacksocket==1.0.1",
         "slackclient==2.8.0",
         "pyyaml",
         "wheel",
