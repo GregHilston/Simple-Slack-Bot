@@ -24,6 +24,7 @@ class VerifyVersionCommand(install):
     description = 'verify that the git tag matches our version'
 
     def run(self):
+        self.create_matching_git_tag()
         latest_git_tag = subprocess.run(['git', 'describe', '--abbrev=0', '--tags'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode("utf-8").rstrip('\n')
 
         if latest_git_tag != VERSION_WITH_LEADING_V:
@@ -31,8 +32,6 @@ class VerifyVersionCommand(install):
                 latest_git_tag, VERSION_WITH_LEADING_V
             )
             sys.exit(info)
-
-        self.create_matching_git_tag()
 
     def create_matching_git_tag(self):
         subprocess.run(["git", "tag", "VERSION_WITH_LEADING_V"])
