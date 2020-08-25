@@ -39,6 +39,7 @@ upload-coverage-to-codecov: ## Uploads the covde coverage to Code Cov IO
 	 bash <(curl -s https://codecov.io/bash)
 
 package: ## Packages up the project.
+	# cleaning up prior builds before we build another, this stops us from uploading mutliple whl and tarbars in a later step
 	python3 setup.py clean --all install
 	python3 setup.py sdist bdist_wheel
 
