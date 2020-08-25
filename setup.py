@@ -23,11 +23,12 @@ class VerifyVersionCommand(install):
     description = 'verify that the git tag matches our version'
 
     def run(self):
-        latest_git_tag = subprocess.run(['git', 'describe', '--abbrev=0', '--tags'])
+        latest_git_tag = subprocess.run(['git', 'describe', '--abbrev=0', '--tags'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode("utf-8").rstrip('\n')
+        version_with_leading_v = f"v{VERSION}"
 
         if latest_git_tag != VERSION:
             info = "Git tag: {0} does not match the version of this app: {1}".format(
-                latest_git_tag, VERSION
+                latest_git_tag, version_with_leading_v
             )
             sys.exit(info)
 
