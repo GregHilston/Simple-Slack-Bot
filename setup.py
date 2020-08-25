@@ -8,7 +8,7 @@ from setuptools import setup
 from setuptools.command.install import install
 
 
-VERSION = "2.1.0"
+VERSION = "2.2.0"
 VERSION_WITH_LEADING_V = f"v{VERSION}"
 
 
@@ -58,7 +58,7 @@ setup(
         "slackclient==2.8.0",
         "pyyaml",
         "wheel",
-        "websocket-client==0.48",  # required to define as our dependency has a dependency which broke backwards compatibility
+        "websocket-client==0.56",  # required to define as our dependency has a dependency which broke backwards compatibility
     ],
     python_requires='>=3.7',
     cmdclass={
