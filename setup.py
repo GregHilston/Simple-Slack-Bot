@@ -8,7 +8,8 @@ from setuptools import setup
 from setuptools.command.install import install
 
 
-VERSION = "2.0.1"
+VERSION = "2.0.2"
+VERSION_WITH_LEADING_V = f"v{VERSION}"
 
 
 def readme_to_string() -> str:
@@ -24,13 +25,18 @@ class VerifyVersionCommand(install):
 
     def run(self):
         latest_git_tag = subprocess.run(['git', 'describe', '--abbrev=0', '--tags'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode("utf-8").rstrip('\n')
-        version_with_leading_v = f"v{VERSION}"
 
-        if latest_git_tag != VERSION:
+        if latest_git_tag != VERSION_WITH_LEADING_V:
             info = "Git tag: {0} does not match the version of this app: {1}".format(
-                latest_git_tag, version_with_leading_v
+                latest_git_tag, VERSION_WITH_LEADING_V
             )
             sys.exit(info)
+
+        self.create_matching_git_tag()
+
+    def create_matching_git_tag(self):
+        subprocess.run(["git", "tag", "VERSION_WITH_LEADING_V"])
+        subprocess.run(["git", "push", "--tags"])
 
 
 setup(
