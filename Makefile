@@ -39,6 +39,7 @@ upload-coverage-to-codecov: ## Uploads the covde coverage to Code Cov IO
 	 bash <(curl -s https://codecov.io/bash)
 
 package: ## Packages up the project.
+	python3 setup.py clean --all install
 	python3 setup.py sdist bdist_wheel
 
 upload-test-pypi: ## Uploads the project to test.pypi.org.
