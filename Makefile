@@ -52,10 +52,10 @@ upload-pypi: ## Uploads the project to pypi.org
 verify-git-tag-matches-version: ## Verifies git tag matches version
 	python3 setup.py verify
 
-deploy: verify-git-tag-matches-version package upload-pypi ## Deploys new version to PyPi
-
 circle-ci-validate: ## Validates the circleci config.
 	circleci config validate
 
 circle-ci-local-execute: ## Execute circleci config locally.
 	circleci local execute
+
+deploy: verify-git-tag-matches-version package upload-pypi ## Deploys new version to PyPi

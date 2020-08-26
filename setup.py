@@ -1,10 +1,11 @@
+import glob
 import os
 import subprocess
 import sys
 
 from os import path
 
-from setuptools import setup
+from setuptools import setup, Command
 from setuptools.command.install import install
 
 
@@ -38,6 +39,32 @@ class VerifyVersionCommand(install):
         subprocess.run(["git", "push", "--tags"])
 
 
+class CustomClean(Command):
+    description = 'Custom clean command to tidy up the project root. The default setup.py left some folders remaining'
+    CLEAN_FILES = './build ./dist ./*.pyc ./*.tgz ./*.egg-info'.split(' ')
+
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        scripts_directory = os.path.dirname(os.path.realpath(__file__))
+
+        for path_spec in self.CLEAN_FILES:
+            # Make paths absolute and relative to this path
+            abs_paths = glob.glob(os.path.normpath(os.path.join(scripts_directory, path_spec)))
+            for path in [str(p) for p in abs_paths]:
+                if not path.startswith(scripts_directory):
+                    # Die if path in CLEAN_FILES is absolute + outside this directory
+                    raise ValueError("%s is not a path inside %s" % (path, scripts_directory))
+                print('removing %s' % os.path.relpath(path))
+                shutil.rmtree(path)
+
+
 setup(
     name="simple_slack_bot",
     packages=["simple_slack_bot"],  # this must be the same as the name above
@@ -63,5 +90,6 @@ setup(
     python_requires='>=3.7',
     cmdclass={
         'verify': VerifyVersionCommand,
+        'custom_clean': CustomClean,
     }
 )
