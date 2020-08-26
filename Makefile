@@ -38,9 +38,11 @@ test-and-generate-coverage: ## Runs the pytest suite and generates code coverage
 upload-coverage-to-codecov: ## Uploads the covde coverage to Code Cov IO
 	 bash <(curl -s https://codecov.io/bash)
 
+clean-old-packages: ## Cleans up old package artifacts
+	python3 setup.py custom_clean
+
 package: ## Packages up the project.
 	# cleaning up prior builds before we build another, this stops us from uploading mutliple whl and tarbars in a later step
-	python3 setup.py custom_clean
 	python3 setup.py sdist bdist_wheel
 
 upload-test-pypi: ## Uploads the project to test.pypi.org.
@@ -48,6 +50,9 @@ upload-test-pypi: ## Uploads the project to test.pypi.org.
 
 upload-pypi: ## Uploads the project to pypi.org
 	python3 -m twine upload dist/*
+
+create-github-release: ## Creates a Github Release
+	python3 setup.py create_github_release
 
 verify-git-tag-matches-version: ## Verifies git tag matches version
 	python3 setup.py verify
@@ -58,4 +63,4 @@ circle-ci-validate: ## Validates the circleci config.
 circle-ci-local-execute: ## Execute circleci config locally.
 	circleci local execute
 
-deploy: verify-git-tag-matches-version package upload-pypi ## Deploys new version to PyPi
+deploy: clean-old-packages create-github-release package upload-pypi ## Deploys new version to PyPi
