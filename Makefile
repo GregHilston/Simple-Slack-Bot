@@ -40,7 +40,7 @@ upload-coverage-to-codecov: ## Uploads the covde coverage to Code Cov IO
 
 package: ## Packages up the project.
 	# cleaning up prior builds before we build another, this stops us from uploading mutliple whl and tarbars in a later step
-	python3 setup.py clean --all
+	python3 setup.py custom_clean
 	python3 setup.py sdist bdist_wheel
 
 upload-test-pypi: ## Uploads the project to test.pypi.org.

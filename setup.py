@@ -1,5 +1,6 @@
 import glob
 import os
+import shutil
 import subprocess
 import sys
 
@@ -40,6 +41,7 @@ class VerifyVersionCommand(install):
 
 
 class CustomClean(Command):
+    """Based on https://github.com/pypa/setuptools/issues/1347#issuecomment-387802255"""
     description = 'Custom clean command to tidy up the project root. The default setup.py left some folders remaining'
     CLEAN_FILES = './build ./dist ./*.pyc ./*.tgz ./*.egg-info'.split(' ')
 
