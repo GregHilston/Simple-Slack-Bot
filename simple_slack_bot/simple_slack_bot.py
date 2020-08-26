@@ -66,7 +66,7 @@ class SimpleSlackBot:
             self._slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
         else:
             self._slack_bot_token = slack_bot_token
-        if self._slack_bot_token is None:
+        if self._slack_bot_token is None or self._slack_bot_token == "":
             sys.exit(
                 "ERROR: SLACK_BOT_TOKEN not passed to constructor or set as environment variable"
             )

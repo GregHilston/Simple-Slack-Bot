@@ -40,7 +40,7 @@ upload-coverage-to-codecov: ## Uploads the covde coverage to Code Cov IO
 
 package: ## Packages up the project.
 	# cleaning up prior builds before we build another, this stops us from uploading mutliple whl and tarbars in a later step
-	python3 setup.py clean --all install
+	python3 setup.py clean --all
 	python3 setup.py sdist bdist_wheel
 
 upload-test-pypi: ## Uploads the project to test.pypi.org.
@@ -53,9 +53,6 @@ verify-git-tag-matches-version: ## Verifies git tag matches version
 	python3 setup.py verify
 
 deploy: verify-git-tag-matches-version package upload-pypi ## Deploys new version to PyPi
-
-example: ## Runs the example component.
-	python3 example_component.py
 
 circle-ci-validate: ## Validates the circleci config.
 	circleci config validate

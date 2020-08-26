@@ -8,7 +8,7 @@ from setuptools import setup
 from setuptools.command.install import install
 
 
-VERSION = "2.2.0"
+VERSION = "2.3.1"
 VERSION_WITH_LEADING_V = f"v{VERSION}"
 
 

@@ -1,1 +1,2 @@
-simple-slack-bot==2.0.2
+# latest
+simple-slack-bot
