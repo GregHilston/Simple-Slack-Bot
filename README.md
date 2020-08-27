@@ -45,9 +45,13 @@ Once you have a bot find it listed in the configurations and click the
 
 icon. You'll be brought to a page that lists your API token. This is what you'll use with Simple Slack Bot.
 
-## Example
+## Examples
+
+### Youtube Video Example
 
 [![Video of creating the ping pong bot](https://img.youtube.com/vi/-M5up-rJaYg/0.jpg)](https://youtu.be/-M5up-rJaYg)
+
+### Code Examples
 
 For full examples, see the [examples directory](https://github.com/GregHilston/Simple-Slack-Bot/tree/master/examples/)
 
