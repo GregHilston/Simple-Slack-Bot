@@ -190,13 +190,15 @@ and then import it as usual
 
 You'll also have to install Simple Slack Bot's dependencies using PyPi. A `requirements.txt` will be kept up to date, along side the `setup.py` for this use case and your convenience.
 
+## Don't Forget
+
+The bot will only reply to channels that it is in. Don't forget to invite your bot into channels of interest!
 
 ## Unit Tests
 
 To run the unit test suite, execute
 
 `$ make test`
-
 
 To generate code coverage of the unit test suite, execute:
 

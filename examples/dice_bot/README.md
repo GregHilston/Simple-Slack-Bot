@@ -1,6 +1,6 @@
 # README
 
-This bot will reply 'pong' to all 'ping' messages. It is a Dockerized example using Simple Slack Bot. To run simply build the Docker image and then run the container.
+This bot will calculate N dice of size M rolled. Useful for dice games. It is a Dockerized example of using Simple Slack Bot. To run simply build the Docker image and then run the container.
 
 To do to this with one command simply run `$ make run`.
 
