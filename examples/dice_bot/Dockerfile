@@ -5,10 +5,12 @@ RUN apk update \
     findutils wget util-linux grep libxml2-dev libxslt-dev \ 
     && pip3 install --upgrade pip
 
-COPY . /app
-
 WORKDIR /app
 
+COPY requirements.txt /app
+
 RUN pip3 install -r requirements.txt
+
+COPY . /app
 
 CMD ["python3", "dice_bot.py"]

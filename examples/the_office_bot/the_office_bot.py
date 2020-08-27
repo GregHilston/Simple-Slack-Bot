@@ -28,13 +28,9 @@ def read_in_characters_lines():
     """Stores all characters' lines into a dictionary
     """
 
-    import requests as rs
-    csv_url="https://docs.google.com/spreadsheets/d/18wS5AAwOh8QO95RwHLS95POmSNKA2jjzdt0phrxeAE0/export?format=csv&id=18wS5AAwOh8QO95RwHLS95POmSNKA2jjzdt0phrxeAE0&gid=0"
-    res=rs.get(url=csv_url)
-    open('the_office_lines_scripts.csv', 'wb').write(res.content)
-
     with open(r"the_office_lines_scripts.csv", "r", encoding='utf-8') as csvfile:
         csv_f = csv.reader(csvfile)
+        print(csv_f)
 
         for _, _, _, _, line_text, speaker, _ in csv_f:
             speaker = speaker.lower()

@@ -47,6 +47,8 @@ icon. You'll be brought to a page that lists your API token. This is what you'll
 
 ## Example
 
+For full examples, see the [examples directory](https://github.com/GregHilston/Simple-Slack-Bot/tree/master/examples/)
+
 To integrate with Simple Slack Bot, simply create an instance of it and register for notifications using a Python decorator.
 
 This can be seen with the following code below. Our Simple Slack Bot will reply to every message of "Ping", with "Pong", to every channel it's a part of:
@@ -77,9 +79,6 @@ if __name__ == "__main__":
 ```
 
 At this point, your callback functions will be executed every time Simple Slack Bot receives the appropriate event.
-
-A repo of this example Ping Pong Bot can be found [here](https://github.com/GregHilston/Ping-Pong-Bot). Feel free to use it as a reference or fork it as a stating point!
-
 
 ### Debug Mode
 
@@ -189,7 +188,6 @@ and then import it as usual
 `from simple_slack_bot.simple_slack_bot import SimpleSlackBot`.
 
 You'll also have to install Simple Slack Bot's dependencies using PyPi. A `requirements.txt` will be kept up to date, along side the `setup.py` for this use case and your convenience.
-
 ## Don't Forget
 
 The bot will only reply to channels that it is in. Don't forget to invite your bot into channels of interest!
