@@ -11,7 +11,7 @@ from setuptools import setup, Command
 from setuptools.command.install import install
 
 
-VERSION = "2.3.2"
+VERSION = "2.3.3"
 VERSION_WITH_LEADING_V = f"v{VERSION}"
 
 
