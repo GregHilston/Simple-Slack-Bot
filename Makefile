@@ -63,4 +63,4 @@ circle-ci-validate: ## Validates the circleci config.
 circle-ci-local-execute: ## Execute circleci config locally.
 	circleci local execute
 
-deploy: clean-old-packages create-github-release package upload-pypi ## Deploys new version to PyPi
+deploy: clean-old-packages create-github-release package upload-pypi ## Deploys new version by creating a new Github Tag, Release and uploading to PyPi

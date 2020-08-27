@@ -27,7 +27,6 @@ class VerifyVersionCommand(install):
     description = 'verify that the git tag matches our version'
 
     def run(self):
-        self.create_matching_git_tag()
         latest_git_tag = subprocess.run(['git', 'describe', '--abbrev=0', '--tags'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.decode("utf-8").rstrip('\n')
 
         if latest_git_tag != VERSION_WITH_LEADING_V:
@@ -36,9 +35,22 @@ class VerifyVersionCommand(install):
             )
             sys.exit(info)
 
-    def create_matching_git_tag(self):
+
+class CreateGithubTag(Command):
+    """Create a github tag"""
+    description = "Create a Github tag"
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
         subprocess.run(["git", "tag", VERSION_WITH_LEADING_V])
         subprocess.run(["git", "push", "--tags"])
+
 
 class CreateGithubRelease(Command):
     """Inspired by https://www.barrykooij.com/create-github-releases-via-command-line/"""
@@ -123,6 +135,7 @@ setup(
     python_requires='>=3.7',
     cmdclass={
         'verify': VerifyVersionCommand,
+        'create_github_tag': CreateGithubTag,
         'create_github_release': CreateGithubRelease,
         'custom_clean': CustomClean,
     }
