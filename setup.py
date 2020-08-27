@@ -11,7 +11,7 @@ from setuptools import setup, Command
 from setuptools.command.install import install
 
 
-VERSION = "2.3.3"
+VERSION = "2.3.4"
 VERSION_WITH_LEADING_V = f"v{VERSION}"
 
 
@@ -55,14 +55,14 @@ class CreateGithubRelease(Command):
         GITHUB_PERSONAL_ACCESS_TOKEN = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
         if GITHUB_PERSONAL_ACCESS_TOKEN:
             API_JSON = {
-                "tag_name": "{VERSION_WITH_LEADING_V}",
+                "tag_name": VERSION_WITH_LEADING_V,
                 "target_commitish": "master",
-                "name": "{VERSION_WITH_LEADING_V}",
-                "body": "Release of version {VERSION_WITH_LEADING_V}",
+                "name": VERSION_WITH_LEADING_V,
+                "body": f"Release of version {VERSION_WITH_LEADING_V}",
                 "draft": False,
                 "prerelease": False
                 }
-            response = requests.post(f"https://api.github.com/repos/:owner/:repository/releases?access_token={GITHUB_PERSONAL_ACCESS_TOKEN}", json=API_JSON)
+            response = requests.post(f"https://api.github.com/repos/GregHilston/Simple-Slack-Bot/releases?access_token={GITHUB_PERSONAL_ACCESS_TOKEN}", json=API_JSON)
             if response.ok:
                 print(f"Successfully created Github Release for version {VERSION_WITH_LEADING_V}")
             else:
